@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32929.386
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobuAts", "TobuAts\TobuAts.csproj", "{164FF709-E0E3-40F9-B178-9646F988675A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Debug|x64.Build.0 = Debug|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Debug|x86.Build.0 = Debug|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Release|x64.ActiveCfg = Release|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Release|x64.Build.0 = Release|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Release|x86.ActiveCfg = Release|Any CPU
+		{164FF709-E0E3-40F9-B178-9646F988675A}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2FC1A6AE-2F62-4130-8121-F4A4B630D4CE}
+	EndGlobalSection
+EndGlobal
