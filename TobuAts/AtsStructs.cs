@@ -197,8 +197,15 @@ namespace TobuAts {
         public static int pPower, pBrake, pReverser;
 
         [DllExport(CallingConvention.StdCall)]
-        public static void SetPower(int handlePosition) {
+        public static void SetPower(int handlePosition)
+        {
             pPower = handlePosition;
+            if (CSC50TLoaded) CSC50TPlugin.SetPower(handlePosition);
+            /*MetroPlugin.SetPower(handlePosition);
+            if (AutopilotLoaded) AutopilotPlugin.SetPower(handlePosition);
+            
+            //if (NotchnumberLoaded) NotchnumberPlugin.SetPower(handlePosition);
+            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetPower(handlePosition);*/
         }
 
         /// <summary>
@@ -206,8 +213,15 @@ namespace TobuAts {
         /// </summary>
         /// <param name="handlePosition">Position of brake control handle.</param>
         [DllExport(CallingConvention.StdCall)]
-        public static void SetBrake(int handlePosition) {
+        public static void SetBrake(int handlePosition)
+        {
             pBrake = handlePosition;
+            if (CSC50TLoaded) CSC50TPlugin.SetBrake(handlePosition);
+            /*MetroPlugin.SetBrake(handlePosition);
+            if (AutopilotLoaded) AutopilotPlugin.SetBrake(handlePosition);
+            
+            //if (NotchnumberLoaded) NotchnumberPlugin.SetBrake(handlePosition);
+            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetBrake(handlePosition);*/
         }
 
         /// <summary>
@@ -215,8 +229,15 @@ namespace TobuAts {
         /// </summary>
         /// <param name="handlePosition">Position of reveerser handle.</param>
         [DllExport(CallingConvention.StdCall)]
-        public static void SetReverser(int handlePosition) {
+        public static void SetReverser(int handlePosition)
+        {
             pReverser = handlePosition;
+            if (CSC50TLoaded) CSC50TPlugin.SetReverser(handlePosition);
+            /*MetroPlugin.SetReverser(handlePosition);
+            if (AutopilotLoaded) AutopilotPlugin.SetReverser(handlePosition);
+            
+            if (NotchnumberLoaded) NotchnumberPlugin.SetReverser(handlePosition);
+            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetReverser(handlePosition);*/
         }
     }
 }

@@ -19,7 +19,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
@@ -90,15 +89,15 @@
   <ItemGroup>
     <Compile Include="AtsStructs.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="Signals\ATS_S_P.cs" />
-    <Compile Include="Signals\CS_ATC.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Load.cs" />
-    <Compile Include="Patterns\CalculatedLimit.cs" />
     <Compile Include="Patterns\SpeedLimit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Signals\SeibuSig.cs" />
-    <Compile Include="Signals\StationManager.cs" />
+    <Compile Include="Signals\AutopilotPlugin.cs" />
+    <Compile Include="Signals\CSC50TPlugin.cs" />
+    <Compile Include="Signals\MetroPlugin.cs" />
+    <Compile Include="Signals\NotchnumberPlugin.cs" />
+    <Compile Include="Signals\RealAnalogGaugePlugin.cs" />
     <Compile Include="Tick.cs" />
     <Compile Include="Signals\TobuSig.cs" />
   </ItemGroup>
@@ -127,4 +126,7 @@
   <Target Name="DllExportRPkgDynamicImport" BeforeTargets="PostBuildEvent" DependsOnTargets="GetFrameworkPaths" Condition="'$(DllExportModImported)' != 'true' And '$(DllExportRPkgDyn)' != 'false'">
     <MSBuild BuildInParallel="true" UseResultsCache="true" Projects="$(MSBuildProjectFullPath)" Properties="DllExportRPkgDyn=true" Targets="Build" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>COPY "J:\Users\Administrator\Source\Repos\TobuAts\TobuAts\$(OutDir)x86\$(TargetFileName)" "I:\BveTs\Scenarios\A7\TOBU50000\Vehicle\PI\50090\ats131025\$(TargetFileName)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
