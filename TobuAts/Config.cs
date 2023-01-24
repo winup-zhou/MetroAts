@@ -11,9 +11,7 @@ namespace TobuAts
     {
         public static string PluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static bool Load_bve_autopilot = false, Load_csc_plugin = false, Load_Notchnumber_plugin = false,Load_RealAnalogGauge_plugin = false;
-        public static string bve_autopilot_path = "";
-        public static string csc_plugin_path = "";
-        public static string Notchnumber_plugin_path = "";
+        public static double MaxDec=3.3, EBDec=5.0;
         public const double LessInf = 100000000;
         private static void Cfg(this Dictionary<string, string> configDict, string key, ref double param)
         {
@@ -92,15 +90,8 @@ namespace TobuAts
             dict.Cfg("cscplugin", ref Load_csc_plugin);
             dict.Cfg("notchnumber", ref Load_Notchnumber_plugin);
             dict.Cfg("realanaloggauge", ref Load_RealAnalogGauge_plugin);
-
-            /*
-            dict.Cfg("autopilotpath", ref bve_autopilot_path);
-            dict.Cfg("cscpluginpath", ref csc_plugin_path);
-            dict.Cfg("notchnumberpath", ref Notchnumber_plugin_path);
-            bve_autopilot_path = Path.GetFullPath(Path.Combine(PluginDir, bve_autopilot_path));
-            csc_plugin_path = Path.GetFullPath(Path.Combine(PluginDir, csc_plugin_path));
-            Notchnumber_plugin_path = Path.GetFullPath(Path.Combine(PluginDir, Notchnumber_plugin_path));
-            */
+            dict.Cfg("maxemergencydeceleration", ref EBDec);
+            dict.Cfg("maxservicedeceleration", ref MaxDec);
         }
     }
 }
