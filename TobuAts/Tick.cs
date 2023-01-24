@@ -133,9 +133,9 @@ namespace TobuAts
                     }
                     handles = MetroPlugin.Elapse(state, hPanel, hSound);
                     panel[103] = 1;
+                    sound[118] = SigType != lastSigType ? 1 : 2;
                 }
                 handles.ConstantSpeed = CSC50THandle.ConstantSpeed;
-                sound[118] = SigType != lastSigType ? 1 : 2;
             }
             else
             {
