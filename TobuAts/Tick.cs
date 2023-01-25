@@ -80,7 +80,7 @@ namespace TobuAts
                     panel[101] = TobuSig.ATCLimit[TobuSig.NowSig] == -2 ? 1 : 0;
                     panel[103] = panel[101] == 1 ? 1 : 0;
                     panel[127] = (int)ATCPatternLimit;
-                    panel[130] = panel[101] == 1 ? (state.Time % 500 < 250 ? TobuSig.TrackPos : 0) : 0;
+                    panel[130] = ATCPatternLimit == 0 ? 0 : (state.Time % 500 < 250 ? TobuSig.TrackPos : 0);
                     if (TobuSig.CurrentDis <= TobuSig.MaxDis&&!TobuSig.inDepot)
                     {
                         if (TobuSig.CurrentDis < 200) panel[129] = 0;
