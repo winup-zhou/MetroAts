@@ -70,19 +70,19 @@ namespace TobuAts
             var LastPattern = ATCPattern;
             if(SectionLimits[2] != -5 && SectionLimits[1] != -5)
             {
-                if (ATCPattern.Limit > SectionLimits[2])
-                {
-                    Plamp = true;
-                    if (SectionLimits[2] == 0) { ATCPattern = new SpeedLimit { Limit = SectionLimits[2], Location = SectionDistance[2] + Location - 15 }; Ding = true; }
-                    else ATCPattern = new SpeedLimit { Limit = SectionLimits[2], Location = SectionDistance[2] + Location };
-                    if (ATCPattern.Limit != LastPattern.Limit && !Ding) Ding = true;
-                }
                 if (RfSig)
                 {
                     ATCPattern = new SpeedLimit { Limit = ATCLimit[NowSig] < 0 ? 0 : ATCLimit[NowSig], Location = Location };
                     if (ATCPattern.Limit != LastPattern.Limit && !Ding) Ding = true;
                     Plamp = false;
                     RfSig = false;
+                }
+                if (ATCPattern.Limit > SectionLimits[2])
+                {
+                    Plamp = true;
+                    if (SectionLimits[2] == 0) { ATCPattern = new SpeedLimit { Limit = SectionLimits[2], Location = SectionDistance[2] + Location - 15 }; Ding = true; }
+                    else ATCPattern = new SpeedLimit { Limit = SectionLimits[2], Location = SectionDistance[2] + Location };
+                    if (ATCPattern.Limit != LastPattern.Limit && !Ding) Ding = true;
                 }
                 for (int i = 1; i < SectionLimits.Length; ++i)
                 {
