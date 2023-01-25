@@ -10,7 +10,7 @@ namespace TobuAts
     public static class Config
     {
         public static string PluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static bool Load_bve_autopilot = false, Load_csc_plugin = false, Load_Notchnumber_plugin = false,Load_RealAnalogGauge_plugin = false;
+        public static bool Load_bve_autopilot = false, Load_csc_plugin = false, Load_Other_plugin = false;
         public static double MaxDec=3.3, EBDec=5.0;
         public const double LessInf = 100000000;
         private static void Cfg(this Dictionary<string, string> configDict, string key, ref double param)
@@ -88,8 +88,7 @@ namespace TobuAts
 
             dict.Cfg("autopilot", ref Load_bve_autopilot);
             dict.Cfg("cscplugin", ref Load_csc_plugin);
-            dict.Cfg("notchnumber", ref Load_Notchnumber_plugin);
-            dict.Cfg("realanaloggauge", ref Load_RealAnalogGauge_plugin);
+            dict.Cfg("other", ref Load_Other_plugin);
             dict.Cfg("maxemergencydeceleration", ref EBDec);
             dict.Cfg("maxservicedeceleration", ref MaxDec);
         }

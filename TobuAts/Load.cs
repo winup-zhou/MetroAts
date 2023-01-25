@@ -16,7 +16,7 @@ namespace TobuAts
         public static double NowGamelocation = 0;
         public static int NowGameTime = 0;
         public static double NowVehicleSpeed = 0;
-        public static bool MetropluginLoaded = false, AutopilotLoaded = false, CSC50TLoaded = false, NotchnumberLoaded = false, RealAnalogGaugeLoaded = false;
+        public static bool MetropluginLoaded = false, AutopilotLoaded = false, CSC50TLoaded = false, OtherpluginLoaded = false, RealAnalogGaugeLoaded = false;
         public static bool ModeAvailable;
 
         static TobuAts()
@@ -90,42 +90,20 @@ namespace TobuAts
                     if (dr != DialogResult.Retry) break;
                 }
             }
-            if (Config.Load_Notchnumber_plugin)
+            if (Config.Load_Other_plugin)
             {
                 while (true)
                 {
                     DialogResult dr;
                     try
                     {
-                        NotchnumberPlugin.Load();
-                        NotchnumberLoaded = true;
+                        Otherplugin.Load();
+                        OtherpluginLoaded = true;
                         break;
                     }
                     catch (DllNotFoundException e)
                     {
                         dr = MessageBox.Show("Notchnumberプラグインが見つかりません。\n" + e.Message, "TobuAts", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-                    }
-                    catch (Exception e)
-                    {
-                        dr = MessageBox.Show("エラーが発生しました。\n" + e.ToString(), "TobuAts", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-                    }
-                    if (dr != DialogResult.Retry) break;
-                }
-            }
-            if (Config.Load_RealAnalogGauge_plugin)
-            {
-                while (true)
-                {
-                    DialogResult dr;
-                    try
-                    {
-                        RealAnalogGaugePlugin.Load();
-                        RealAnalogGaugeLoaded = true;
-                        break;
-                    }
-                    catch (DllNotFoundException e)
-                    {
-                        dr = MessageBox.Show("RealAnalogGaugeプラグインが見つかりません。\n" + e.Message, "TobuAts", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
                     }
                     catch (Exception e)
                     {
@@ -142,8 +120,7 @@ namespace TobuAts
             MetroPlugin.SetVehicleSpec(spec);
             if (AutopilotLoaded) AutopilotPlugin.SetVehicleSpec(spec);
             if (CSC50TLoaded) CSC50TPlugin.SetVehicleSpec(spec);
-            if (NotchnumberLoaded) NotchnumberPlugin.SetVehicleSpec(spec);
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetVehicleSpec(spec);
+            if (OtherpluginLoaded) Otherplugin.SetVehicleSpec(spec);
             vehicleSpec = spec;
         }
 
@@ -153,8 +130,7 @@ namespace TobuAts
             MetroPlugin.Dispose();
             if (AutopilotLoaded) AutopilotPlugin.Dispose();
             if (CSC50TLoaded) CSC50TPlugin.Dispose();
-            if (NotchnumberLoaded) NotchnumberPlugin.Dispose();
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.Dispose();
+            if (OtherpluginLoaded) Otherplugin.Dispose();
         }
     }
 }

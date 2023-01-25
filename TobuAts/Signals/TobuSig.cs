@@ -12,7 +12,7 @@ namespace TobuAts
         public static SpeedLimit ATCPattern = new SpeedLimit(),InvisiablePattern = new SpeedLimit();
         public static int NowSig, LastSig ,TrackPos,MaxDis;
         public static double CurrentDis = 0;
-        public static bool Ding = false, Plamp = false, NextStop = false, inDepot = false;
+        public static bool Ding = false, Plamp = false, NextStop = false, inDepot = false,RfSig = false;
         public static int[] SectionLimits = { -5, -5, -5, -5, -5, -5, -5, -5, -5 };
         public static double[] SectionDistance = { -5, -5, -5, -5, -5, -5, -5, -5, -5 };
         const double ORPdec = -2.25;//*10
@@ -26,6 +26,7 @@ namespace TobuAts
             LastSig = NowSig = 0;
             ATCPattern = SpeedLimit.inf;
             InvisiablePattern = SpeedLimit.inf;
+            RfSig = false;
             for (int i = 0; i < 8; ++i)
             {
                 SectionDistance[i] = SectionLimits[i] = -5;
@@ -35,7 +36,7 @@ namespace TobuAts
         {
             LastSig = NowSig;
             NowSig = sig;
-            if (SectionLimits[2] == -5) { ATCPattern = new SpeedLimit { Limit = ATCLimit[NowSig] < 0 ? 0 : ATCLimit[NowSig], Location = TobuAts.NowGamelocation - 10 }; Ding = true; }
+            RfSig = true;
         }
 
         public static void ReadBeacon(TobuAts.AtsBeaconData data)
@@ -44,8 +45,10 @@ namespace TobuAts
                 case 31:
                     if (data.Optional <= 7)
                     {
+                        var LastSectionLimits2 = SectionLimits[2];
                         SectionDistance[data.Optional+1] = data.Distance;
                         SectionLimits[data.Optional+1] = ATCLimit[data.Signal]<0?0: ATCLimit[data.Signal];
+                        if (SectionLimits[2] != LastSectionLimits2) RfSig = true;
                         if (data.Optional == 1) inDepot = (NowSig >= 38 && NowSig <= 48)||(data.Signal >= 38 && data.Signal <= 48);
                     }
                     break;
@@ -65,39 +68,43 @@ namespace TobuAts
         public static double MonitorSpeed(double Location,double Speed)
         {
             var LastPattern = ATCPattern;
-            /*if (SectionLimits[2] == -5)
+            if(SectionLimits[2] != -5 && SectionLimits[1] != -5)
             {
-                ATCPattern = new SpeedLimit { Limit = ATCLimit[NowSig] < 0 ? 0 : ATCLimit[NowSig], Location = Location };
-                if(ATCPattern != LastPattern&&!Ding) Ding = true;
+                if (ATCPattern.Limit > SectionLimits[2])
+                {
+                    Plamp = true;
+                    if (SectionLimits[2] == 0) { ATCPattern = new SpeedLimit { Limit = SectionLimits[2], Location = SectionDistance[2] + Location - 15 }; Ding = true; }
+                    else ATCPattern = new SpeedLimit { Limit = SectionLimits[2], Location = SectionDistance[2] + Location };
+                    if (ATCPattern.Limit != LastPattern.Limit && !Ding) Ding = true;
+                }
+                if (RfSig)
+                {
+                    ATCPattern = new SpeedLimit { Limit = ATCLimit[NowSig] < 0 ? 0 : ATCLimit[NowSig], Location = Location };
+                    if (ATCPattern.Limit != LastPattern.Limit && !Ding) Ding = true;
+                    Plamp = false;
+                    RfSig = false;
+                }
+                for (int i = 1; i < SectionLimits.Length; ++i)
+                {
+                    if (SectionLimits[i] == 0)
+                    {
+                        CurrentDis = SectionDistance[i] - 15;
+                        break;
+                    }
+                    if (i == SectionLimits.Length - 1) CurrentDis = 0;
+                }
+                if (CurrentDis == 0 && (Speed > Math.Min(Math.Min(ATCPattern.AtLocation(Location, ORPdec), ATCLimit[NowSig] < 0 ? 0 : ATCLimit[NowSig]), 100) || Speed <= ATCPattern.Limit) && SectionLimits[2] != -5)
+                {
+                    if (Plamp && !Ding) Ding = true; Plamp = false;
+                }
             }
             else
-            {*/
-            if (ATCPattern.Limit > SectionLimits[2] && SectionLimits[2] != -5 && SectionLimits[1] != -5)
-            {
-                Plamp = true;
-                if (SectionLimits[2] == 0) { ATCPattern = new SpeedLimit { Limit = SectionLimits[2], Location = SectionDistance[2] + Location - 15 }; Ding = true; }
-                else ATCPattern = new SpeedLimit { Limit = SectionLimits[2], Location = SectionDistance[2] + Location };
-                if (ATCPattern != LastPattern && !Ding) Ding = true;
-            }
-            if (SectionLimits[1] < ATCLimit[NowSig] && SectionLimits[2] != -5)
             {
                 ATCPattern = new SpeedLimit { Limit = ATCLimit[NowSig] < 0 ? 0 : ATCLimit[NowSig], Location = Location };
                 Plamp = false;
-                if (ATCPattern != LastPattern && !Ding) Ding = true;
+                if (ATCPattern.Limit != LastPattern.Limit && !Ding) Ding = true;
             }
-            for (int i = 1; i < SectionLimits.Length; ++i)
-            {
-                if (SectionLimits[i] == 0)
-                {
-                    CurrentDis = SectionDistance[i] - 15;
-                    break;
-                }
-                if (i == SectionLimits.Length - 1) CurrentDis = 0;
-            }
-            if (CurrentDis == 0 && (Speed > Math.Min(Math.Min(ATCPattern.AtLocation(Location, ORPdec), ATCLimit[NowSig] < 0 ? 0 : ATCLimit[NowSig]), 100) || Speed <= ATCPattern.Limit)&& SectionLimits[2] != -5)
-            {
-                if (Plamp && !Ding) Ding = true; Plamp = false;
-            }
+            
             if (ATCPattern.Limit == 0 && Ding == true) DingStartTime = TobuAts.NowGameTime;
             if (TobuAts.NowGameTime - DingStartTime > 500&& TobuAts.NowGameTime - DingStartTime < 700) Ding = true;
             return Math.Min(Math.Min(ATCPattern.AtLocation(Location, ORPdec),ATCLimit[NowSig] < 0 ? 0 : ATCLimit[NowSig]), 100);

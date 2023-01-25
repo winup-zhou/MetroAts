@@ -96,8 +96,7 @@
     <Compile Include="Signals\AutopilotPlugin.cs" />
     <Compile Include="Signals\CSC50TPlugin.cs" />
     <Compile Include="Signals\MetroPlugin.cs" />
-    <Compile Include="Signals\NotchnumberPlugin.cs" />
-    <Compile Include="Signals\RealAnalogGaugePlugin.cs" />
+    <Compile Include="Signals\Otherplugin.cs" />
     <Compile Include="Tick.cs" />
     <Compile Include="Signals\TobuSig.cs" />
   </ItemGroup>

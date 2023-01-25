@@ -39,7 +39,6 @@ namespace TobuAts
                 handles = AutopilotPlugin.Elapse(state, hPanel, hSound);
             }
 
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.Elapse(state, hPanel, hSound);
             var CSC50THandle = CSC50TLoaded ? CSC50TPlugin.Elapse(state, hPanel, hSound) : new AtsHandles
             {
                 Power = pPower,
@@ -81,7 +80,7 @@ namespace TobuAts
                     panel[101] = TobuSig.ATCLimit[TobuSig.NowSig] == -2 ? 1 : 0;
                     panel[103] = panel[101] == 1 ? 1 : 0;
                     panel[127] = (int)ATCPatternLimit;
-                    panel[130] = state.Time % 500 < 250 ? TobuSig.TrackPos : 0;
+                    panel[130] = panel[101] == 1 ? (state.Time % 500 < 250 ? TobuSig.TrackPos : 0) : 0;
                     if (TobuSig.CurrentDis <= TobuSig.MaxDis&&!TobuSig.inDepot)
                     {
                         if (TobuSig.CurrentDis < 200) panel[129] = 0;
@@ -100,18 +99,33 @@ namespace TobuAts
                     sound[116] = (MonitorSpeed - state.Speed < 5 && MonitorSpeed > 0) ? 1 : 2;
                     panel[135] = Convert.ToInt32(MonitorSpeed * 10);
                     panel[75] = TobuSig.inDepot ? 1 : 0;
-                    if(state.Speed> MonitorSpeed || MonitorSpeed == 0)
+                    if(state.Speed > MonitorSpeed)
                     {
-                        pPower = handles.Power = 0;
-                        handles.Brake = Math.Max(vehicleSpec.BrakeNotches,pBrake);
                         panel[76] = 0;
                         panel[77] = 1;
+                        if (state.Speed - MonitorSpeed < 1)
+                        {
+                            pPower = handles.Power = 0;
+                            handles.Brake = Math.Max(4, pBrake);
+                        }
+                        else
+                        {
+                            pPower = handles.Power = 0;
+                            handles.Brake = Math.Max(vehicleSpec.BrakeNotches, pBrake);
+                        }
                     }
                     else if(TobuSig.ATCLimit[TobuSig.NowSig] == -2 || state.Speed > TobuSig.InvisiablePattern.AtLocation(state.Location,-Config.EBDec))
                     {
                         pPower = handles.Power = 0;
                         handles.Brake = Math.Max(vehicleSpec.BrakeNotches + 1, pBrake);
                         panel[77] = panel[76] = 1;
+                    }
+                    else if (MonitorSpeed == 0)
+                    {
+                        pPower = handles.Power = 0;
+                        handles.Brake = Math.Max(vehicleSpec.BrakeNotches, pBrake);
+                        panel[76] = 0;
+                        panel[77] = 1;
                     }
                     else
                     {
@@ -135,7 +149,7 @@ namespace TobuAts
                     panel[103] = 1;
                     sound[118] = SigType != lastSigType ? 1 : 2;
                 }
-                handles.ConstantSpeed = CSC50THandle.ConstantSpeed;
+                
             }
             else
             {
@@ -148,22 +162,23 @@ namespace TobuAts
                     MetroPlugin.SetReverser(handles.Reverser);
                 }
                 handles = MetroPlugin.Elapse(state, hPanel, hSound);
-                handles.ConstantSpeed = CSC50THandle.ConstantSpeed;
+                
                 panel[103] = 1;
             }
 
-            if (NotchnumberLoaded)
+            if (OtherpluginLoaded)
             {
                 if (!handles.Equals(lastHandle3))
                 {
                     lastHandle3 = handles;
-                    NotchnumberPlugin.SetBrake(handles.Brake);
-                    if(handles.Brake == 0)NotchnumberPlugin.SetPower(handles.Power);
-                    else NotchnumberPlugin.SetPower(0);
-                    NotchnumberPlugin.SetReverser(handles.Reverser);
+                    Otherplugin.SetBrake(handles.Brake);
+                    if(handles.Brake == 0)Otherplugin.SetPower(handles.Power);
+                    else Otherplugin.SetPower(0);
+                    Otherplugin.SetReverser(handles.Reverser);
                 }
-                NotchnumberPlugin.Elapse(state, hPanel, hSound);
+                handles = Otherplugin.Elapse(state, hPanel, hSound);
             }
+            handles.ConstantSpeed = CSC50THandle.ConstantSpeed;
 
             return handles;
         }

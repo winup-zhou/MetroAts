@@ -204,7 +204,7 @@ namespace TobuAts {
             /*MetroPlugin.SetPower(handlePosition);
             if (AutopilotLoaded) AutopilotPlugin.SetPower(handlePosition);
             
-            //if (NotchnumberLoaded) NotchnumberPlugin.SetPower(handlePosition);
+            //if (OtherpluginLoaded) Otherplugin.SetPower(handlePosition);
             if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetPower(handlePosition);*/
         }
 
@@ -220,7 +220,7 @@ namespace TobuAts {
             /*MetroPlugin.SetBrake(handlePosition);
             if (AutopilotLoaded) AutopilotPlugin.SetBrake(handlePosition);
             
-            //if (NotchnumberLoaded) NotchnumberPlugin.SetBrake(handlePosition);
+            //if (OtherpluginLoaded) Otherplugin.SetBrake(handlePosition);
             if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetBrake(handlePosition);*/
         }
 
@@ -236,7 +236,7 @@ namespace TobuAts {
             /*MetroPlugin.SetReverser(handlePosition);
             if (AutopilotLoaded) AutopilotPlugin.SetReverser(handlePosition);
             
-            if (NotchnumberLoaded) NotchnumberPlugin.SetReverser(handlePosition);
+            if (OtherpluginLoaded) Otherplugin.SetReverser(handlePosition);
             if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetReverser(handlePosition);*/
         }
     }

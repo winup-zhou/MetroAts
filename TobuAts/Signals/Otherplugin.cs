@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 
 namespace TobuAts
 {
-    class RealAnalogGaugePlugin
+    class Otherplugin
     {
-        private const string PIPath = "RealAnalogGauge.dll";
+        private const string PIPath = "DetailManager.dll";
         private const CallingConvention CalCnv = CallingConvention.StdCall;
         [DllImport(PIPath, CallingConvention = CalCnv)]
         public static extern void Load();

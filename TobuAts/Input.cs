@@ -16,8 +16,7 @@ namespace TobuAts
             MetroPlugin.KeyDown(keyIndex);
             if (AutopilotLoaded) AutopilotPlugin.KeyDown(keyIndex);
             if (CSC50TLoaded) CSC50TPlugin.KeyDown(keyIndex);
-            if (NotchnumberLoaded) NotchnumberPlugin.KeyDown(keyIndex);
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.KeyDown(keyIndex);
+            if (OtherpluginLoaded) Otherplugin.KeyDown(keyIndex);
         }
 
         [DllExport(CallingConvention.StdCall)]
@@ -26,8 +25,7 @@ namespace TobuAts
             MetroPlugin.KeyUp(keyIndex);
             if (AutopilotLoaded) AutopilotPlugin.KeyUp(keyIndex);
             if (CSC50TLoaded) CSC50TPlugin.KeyUp(keyIndex);
-            if (NotchnumberLoaded) NotchnumberPlugin.KeyUp(keyIndex);
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.KeyUp(keyIndex);
+            if (OtherpluginLoaded) Otherplugin.KeyUp(keyIndex);
         }
 
         [DllExport(CallingConvention.StdCall)]
@@ -37,8 +35,7 @@ namespace TobuAts
             MetroPlugin.SetBeaconData(data);
             if (AutopilotLoaded) AutopilotPlugin.SetBeaconData(data);
             if (CSC50TLoaded) CSC50TPlugin.SetBeaconData(data);
-            if (NotchnumberLoaded) NotchnumberPlugin.SetBeaconData(data);
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetBeaconData(data);
+            if (OtherpluginLoaded) Otherplugin.SetBeaconData(data);
         }
 
         [DllExport(CallingConvention.StdCall)]
@@ -48,8 +45,7 @@ namespace TobuAts
             MetroPlugin.SetSignal(signalIndex);
             if (AutopilotLoaded) AutopilotPlugin.SetSignal(signalIndex);
             if (CSC50TLoaded) CSC50TPlugin.SetSignal(signalIndex);
-            if (NotchnumberLoaded) NotchnumberPlugin.SetSignal(signalIndex);
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.SetSignal(signalIndex);
+            if (OtherpluginLoaded) Otherplugin.SetSignal(signalIndex);
         }
 
         [DllExport(CallingConvention.StdCall)]
@@ -60,8 +56,7 @@ namespace TobuAts
             MetroPlugin.Initialize(initialHandlePosition);
             if (AutopilotLoaded) AutopilotPlugin.Initialize(initialHandlePosition);
             if (CSC50TLoaded) CSC50TPlugin.Initialize(initialHandlePosition);
-            if (NotchnumberLoaded) NotchnumberPlugin.Initialize(initialHandlePosition);
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.Initialize(initialHandlePosition);
+            if (OtherpluginLoaded) Otherplugin.Initialize(initialHandlePosition);
         }
 
         [DllExport(CallingConvention.StdCall)]
@@ -73,8 +68,7 @@ namespace TobuAts
             TobuSig.InvisiablePattern = new SpeedLimit();
             if (AutopilotLoaded) AutopilotPlugin.DoorOpen();
             if (CSC50TLoaded) CSC50TPlugin.DoorOpen();
-            if (NotchnumberLoaded) NotchnumberPlugin.DoorOpen();
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.DoorOpen();
+            if (OtherpluginLoaded) Otherplugin.DoorOpen();
         }
 
         [DllExport(CallingConvention.StdCall)]
@@ -84,8 +78,7 @@ namespace TobuAts
             MetroPlugin.DoorClose();
             if (AutopilotLoaded) AutopilotPlugin.DoorClose();
             if (CSC50TLoaded) CSC50TPlugin.DoorClose();
-            if (NotchnumberLoaded) NotchnumberPlugin.DoorClose();
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.DoorClose();
+            if (OtherpluginLoaded) Otherplugin.DoorClose();
         }
 
         [DllExport(CallingConvention.StdCall)]
@@ -94,8 +87,7 @@ namespace TobuAts
             MetroPlugin.HornBlow(type);
             if (AutopilotLoaded) AutopilotPlugin.HornBlow(type);
             if (CSC50TLoaded) CSC50TPlugin.HornBlow(type);
-            if (NotchnumberLoaded) NotchnumberPlugin.HornBlow(type);
-            if (RealAnalogGaugeLoaded) RealAnalogGaugePlugin.HornBlow(type);
+            if (OtherpluginLoaded) Otherplugin.HornBlow(type);
         }
     }
 }
