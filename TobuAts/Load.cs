@@ -103,7 +103,7 @@ namespace TobuAts
                     }
                     catch (DllNotFoundException e)
                     {
-                        dr = MessageBox.Show("Notchnumberプラグインが見つかりません。\n" + e.Message, "TobuAts", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+                        dr = MessageBox.Show("DetailManagerプラグインが見つかりません。\n" + e.Message, "TobuAts", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
                     }
                     catch (Exception e)
                     {
