@@ -12,7 +12,9 @@ namespace TobuAts
     public static partial class TobuAts
     {
         private static AtsHandles lastHandle1, lastHandle2, lastHandle3;
-        private static int SigType;
+        public static int SigType;
+        private static int CgSType;
+        private static bool ResetStop;
         //public static int MetroPluginHandleUpdate, AutopilotHandleUpdate, NotchnumberPluginHandleUpdate;
         [DllExport(CallingConvention.StdCall)]
         public static AtsHandles Elapse(AtsVehicleState state, IntPtr hPanel, IntPtr hSound)
@@ -50,15 +52,23 @@ namespace TobuAts
             NowGamelocation = state.Location;
             NowGameTime = state.Time;
             NowVehicleSpeed = state.Speed;
-
-            if (panel[92] == 2 && panel[72] == 0)
+            if (ResetStop)
             {
-                var lastSigType = SigType;
+                TobuSig.NextStop = false;
+                ResetStop = false;
+            }
+
+            if (panel[92] == 2 && panel[72] == 0)//東武キー、CgS ATS位置の時のみ割込み
+            {
+                var lastCgSType = CgSType;
+                CgSType = 1;
+                var lastSigType = SigType;//信号タイプを代入
+                if (lastCgSType == 0) TobuSig.Ding = true;//スイッチ切換時、Dingをオン
                 if (!DoorClosed) handles.Reverser = 0;
-                if (TobuSig.NowSig >= 9 && TobuSig.NowSig <= 49)
+                if (TobuSig.NowSig >= 9 && TobuSig.NowSig <= 49)//ATC信号の時
                 {
                     SigType = 1;
-                    if (!handles.Equals(lastHandle2))
+                    if (!handles.Equals(lastHandle2))//ハンドル位置が変更されたとき
                     {
                         lastHandle2 = handles;
                         MetroPlugin.SetBrake(handles.Brake);
@@ -68,13 +78,17 @@ namespace TobuAts
                     MetroPlugin.Elapse(state, hPanel, hSound);
                     var MonitorSpeed = TobuSig.MonitorSpeed(state.Location, state.Speed);
                     var ATCPatternLimit = TobuSig.ATCPattern.Limit;
+                    int i41;
+                    for (i41 = 1; i41 <= 44; i41 = i41 + 1)
+                        panel[i41] = 0;
+
                     panel[74] = 1;
                     panel[134] = TobuSig.Plamp ? 1 : 0;
                     sound[115] = TobuSig.Ding ? 1 : 2;
                     if (TobuSig.Ding)
                         TobuSig.Ding = false;
-                    sound[30] = DoorClosed ? 1 : 2;
-                    sound[27] = (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed > 5) ? 1 : 2;
+                    sound[30] = DoorClosed ? 1 : 2;//東武戸閉のやつ　必要？
+                    sound[27] = (handles.Brake == vehicleSpec.BrakeNotches + 1 && state.Speed > 5) ? 1 : 2;//EB放送
                     sound[117] = TobuSig.NextStop ? 1 : 2;
                     panel[252] = TobuSig.NextStop ? 1 : 0;
                     panel[101] = TobuSig.ATCLimit[TobuSig.NowSig] == -2 ? 1 : 0;
@@ -133,7 +147,7 @@ namespace TobuAts
                     }
                     sound[118] = SigType != lastSigType ? 1 : 2;
                 }
-                else
+                else//ATS信号の時
                 {
                     SigType = 2;
                     panel[74] = 0;
@@ -151,8 +165,9 @@ namespace TobuAts
                 }
                 
             }
-            else
+            else//ハンドル位置条件外
             {
+                CgSType = 0;
                 panel[127] = 0;
                 if (!handles.Equals(lastHandle2))
                 {
@@ -164,6 +179,18 @@ namespace TobuAts
                 handles = MetroPlugin.Elapse(state, hPanel, hSound);
                 
                 panel[103] = 1;
+            }
+
+            //ホームドア表示灯
+            if(DoorClosed == true)//閉扉時
+            {
+                panel[183] = panel[181] != 0 ? 0 : 1;
+                panel[184] = panel[182] != 0 ? 0 : 1;
+            }
+            else//開扉時
+            {
+                panel[183] = panel[192] == 2 ? 0 : 1;
+                panel[184] = panel[192] == 2 ? 0 : 1;
             }
 
             if (OtherpluginLoaded)
