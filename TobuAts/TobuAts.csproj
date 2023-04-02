@@ -126,6 +126,7 @@
     <MSBuild BuildInParallel="true" UseResultsCache="true" Projects="$(MSBuildProjectFullPath)" Properties="DllExportRPkgDyn=true" Targets="Build" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>COPY "J:\Users\Administrator\Source\Repos\TobuAts\TobuAts\$(OutDir)x86\$(TargetFileName)" "I:\BveTs\Scenarios\A7\TOBU50000\Vehicle\PI\50090\ats131025\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
