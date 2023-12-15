@@ -51,8 +51,9 @@ namespace TobuAts
         [DllExport(CallingConvention.StdCall)]
         public static void Initialize(int initialHandlePosition)
         {
-            TobuSig.init();
+            TobuSig.Init();
             DoorClosed = false;
+            ResetStop = true;
             MetroPlugin.Initialize(initialHandlePosition);
             if (AutopilotLoaded) AutopilotPlugin.Initialize(initialHandlePosition);
             if (CSC50TLoaded) CSC50TPlugin.Initialize(initialHandlePosition);
