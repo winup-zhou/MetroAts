@@ -1,7 +1,18 @@
-# TobuAts
+# TobuAts 東武ATC/Sプラグイン  
 
-東武ATCプラグイン  
-連絡先:3166832341@qq.com Twitter:@wup99925510  
-借物：SpeedLimit.cs from TGMT-CBTC by zbx1425
+## License
+[The MIT License](LICENSE)
 
-### まだ実際のT-DATCとは異なる点が多く、現在対応方法を検討中です。
+## Dependencies
+### [AtsEX](https://github.com/automatic9045/AtsEX) (MIT)
+
+Copyright (c) 2022 automatic9045
+
+### [TGMT-CBTC](https://github.com/zbx1425/TGMT-CBTC) (MIT)
+
+Copyright (c) 2021 zbx1425
+
+## 連絡先:
+### Email: 3166832341@qq.com Twitter: @wup99925510  
+
+### Work in Progress...

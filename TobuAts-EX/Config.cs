@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using System.IO;
 
@@ -10,9 +7,10 @@ namespace TobuAts_EX
     public static class Config
     {
         public static string PluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static bool Load_bve_autopilot = false, Load_csc_plugin = false, Load_Other_plugin = false;
-        public static double MaxDec=3.3, EBDec=5.0;
-        public const double LessInf = 100000000;
+        public static double EBDec = 5.0;
+        public static double MaxSpeed = 100;
+        public static bool ATCLimitPerLamp = false;//1:pilotlamp 0:needle
+        public const double LessInf = 0xffffffff;
         private static void Cfg(this Dictionary<string, string> configDict, string key, ref double param)
         {
             if (configDict.ContainsKey(key))
@@ -86,11 +84,9 @@ namespace TobuAts_EX
             }
             configFile.Close();
 
-            dict.Cfg("autopilot", ref Load_bve_autopilot);
-            dict.Cfg("cscplugin", ref Load_csc_plugin);
-            dict.Cfg("other", ref Load_Other_plugin);
-            dict.Cfg("maxemergencydeceleration", ref EBDec);
-            dict.Cfg("maxservicedeceleration", ref MaxDec);
+            dict.Cfg("EmergencyBrakeDeceleration", ref EBDec);
+            dict.Cfg("MaxSpeed", ref MaxSpeed);
+            dict.Cfg("ATCLimitPerLamp", ref ATCLimitPerLamp);
         }
     }
 }
