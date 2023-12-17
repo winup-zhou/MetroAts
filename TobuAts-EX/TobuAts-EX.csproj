@@ -71,6 +71,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY "J:\Users\Administrator\Source\Repos\TobuAts\TobuAts-EX\$(OutDir)\$(TargetFileName)" "I:\BveTs\Scenarios\A7\TOBU50000\Vehicle\PI\50090\ats131025\AtsEX\AtsEXPlugins\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
