@@ -1,0 +1,46 @@
+name: MSBuild
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    paths:
+      - '*/**'
+      - '!./*'
+      - './*.sln'
+      - '!.github/**'
+
+jobs:
+  build:
+    name: MSBuild
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.3.1
+
+    - name: Setup Nuget
+      uses: NuGet/setup-nuget@v1.2.0
+
+    - name: Restore nuget packages
+      run: nuget restore TobuAts.sln
+
+    - name: MSBuild
+      run: msbuild TobuAts.sln /m /p:configuration="Release" /p:platform="Any CPU" /p:OutputPath="./out/"
+      shell: cmd
+
+    - name: Collect artifact
+      run: |
+        ls -alR
+        mkdir plugins/
+        find . -type f -path '*/out/*.dll' | xargs mv -t ./plugins/
+      shell: bash
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: plugins
+        path: ./plugins/
