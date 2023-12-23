@@ -16,7 +16,7 @@ namespace TobuAts_EX {
         private static int TrackPos = 0;
         private static bool StationStop = false, DistanceDisplay = false, TargetSpeedUp = false, ORPlamp = false;
         private static int ATCTargetSpeed = 0, ATCLimitSpeed = 0;
-        private static double PretrainLocation = 0, LastDingTime = Config.LessInf;
+        private static double PretrainLocation = 0, LastDingTime = Config.LessInf, TrackPosDisplayEndPos = 0, InitializeStartTime = 0;
 
         private const double SignalPatternDec = -2.25; //*10
         private const double StationPatternDec = -4.0;
@@ -30,7 +30,28 @@ namespace TobuAts_EX {
             ATC_Stop, ATC_Proceed, ATC_P, ATC_TobuATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_PatternApproach, ATC_StationStop;
         public static IAtsPanelValue<int> ORPNeedle, ATCNeedle, ATCNeedle_Disappear;
         private static IAtsPanelValue<int> ATC_EndPointDistance, ATC_SwitcherPosition;
-        private static IAtsSound ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce;
+        private static IAtsSound ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
+
+        public static void Initialize(AtsEx.PluginHost.Native.StartedEventArgs e) {
+            ATCPattern = new SpeedLimit();
+            StationPattern = new SpeedLimit();
+            DistanceDisplayPattern = new SpeedLimit();
+            TrackPos = 0;
+            StationStop = false;
+            DistanceDisplay = false;
+            BrakeCommand = 0;
+            ORPlamp = false;
+            ATCLimitSpeed = 0;
+            PretrainLocation = 0;
+            LastSignal = 0;
+            TargetSpeedUp = false;
+            LastDingTime = Config.LessInf;
+            TrackPosDisplayEndPos = 0;
+            InitializeStartTime = 0;
+            if (e.DefaultBrakePosition == BrakePosition.Removed) {
+                InitializeStartTime = TobuAts.state.Time.TotalMilliseconds;
+            }
+        }
 
         public static void Load() {
             ATCPattern = new SpeedLimit();
@@ -46,11 +67,14 @@ namespace TobuAts_EX {
             LastSignal = 0;
             TargetSpeedUp = false;
             LastDingTime = Config.LessInf;
+            TrackPosDisplayEndPos = 0;
+            InitializeStartTime = 0;
 
             ATC_Ding = Native.AtsSounds.Register(2);
             ATC_PatternApproachBeep = Native.AtsSounds.Register(116);
             ATC_StationStopAnnounce = Native.AtsSounds.Register(117); 
             ATC_EmergencyOperationAnnounce = Native.AtsSounds.Register(119);
+            ATC_WarningBell = Native.AtsSounds.Register(0);
 
             ATC_01 = Native.AtsPanelValues.RegisterBoolean(102);
             ATC_10 = Native.AtsPanelValues.RegisterBoolean(104);
@@ -103,7 +127,10 @@ namespace TobuAts_EX {
         public static void BeaconPassed(AtsEx.PluginHost.Native.BeaconPassedEventArgs e) {
             switch (e.Type) {
                 case 42:
-                    if (e.Optional <= 3) TrackPos = e.Optional;
+                    if (e.Optional <= 3) {
+                        TrackPos = e.Optional;
+                        TrackPosDisplayEndPos = TobuAts.state.Location + e.Distance;
+                    }
                     break;
                 case 43:
                     StationStop = true;
@@ -139,8 +166,7 @@ namespace TobuAts_EX {
 
             ATC_ServiceBrake.Value = BrakeCommand > 0;
             ATC_EmergencyBrake.Value = BrakeCommand == TobuAts.vehicleSpec.BrakeNotches + 1;
-
-            if (CurrentSection.CurrentSignalIndex <= 9 && CurrentSection.CurrentSignalIndex >= 49) {
+            if(TobuAts.state.Time.TotalMilliseconds - InitializeStartTime < 5000) {
                 ATC_X.Value = true;
                 ATC_Stop.Value = ATC_Proceed.Value = ATC_P.Value = false;
                 if (Config.ATCLimitPerLamp) {
@@ -153,115 +179,137 @@ namespace TobuAts_EX {
                     ATCNeedle_Disappear.Value = 1;
                 }
 
+                ATC_WarningBell.PlayLoop();
+
                 BrakeCommand = TobuAts.vehicleSpec.BrakeNotches + 1;
-
             } else {
-                ATC_Depot.Value = CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48;
-
-                if (ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec)) {
-                    if (PretrainLocation < 200) ATC_EndPointDistance.Value = 0;
-                    else if (PretrainLocation >= 200 && PretrainLocation < 400) ATC_EndPointDistance.Value = 1;
-                    else if (PretrainLocation >= 400 && PretrainLocation < 600) ATC_EndPointDistance.Value = 2;
-                    else if (PretrainLocation >= 600 && PretrainLocation < 800) ATC_EndPointDistance.Value = 3;
-                    else if (PretrainLocation >= 800 && PretrainLocation < 1000) ATC_EndPointDistance.Value = 4;
-                    else if (PretrainLocation >= 1000 && PretrainLocation < 1200) ATC_EndPointDistance.Value = 5;
-                    else if (PretrainLocation >= 1200 && PretrainLocation < 1400) ATC_EndPointDistance.Value = 6;
-                    else if (PretrainLocation > 1400 && PretrainLocation < 1600) ATC_EndPointDistance.Value = 7;
-                    else if (PretrainLocation > 1600) ATC_EndPointDistance.Value = 0;
-                } else ATC_EndPointDistance.Value = 0;
-
-                if (ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec)
-                    != DistanceDisplay) ATC_Ding.Play();
-                DistanceDisplay = ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec);
-
-                if(NextSection.CurrentSignalIndex <= 9 && NextSection.CurrentSignalIndex >= 49) {
-                    ATCPattern = new SpeedLimit(NextSection.CurrentSignalIndex == 0 ? 7 : ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex],
-                                NextSection.CurrentSignalIndex == 0 ? NextSection.Location - 25 : NextSection.Location);
-                    ATCTargetSpeed = NextSection.CurrentSignalIndex == 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex];
-                    TargetSpeedUp = false;
-                    if (LastSignal != ATCTargetSpeed && (ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])
-                        > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex])) ORPlamp = true;
-                } else {
-                    if (CurrentSection.CurrentSignalIndex > 9 && CurrentSection.CurrentSignalIndex < 49) {
-                        if (CurrentSection.CurrentSignalIndex < NextSection.CurrentSignalIndex) {
-                            ATCPattern = new SpeedLimit(ATCLimits[NextSection.CurrentSignalIndex], NextSection.Location - 25);
-                            ATCTargetSpeed = ATCLimits[CurrentSection.CurrentSignalIndex];
-                            TargetSpeedUp = true;
-                            ORPlamp = false;
-                        } else {
-                            ATCPattern = new SpeedLimit(ATCLimits[NextSection.CurrentSignalIndex] == 0 ? 7 : ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex],
-                                ATCLimits[NextSection.CurrentSignalIndex] <= 0 ? NextSection.Location - 25 : NextSection.Location);
-                            ATCTargetSpeed = ATCLimits[NextSection.CurrentSignalIndex];
-                            TargetSpeedUp = false;
-                            if (LastSignal != ATCTargetSpeed && (ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])
-                                > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex])) ORPlamp = true;
-                        }   
+                if (CurrentSection.CurrentSignalIndex <= 9 && CurrentSection.CurrentSignalIndex >= 49) {
+                    ATC_X.Value = true;
+                    ATC_Stop.Value = ATC_Proceed.Value = ATC_P.Value = false;
+                    if (Config.ATCLimitPerLamp) {
+                        ATC_01.Value = ATC_10.Value = ATC_15.Value = ATC_20.Value = ATC_25.Value = ATC_30.Value
+                        = ATC_35.Value = ATC_40.Value = ATC_45.Value = ATC_50.Value = ATC_55.Value = ATC_60.Value
+                        = ATC_65.Value = ATC_70.Value = ATC_75.Value = ATC_80.Value = ATC_85.Value = ATC_90.Value
+                        = ATC_95.Value = ATC_100.Value = ATC_110.Value = false;
+                    } else {
+                        ATCNeedle.Value = 0;
+                        ATCNeedle_Disappear.Value = 1;
                     }
-                }
+                    ATC_WarningBell.PlayLoop();
 
-                if (LastSignal != ATCTargetSpeed) { ATC_Ding.StopAndPlay(); LastDingTime = TobuAts.state.Time.TotalMilliseconds; }
-                if (ATCTargetSpeed == 0 && TobuAts.state.Time.TotalMilliseconds - LastDingTime > 500) { ATC_Ding.Play(); LastDingTime = Config.LessInf; }
-                if (!DistanceDisplay && (Speed < ATCTargetSpeed || Speed > ATCLimitSpeed) && ATCTargetSpeed > 0) ORPlamp = false;
-                if (ATCTargetSpeed == (ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])) ORPlamp = false;
+                    BrakeCommand = TobuAts.vehicleSpec.BrakeNotches + 1;
 
-                LastSignal = ATCTargetSpeed;
-
-                ATCLimitSpeed = (TargetSpeedUp && NextSection.Location - Location <= 25) ? (int)Math.Min(Config.MaxSpeed, ATCPattern.AtLocation(Location, SignalPatternDec)) :
-                    (int)Math.Min(Config.MaxSpeed,Math.Min(ATCPattern.AtLocation(Location, SignalPatternDec), ATCLimits[CurrentSection.CurrentSignalIndex]));
-                ORPNeedle.Value = ATCLimitSpeed * 10;
-
-                ATC_P.Value = ORPlamp;
-
-                if (ATCLimitSpeed - Speed < 5 && ATCLimitSpeed > 0 && ATC_PatternApproachBeep.PlayState == AtsEx.PluginHost.Sound.PlayState.Stop) ATC_PatternApproachBeep.Play();
-                ATC_PatternApproach.Value = ATCLimitSpeed - Speed < 5 && ATCLimitSpeed > 0;
-
-                if (StationStop) { 
-                    ATC_StationStopAnnounce.Play();
-                    if (Speed == 0) StationPattern = new SpeedLimit();
-                }
-
-                BrakeCommand = Math.Max(Speed > ATCLimitSpeed + 1.5 ? TobuAts.vehicleSpec.BrakeNotches : (Speed > ATCLimitSpeed ? 4 : 0),
-                    StationStop ? (Speed > StationPattern.AtLocation(Location, Config.EBDec) ? TobuAts.vehicleSpec.BrakeNotches + 1 : 0) : 0);
-
-                if (ATCLimits[CurrentSection.CurrentSignalIndex] <= 0) {
-                    BrakeCommand = TobuAts.vehicleSpec.BrakeNotches;
-                    ORPNeedle.Value = 0;
-                    ATCTargetSpeed = 0;
-                };
-
-                if (Config.ATCLimitPerLamp) {
-                    ATC_01.Value = ATCTargetSpeed == 0;
-                    ATC_10.Value = ATCTargetSpeed == 10;
-                    ATC_15.Value = ATCTargetSpeed == 15;
-                    ATC_20.Value = ATCTargetSpeed == 20;
-                    ATC_25.Value = ATCTargetSpeed == 25;
-                    ATC_30.Value = ATCTargetSpeed == 30;
-                    ATC_35.Value = ATCTargetSpeed == 35;
-                    ATC_40.Value = ATCTargetSpeed == 40;
-                    ATC_45.Value = ATCTargetSpeed == 45;
-                    ATC_50.Value = ATCTargetSpeed == 50;
-                    ATC_55.Value = ATCTargetSpeed == 55;
-                    ATC_60.Value = ATCTargetSpeed == 60;
-                    ATC_65.Value = ATCTargetSpeed == 65;
-                    ATC_70.Value = ATCTargetSpeed == 70;
-                    ATC_75.Value = ATCTargetSpeed == 75;
-                    ATC_80.Value = ATCTargetSpeed == 80;
-                    ATC_85.Value = ATCTargetSpeed == 85;
-                    ATC_90.Value = ATCTargetSpeed == 90;
-                    ATC_95.Value = ATCTargetSpeed == 95;
-                    ATC_100.Value = ATCTargetSpeed == 100;
-                    ATC_110.Value = ATCTargetSpeed == 110;
                 } else {
-                    ATCNeedle.Value = ATCTargetSpeed;
-                    ATCNeedle_Disappear.Value = 0;
+                    if (ATC_WarningBell.PlayState == AtsEx.PluginHost.Sound.PlayState.PlayingLoop) ATC_WarningBell.Stop();
+
+                    ATC_Depot.Value = CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48;
+
+                    if (ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec)) {
+                        if (PretrainLocation < 200) ATC_EndPointDistance.Value = 0;
+                        else if (PretrainLocation >= 200 && PretrainLocation < 400) ATC_EndPointDistance.Value = 1;
+                        else if (PretrainLocation >= 400 && PretrainLocation < 600) ATC_EndPointDistance.Value = 2;
+                        else if (PretrainLocation >= 600 && PretrainLocation < 800) ATC_EndPointDistance.Value = 3;
+                        else if (PretrainLocation >= 800 && PretrainLocation < 1000) ATC_EndPointDistance.Value = 4;
+                        else if (PretrainLocation >= 1000 && PretrainLocation < 1200) ATC_EndPointDistance.Value = 5;
+                        else if (PretrainLocation >= 1200 && PretrainLocation < 1400) ATC_EndPointDistance.Value = 6;
+                        else if (PretrainLocation > 1400 && PretrainLocation < 1600) ATC_EndPointDistance.Value = 7;
+                        else if (PretrainLocation > 1600) ATC_EndPointDistance.Value = 0;
+                    } else ATC_EndPointDistance.Value = 0;
+
+                    if (ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec)
+                        != DistanceDisplay) ATC_Ding.Play();
+                    DistanceDisplay = ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec);
+
+                    if(NextSection.CurrentSignalIndex <= 9 && NextSection.CurrentSignalIndex >= 49) {
+                        ATCPattern = new SpeedLimit(NextSection.CurrentSignalIndex == 0 ? 7 : ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex],
+                                    NextSection.CurrentSignalIndex == 0 ? NextSection.Location - 25 : NextSection.Location);
+                        ATCTargetSpeed = NextSection.CurrentSignalIndex == 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex];
+                        TargetSpeedUp = false;
+                        if (LastSignal != ATCTargetSpeed && (ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])
+                            > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex])) ORPlamp = true;
+                    } else {
+                        if (CurrentSection.CurrentSignalIndex > 9 && CurrentSection.CurrentSignalIndex < 49) {
+                            if (CurrentSection.CurrentSignalIndex < NextSection.CurrentSignalIndex) {
+                                ATCPattern = new SpeedLimit(ATCLimits[NextSection.CurrentSignalIndex], NextSection.Location - 25);
+                                ATCTargetSpeed = ATCLimits[CurrentSection.CurrentSignalIndex];
+                                TargetSpeedUp = true;
+                                ORPlamp = false;
+                            } else {
+                                ATCPattern = new SpeedLimit(ATCLimits[NextSection.CurrentSignalIndex] == 0 ? 7 : ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex],
+                                    ATCLimits[NextSection.CurrentSignalIndex] <= 0 ? NextSection.Location - 25 : NextSection.Location);
+                                ATCTargetSpeed = ATCLimits[NextSection.CurrentSignalIndex];
+                                TargetSpeedUp = false;
+                                if (LastSignal != ATCTargetSpeed && (ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])
+                                    > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex])) ORPlamp = true;
+                            }   
+                        }
+                    }
+
+                    if (LastSignal != ATCTargetSpeed) { ATC_Ding.StopAndPlay(); LastDingTime = TobuAts.state.Time.TotalMilliseconds; }
+                    if (ATCTargetSpeed == 0 && TobuAts.state.Time.TotalMilliseconds - LastDingTime > 500) { ATC_Ding.Play(); LastDingTime = Config.LessInf; }
+                    if (!DistanceDisplay && (Speed < ATCTargetSpeed || Speed > ATCLimitSpeed) && ATCTargetSpeed > 0) ORPlamp = false;
+                    if (ATCTargetSpeed == (ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])) ORPlamp = false;
+
+                    LastSignal = ATCTargetSpeed;
+
+                    ATCLimitSpeed = (TargetSpeedUp && NextSection.Location - Location <= 25) ? (int)Math.Min(Config.MaxSpeed, ATCPattern.AtLocation(Location, SignalPatternDec)) :
+                        (int)Math.Min(Config.MaxSpeed,Math.Min(ATCPattern.AtLocation(Location, SignalPatternDec), ATCLimits[CurrentSection.CurrentSignalIndex]));
+                    ORPNeedle.Value = ATCLimitSpeed * 10;
+
+                    ATC_P.Value = ORPlamp;
+
+                    if (ATCLimitSpeed - Speed < 5 && ATCLimitSpeed > 0) ATC_PatternApproachBeep.Play();
+                    ATC_PatternApproach.Value = ATCLimitSpeed - Speed < 5 && ATCLimitSpeed > 0;
+
+                    if (StationStop) { 
+                        ATC_StationStopAnnounce.Play();
+                        if (Speed == 0) StationPattern = new SpeedLimit();
+                    }
+
+                    BrakeCommand = Math.Max(Speed > ATCLimitSpeed + 1.5 ? TobuAts.vehicleSpec.BrakeNotches : (Speed > ATCLimitSpeed ? 4 : 0),
+                        StationStop ? (Speed > StationPattern.AtLocation(Location, Config.EBDec) ? TobuAts.vehicleSpec.BrakeNotches + 1 : 0) : 0);
+
+                    if (ATCLimits[CurrentSection.CurrentSignalIndex] <= 0) {
+                        BrakeCommand = TobuAts.vehicleSpec.BrakeNotches;
+                        ORPNeedle.Value = 0;
+                        ATCTargetSpeed = 0;
+                    };
+
+                    if (Config.ATCLimitPerLamp) {
+                        ATC_01.Value = ATCTargetSpeed == 0;
+                        ATC_10.Value = ATCTargetSpeed == 10;
+                        ATC_15.Value = ATCTargetSpeed == 15;
+                        ATC_20.Value = ATCTargetSpeed == 20;
+                        ATC_25.Value = ATCTargetSpeed == 25;
+                        ATC_30.Value = ATCTargetSpeed == 30;
+                        ATC_35.Value = ATCTargetSpeed == 35;
+                        ATC_40.Value = ATCTargetSpeed == 40;
+                        ATC_45.Value = ATCTargetSpeed == 45;
+                        ATC_50.Value = ATCTargetSpeed == 50;
+                        ATC_55.Value = ATCTargetSpeed == 55;
+                        ATC_60.Value = ATCTargetSpeed == 60;
+                        ATC_65.Value = ATCTargetSpeed == 65;
+                        ATC_70.Value = ATCTargetSpeed == 70;
+                        ATC_75.Value = ATCTargetSpeed == 75;
+                        ATC_80.Value = ATCTargetSpeed == 80;
+                        ATC_85.Value = ATCTargetSpeed == 85;
+                        ATC_90.Value = ATCTargetSpeed == 90;
+                        ATC_95.Value = ATCTargetSpeed == 95;
+                        ATC_100.Value = ATCTargetSpeed == 100;
+                        ATC_110.Value = ATCTargetSpeed == 110;
+                    } else {
+                        ATCNeedle.Value = ATCTargetSpeed;
+                        ATCNeedle_Disappear.Value = 0;
+                    }
+
+                    ATC_Stop.Value = ATCTargetSpeed == 0;
+                    ATC_Proceed.Value = ATCTargetSpeed > 0;
+
+                    ATC_StationStop.Value = StationStop;
+
+                    ATC_SwitcherPosition.Value = (TobuAts.state.Time.TotalMilliseconds % 1000 < 500 && ATCTargetSpeed > 0) ? TrackPos : 0;
+                    if (TrackPos > 0 && Location > TrackPosDisplayEndPos) TrackPos = 0;
                 }
-
-                ATC_Stop.Value = ATCTargetSpeed == 0;
-                ATC_Proceed.Value = ATCTargetSpeed > 0;
-
-                ATC_StationStop.Value = StationStop;
-
-                ATC_SwitcherPosition.Value = (TobuAts.state.Time.TotalMilliseconds % 1000 < 500 && ATCTargetSpeed > 0) ? TrackPos : 0;
             }
         }
 

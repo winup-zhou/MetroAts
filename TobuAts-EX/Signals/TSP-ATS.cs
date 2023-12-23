@@ -1,4 +1,5 @@
-﻿using AtsEx.PluginHost;
+﻿using AtsEx.Extensions.PreTrainPatch;
+using AtsEx.PluginHost;
 using AtsEx.PluginHost.Panels.Native;
 using BveTypes.ClassWrappers;
 using System;
@@ -9,12 +10,28 @@ namespace TobuAts_EX {
         public static INative Native;
         //InternalValue -> ATS
         private static SpeedLimit ATSPattern = new SpeedLimit(), MPPPattern = new SpeedLimit(), SignalPattern = new SpeedLimit();
-        private static double LastBeaconPassTime = 0, MPPEndLocation = 0;
+        private static double LastBeaconPassTime = 0, MPPEndLocation = 0, InitializeStartTime = 0;
         private static bool ConfirmOperation = false, IsDoorOpened = false;
         public static int BrakeCommand = 0, EBType = 0; //0:no EB 1:EB until stop 2:EB can release
 
         //panel -> ATS
         private static IAtsPanelValue<bool> ATS_TobuATS, ATS_ATSEmergencyBrake, ATS_EmergencyOperation, ATS_Confirm, ATS_60, ATS_15;
+
+        public static void Initialize(AtsEx.PluginHost.Native.StartedEventArgs e) {
+            ATSPattern = new SpeedLimit();
+            MPPPattern = new SpeedLimit();
+            SignalPattern = new SpeedLimit();
+            LastBeaconPassTime = 0;
+            ConfirmOperation = false;
+            MPPEndLocation = 0;
+            IsDoorOpened = false;
+            BrakeCommand = 0;
+            EBType = 0;
+            InitializeStartTime = 0;
+            if (e.DefaultBrakePosition == BrakePosition.Removed) {
+                InitializeStartTime = TobuAts.state.Time.TotalMilliseconds;
+            }
+        }
 
         public static void Load() {
             ATSPattern = new SpeedLimit();
@@ -26,6 +43,7 @@ namespace TobuAts_EX {
             IsDoorOpened = false;
             BrakeCommand = 0;
             EBType = 0;
+            InitializeStartTime = 0;
 
             ATS_TobuATS = Native.AtsPanelValues.RegisterBoolean(41);
             ATS_ATSEmergencyBrake = Native.AtsPanelValues.RegisterBoolean(44);
@@ -90,32 +108,37 @@ namespace TobuAts_EX {
         }
 
         public static void Tick(double Location, double Speed, Section nextSection) {
-            if (Location > MPPEndLocation && IsDoorOpened) {
-                MPPPattern = SpeedLimit.inf;
-                IsDoorOpened = false;
-            }
-
-            ATS_TobuATS.Value = TobuAts.SignalMode == 0;
-
-            ATSPattern = (nextSection.CurrentSignalIndex > 9 && nextSection.CurrentSignalIndex < 49) ? new SpeedLimit(60, nextSection.Location)
-                : (SignalPattern.AtLocation(Location, -3.5) < MPPPattern.AtLocation(Location, -3.5) ? SignalPattern : MPPPattern);
-
-            if (SignalPattern.AtLocation(Location, -3.5) < MPPPattern.AtLocation(Location, -3.5)) {
-                if (Speed > ATSPattern.AtLocation(Location, -3.5)) EBType = 2;
+            if (TobuAts.state.Time.TotalMilliseconds - InitializeStartTime < 5000) {
+                ATS_ATSEmergencyBrake.Value = true;
+                BrakeCommand = TobuAts.vehicleSpec.BrakeNotches + 1;
             } else {
-                if (Speed > ATSPattern.AtLocation(Location, -3.5)) EBType = 1;
+                if (Location > MPPEndLocation && IsDoorOpened) {
+                    MPPPattern = SpeedLimit.inf;
+                    IsDoorOpened = false;
+                }
+
+                ATS_TobuATS.Value = TobuAts.SignalMode == 0;
+
+                ATSPattern = (nextSection.CurrentSignalIndex > 9 && nextSection.CurrentSignalIndex < 49) ? new SpeedLimit(60, nextSection.Location)
+                    : (SignalPattern.AtLocation(Location, -3.5) < MPPPattern.AtLocation(Location, -3.5) ? SignalPattern : MPPPattern);
+
+                if (SignalPattern.AtLocation(Location, -3.5) < MPPPattern.AtLocation(Location, -3.5)) {
+                    if (Speed > ATSPattern.AtLocation(Location, -3.5)) EBType = 2;
+                } else {
+                    if (Speed > ATSPattern.AtLocation(Location, -3.5)) EBType = 1;
+                }
+
+                if (EBType == 2) {
+                    if (Speed < ATSPattern.Limit) EBType = 0;
+                }
+
+                ATS_60.Value = ATSPattern.Limit == 60;
+                ATS_15.Value = ATSPattern.Limit == 15;
+
+                ATS_ATSEmergencyBrake.Value = EBType > 0;
+
+                BrakeCommand = EBType > 0 ? TobuAts.vehicleSpec.BrakeNotches + 1 : 0;
             }
-
-            if(EBType == 2) {
-                if (Speed < ATSPattern.Limit) EBType = 0;
-            }
-
-            ATS_60.Value = ATSPattern.Limit == 60;
-            ATS_15.Value = ATSPattern.Limit == 15;
-
-            ATS_ATSEmergencyBrake.Value = EBType > 0;
-
-            BrakeCommand = EBType > 0 ? TobuAts.vehicleSpec.BrakeNotches + 1 : 0;
         }
 
         public static void Dispose() {
