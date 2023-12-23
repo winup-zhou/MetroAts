@@ -1,0 +1,94 @@
+name: Create release
+on:
+   workflow_dispatch:
+   pull_request:
+     branches:
+       - master
+     types:
+       - closed
+
+jobs:
+  build:
+    name: Generate dll
+    runs-on: windows-latest
+    outputs:
+      name: ${{ steps.version.outputs.name }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v1.3.1
+      - name: Setup Nuget
+        uses: NuGet/setup-nuget@v1.2.0
+      - name: Restore nuget packages
+        run: nuget restore AtsExCsTemplate.sln
+      - name: Build sln
+        run: msbuild AtsExCsTemplate.sln /m /p:configuration="Release" /p:platform="Any CPU" /p:OutputPath="./out/"
+        shell: cmd
+      - name: Collect artifact
+        run: |
+          mkdir plugins/
+          find . -type f -path '*/out/*.dll' | xargs mv -t ./plugins/
+        shell: bash
+      - name: Check assembly version
+        id: version
+        run: |
+          Get-ChildItem plugins/ -Recurse -Filter "*.dll" -File | foreach {
+          Write-Output $_.FileName
+          $_.FileName
+          "name=$_" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $ver=(Get-Item $_.FullName).VersionInfo.FileVersion
+          $ver
+          "version=v$ver" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+        shell: pwsh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: plugins
+          path: ./plugins/
+
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create tag
+        run: |
+           git tag ${{needs.build.outputs.version}}
+           git push origin ${{needs.build.outputs.version}}
+      - name: Create release draft
+        id: create-draft
+        uses: release-drafter/release-drafter@v5.12.1
+        with:
+          version: ${{needs.build.outputs.version}}
+          name: ${{needs.build.outputs.version}}
+          tag: ${{needs.build.outputs.version}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download a build artifact
+        uses: actions/download-artifact@v3.0.2
+      - name: Get repository name
+        run: |
+          echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}" >> $GITHUB_ENV
+          echo "FILE_NAME=${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}_${{needs.build.outputs.version}}" >> $GITHUB_ENV
+      - name: Compress DLLs
+        run: |
+           cd plugins/
+           zip ${{env.FILE_NAME}}.zip -r *
+      - name: Upload release asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{steps.create-draft.outputs.upload_url}} 
+          asset_path: ./plugins/${{env.FILE_NAME}}.zip
+          asset_name: ${{env.FILE_NAME}}.zip
+          asset_content_type: application/zip
