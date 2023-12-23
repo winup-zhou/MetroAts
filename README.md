@@ -1,5 +1,7 @@
 # TobuAts 東武ATC/Sプラグイン  
 
+[![MSBuild](https://github.com/winup-zhou/TobuAts/actions/workflows/build.yml/badge.svg)](https://github.com/winup-zhou/TobuAts/actions/workflows/build.yml)
+
 ## License
 [The MIT License](LICENSE)
 
