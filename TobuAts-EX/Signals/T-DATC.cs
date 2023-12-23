@@ -158,7 +158,7 @@ namespace TobuAts_EX {
             } else {
                 ATC_Depot.Value = CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48;
 
-                if (ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(CurrentSection.Location, SignalPatternDec)) {
+                if (ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec)) {
                     if (PretrainLocation < 200) ATC_EndPointDistance.Value = 0;
                     else if (PretrainLocation >= 200 && PretrainLocation < 400) ATC_EndPointDistance.Value = 1;
                     else if (PretrainLocation >= 400 && PretrainLocation < 600) ATC_EndPointDistance.Value = 2;
@@ -170,10 +170,9 @@ namespace TobuAts_EX {
                     else if (PretrainLocation > 1600) ATC_EndPointDistance.Value = 0;
                 } else ATC_EndPointDistance.Value = 0;
 
-                if (ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]]
-                    > DistanceDisplayPattern.AtLocation(CurrentSection.Location, SignalPatternDec) != DistanceDisplay) ATC_Ding.Play();
-                DistanceDisplay = ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]]
-                    > DistanceDisplayPattern.AtLocation(CurrentSection.Location, SignalPatternDec);
+                if (ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec)
+                    != DistanceDisplay) ATC_Ding.Play();
+                DistanceDisplay = ATCLimits[CurrentSection.SignalIndexes[CurrentSection.SignalIndexes.Length - 1]] > DistanceDisplayPattern.AtLocation(NextSection.Location, SignalPatternDec);
 
                 if(NextSection.CurrentSignalIndex <= 9 && NextSection.CurrentSignalIndex >= 49) {
                     ATCPattern = new SpeedLimit(NextSection.CurrentSignalIndex == 0 ? 7 : ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex],

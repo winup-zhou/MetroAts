@@ -10,8 +10,7 @@ namespace TobuAts_EX {
         //InternalValue -> ATS
         private static SpeedLimit ATSPattern = new SpeedLimit(), MPPPattern = new SpeedLimit(), SignalPattern = new SpeedLimit();
         private static double LastBeaconPassTime = 0, MPPEndLocation = 0;
-        private static bool ConfirmOperation = false;
-        private static int MPPCount_TJ = 0, MPPCount_TS = 0;
+        private static bool ConfirmOperation = false, IsDoorOpened = false;
         public static int BrakeCommand = 0, EBType = 0; //0:no EB 1:EB until stop 2:EB can release
 
         //panel -> ATS
@@ -24,8 +23,7 @@ namespace TobuAts_EX {
             LastBeaconPassTime = 0;
             ConfirmOperation = false;
             MPPEndLocation = 0;
-            MPPCount_TJ = 0;
-            MPPCount_TS = 0;
+            IsDoorOpened = false;
             BrakeCommand = 0;
             EBType = 0;
 
@@ -38,7 +36,7 @@ namespace TobuAts_EX {
         }
 
         public static void DoorOpened(AtsEx.PluginHost.Native.DoorEventArgs e) {
-            MPPCount_TJ = MPPCount_TS = 0;
+            IsDoorOpened = true;
         }
 
         public static void BeaconPassed(AtsEx.PluginHost.Native.BeaconPassedEventArgs e) {
@@ -63,22 +61,20 @@ namespace TobuAts_EX {
                     LastBeaconPassTime = TobuAts.state.Time.TotalMilliseconds;
                     break;
                 case 5:
-                    if (MPPCount_TS == 0)
+                    if (MPPPattern == SpeedLimit.inf)
                         MPPPattern = new SpeedLimit(60, TobuAts.state.Location + 400);
-                    else if (MPPCount_TS == 1) {
+                    else if (MPPPattern.Limit == 60) {
                         MPPPattern = new SpeedLimit(15, TobuAts.state.Location + 100);
                         MPPEndLocation = TobuAts.state.Location + 105;
                     }
-                    MPPCount_TS++;
                     break;
                 case 9:
-                    if (MPPCount_TJ == 0) 
+                    if (MPPPattern == SpeedLimit.inf)
                         MPPPattern = new SpeedLimit(60, TobuAts.state.Location + 237);
-                    else if (MPPCount_TJ == 1) {
+                    else if (MPPPattern.Limit == 60) {
                         MPPPattern = new SpeedLimit(15, TobuAts.state.Location + 111);
                         MPPEndLocation = TobuAts.state.Location + 116;
                     }
-                    MPPCount_TJ++;
                     break;
                 case 15:
                     if (e.SignalIndex == 0) SignalPattern = new SpeedLimit(15, TobuAts.state.Location + e.Distance);
@@ -94,9 +90,9 @@ namespace TobuAts_EX {
         }
 
         public static void Tick(double Location, double Speed, Section nextSection) {
-            if (Location > MPPEndLocation) {
-                MPPPattern = new SpeedLimit();
-                MPPCount_TJ = MPPCount_TS = 0;
+            if (Location > MPPEndLocation && IsDoorOpened) {
+                MPPPattern = SpeedLimit.inf;
+                IsDoorOpened = false;
             }
 
             ATS_TobuATS.Value = TobuAts.SignalMode == 0;
