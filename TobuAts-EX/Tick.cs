@@ -13,7 +13,7 @@ namespace TobuAts_EX
     public partial class TobuAts : AssemblyPluginBase {
         private SectionManager sectionManager;
         public static AtsEx.PluginHost.Native.VehicleSpec vehicleSpec;
-        public static AtsEx.PluginHost.Native.VehicleState state;
+        public static AtsEx.PluginHost.Native.VehicleState state = new AtsEx.PluginHost.Native.VehicleState(0,0,TimeSpan.Zero,0,0,0,0,0,0);
         public static AtsEx.PluginHost.Handles.HandleSet handles;
         public static IAtsSound Switchover;
 
@@ -31,12 +31,18 @@ namespace TobuAts_EX
 
             Native.BeaconPassed += BeaconPassed;
             Native.DoorOpened += DoorOpened;
+            Native.Started += Initialize;
 
             Native.NativeKeys.AtsKeys[NativeAtsKeyName.B1].Pressed += OnB1Pressed;
 
             BveHacker.ScenarioCreated += OnScenarioCreated;
 
             vehicleSpec = Native.VehicleSpec;
+        }
+
+        private void Initialize(AtsEx.PluginHost.Native.StartedEventArgs e) {
+            T_DATC.Initialize(e);
+            TSP_ATS.Initialize(e);
         }
 
         private void OnB1Pressed(object sender, EventArgs e) {
