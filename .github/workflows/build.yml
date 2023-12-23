@@ -41,7 +41,7 @@ jobs:
       run: |
         ls -alR
         mkdir plugins/
-        find . -type f -path '*/out/*.dll' | xargs mv -t ./plugins/
+        find . -type f -path '*/out/TobuAts.dll' | xargs mv -t ./plugins/
       shell: bash
 
     - name: Upload artifact
