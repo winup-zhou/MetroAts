@@ -1,4 +1,7 @@
-# TobuAts 東武ATC/Sプラグイン  
+# MetroAts 地下鉄系ATC/Sプラグイン  
+
+## Latest Build
+[![MSBuild](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml/badge.svg)](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml)
 
 ## License
 [The MIT License](LICENSE)
@@ -16,4 +19,11 @@ Copyright (c) 2021 zbx1425
 Email: 3166832341@qq.com  
 Twitter: @wup99925510  
 
-### Work in Progress...
+## 現在の開発状況
+- [x] TSP-ATS
+- [x] T-DATC
+- [ ] 新CS-ATC
+- [ ] ATC-P
+- [ ] 西武ATC（旧CS-ATC）
+- [ ] 西武ATS
+- [ ] 信号切替 · マスコンキープラグイン
