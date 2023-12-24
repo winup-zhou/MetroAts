@@ -29,7 +29,8 @@ jobs:
       - name: Collect artifact
         run: |
           mkdir plugins/
-          find . -type f -path '*/out/*.dll' | xargs mv -t ./plugins/
+          find . -type f -path '*/out/*.dll' | xargs mv --force --backup=numbered -t ./plugins/
+          rm plugins/*~
         shell: bash
       - name: Check assembly version
         id: version
