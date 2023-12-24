@@ -27,10 +27,10 @@ jobs:
       uses: NuGet/setup-nuget@v1.2.0
 
     - name: Restore nuget packages
-      run: nuget restore TobuAts.sln
+      run: nuget restore MetroAts.sln
 
     - name: MSBuild
-      run: msbuild TobuAts.sln /m /p:configuration="Release" /p:platform="Any CPU" /p:OutputPath="./out/"
+      run: msbuild MetroAts.sln /m /p:configuration="Release" /p:platform="Any CPU" /p:OutputPath="./out/"
       shell: cmd
 
     - name: Collect artifact
