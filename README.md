@@ -1,5 +1,6 @@
 # MetroAts 地下鉄系ATC/Sプラグイン  
 
+## Actions infomation
 [![MSBuild](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml/badge.svg)](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml)
 
 ## License
@@ -18,7 +19,7 @@ Copyright (c) 2021 zbx1425
 Email: 3166832341@qq.com  
 Twitter: @wup99925510  
 
-### 現在の開発状況
+## 現在の開発状況
 - [x] TSP-ATS
 - [x] T-DATC
 - [ ] 新CS-ATC
