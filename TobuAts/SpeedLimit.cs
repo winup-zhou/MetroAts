@@ -2,7 +2,7 @@ using System;
 
 
 
-namespace TobuAts_EX {
+namespace TobuAts {
     public class SpeedLimit {
         public double Limit;
         public double Location;

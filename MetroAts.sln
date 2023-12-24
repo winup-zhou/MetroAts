@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobuAts", "TobuAts-EX\TobuAts.csproj", "{0E78E42E-DD6A-45FB-A25D-7B00DB220918}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobuAts", "TobuAts\TobuAts.csproj", "{0E78E42E-DD6A-45FB-A25D-7B00DB220918}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATC", "ATC\ATC.csproj", "{34FB6F1A-D78B-4B48-880D-F739330F9D0D}"
 EndProject

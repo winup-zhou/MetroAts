@@ -4,7 +4,7 @@ using AtsEx.PluginHost.Sound.Native;
 using BveTypes.ClassWrappers;
 using System;
 
-namespace TobuAts_EX {
+namespace TobuAts {
     internal class T_DATC {
         public static INative Native;
 
