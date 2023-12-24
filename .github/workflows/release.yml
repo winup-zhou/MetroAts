@@ -22,14 +22,16 @@ jobs:
       - name: Setup Nuget
         uses: NuGet/setup-nuget@v1.2.0
       - name: Restore nuget packages
-        run: nuget restore TobuAts.sln
+        run: nuget restore MetroAts.sln
       - name: Build sln
-        run: msbuild TobuAts.sln /m /p:configuration="Release" /p:platform="Any CPU" /p:OutputPath="./out/"
+        run: msbuild MetroAts.sln /m /p:configuration="Release" /p:platform="Any CPU" /p:OutputPath="./out/"
         shell: cmd
       - name: Collect artifact
         run: |
           mkdir plugins/
-          find . -type f -path '*/out/*.dll' -name 'TobuAts*' | xargs mv -t ./plugins/
+          find . -type f -path '*/out/TobuAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
+          find . -type f -path '*/out/SeibuAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
+          find . -type f -path '*/out/ATC.dll' | xargs mv --force --backup=numbered -t ./plugins/
         shell: bash
       - name: Check assembly version
         id: version

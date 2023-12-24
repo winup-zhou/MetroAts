@@ -7,8 +7,8 @@
     <ProjectGuid>{0E78E42E-DD6A-45FB-A25D-7B00DB220918}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TobuAts_EX</RootNamespace>
-    <AssemblyName>TobuAts-EX</AssemblyName>
+    <RootNamespace>TobuAts</RootNamespace>
+    <AssemblyName>TobuAts</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

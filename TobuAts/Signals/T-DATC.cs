@@ -4,7 +4,7 @@ using AtsEx.PluginHost.Sound.Native;
 using BveTypes.ClassWrappers;
 using System;
 
-namespace TobuAts_EX {
+namespace TobuAts {
     internal class T_DATC {
         public static INative Native;
 
@@ -259,6 +259,7 @@ namespace TobuAts_EX {
                     ATC_P.Value = ORPlamp;
 
                     if (ATCLimitSpeed - Speed < 5 && ATCLimitSpeed > 0) ATC_PatternApproachBeep.Play();
+                    else ATC_PatternApproachBeep.Stop();
                     ATC_PatternApproach.Value = ATCLimitSpeed - Speed < 5 && ATCLimitSpeed > 0;
 
                     if (StationStop) { 

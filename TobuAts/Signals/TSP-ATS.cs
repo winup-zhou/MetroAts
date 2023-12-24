@@ -5,7 +5,7 @@ using BveTypes.ClassWrappers;
 using System;
 
 
-namespace TobuAts_EX {
+namespace TobuAts {
     internal class TSP_ATS {
         public static INative Native;
         //InternalValue -> ATS

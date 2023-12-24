@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.IO;
 
-namespace TobuAts_EX
+namespace TobuAts
 {
     public static class Config
     {

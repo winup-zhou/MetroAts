@@ -7,7 +7,7 @@ using BveTypes.ClassWrappers;
 using System;
 
 
-namespace TobuAts_EX
+namespace TobuAts
 {
     [PluginType(PluginType.VehiclePlugin)]
     public partial class TobuAts : AssemblyPluginBase {
