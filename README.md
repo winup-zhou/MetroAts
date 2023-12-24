@@ -1,6 +1,6 @@
 # MetroAts 地下鉄系ATC/Sプラグイン  
 
-## Actions infomation
+## Actions information
 [![MSBuild](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml/badge.svg)](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml)
 
 ## License
