@@ -40,7 +40,6 @@ jobs:
         find . -type f -path '*/out/TobuAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
         find . -type f -path '*/out/SeibuAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
         find . -type f -path '*/out/ATC.dll' | xargs mv --force --backup=numbered -t ./plugins/
-        rm plugins/*~
       shell: bash
 
     - name: Upload artifact
