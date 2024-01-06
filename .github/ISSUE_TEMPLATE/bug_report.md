@@ -23,7 +23,7 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
+**Environments (please complete the following information):**
  - OS: [e.g. Windows 10]
  - Plugin version [e.g. 0.1.x]
  - BVE TrainSim version [e.g. 6.0.x]
