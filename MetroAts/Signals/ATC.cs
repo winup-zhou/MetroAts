@@ -274,17 +274,21 @@ namespace MetroAts {
 
                         var ORPSpeed = 0.0;
                         if (CurrentSection.CurrentSignalIndex == 35 || CurrentSection.CurrentSignalIndex == 38) {
-                            if (ORPPattern == SpeedLimit.inf) {
-                                ORPPattern = new SpeedLimit(0, NextSection.Location);
-                                LastATCSpeed = ATCSpeed;
-                            }
-                            ORPSpeed = Math.Min(ORPPattern.AtLocation(Location, ORPPatternDec), LastATCSpeed);
-                            if (ATCType == -1) {
-                                if (ORPSpeed - Speed < 5) ATC_ORPBeep.PlayLoop();
-                                else ATC_ORPBeep.Stop();
-                            }
+                            if (ATCType == 2) ATCSpeed = 0; 
+                            else {
+                                if (ORPPattern == SpeedLimit.inf) {
+                                    ORPPattern = new SpeedLimit(0, NextSection.Location);
+                                    LastATCSpeed = ATCSpeed;
+                                }
+                                ORPSpeed = Math.Min(ORPPattern.AtLocation(Location, ORPPatternDec), LastATCSpeed);
+                                if (ATCType == -1) {
+                                    if (ORPSpeed - Speed < 5 || ORPSpeed == 7) ATC_ORPBeep.PlayLoop();
+                                    else ATC_ORPBeep.Stop();
+                                }
+                            }                            
                         } else {
                             ORPPattern = SpeedLimit.inf;
+                            if (ATC_ORPBeep.PlayState == AtsEx.PluginHost.Sound.PlayState.PlayingLoop) ATC_ORPBeep.Stop();
                         }
 
                         ATCSpeed = ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? -1 : ATCLimits[CurrentSection.CurrentSignalIndex];
@@ -356,8 +360,17 @@ namespace MetroAts {
                             ORPPattern = new SpeedLimit(7, Location);
                         }
 
-                        ATC_P = ORPPattern != SpeedLimit.inf;
-                        ORPNeedle = (int)ORPSpeed * 10;
+                        if(ORPPattern != SpeedLimit.inf) {
+                            if (ATCType == -1) {
+                                ATC_P = Time % 800 < 400;
+                            } else if (ATCType == 3) {
+                                ATC_P = true;
+                                ORPNeedle = (int)ORPSpeed * 10;
+                            }
+                        } else {
+                            ORPNeedle = (int)ORPSpeed * 10;
+                            ATC_P = false;
+                        }
 
                         //ATC速度指示
                         if (Config.ATCLimitPerLamp == 1) {
