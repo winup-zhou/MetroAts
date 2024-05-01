@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System.IO;
+using AtsEx.PluginHost;
 
 namespace MetroAts {
     public static class Config {
         public static string PluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static double EBDec = 5.0;
-        public static double MaxSpeed = 100;
-        public static bool ATCLimitPerLamp = false;//1:pilotlamp 0:needle
+        public static double TobuMaxSpeed = 100;
+        public static double ATCLimitPerLamp = 1;//1:pilotlamp 0:needle
         public const double LessInf = 0xffffffff;
         private static void Cfg(this Dictionary<string, string> configDict, string key, ref double param) {
             if (configDict.ContainsKey(key)) {
@@ -50,7 +51,8 @@ namespace MetroAts {
         }
 
         public static void Load(string path) {
-            if (!File.Exists(path)) return;
+            if (!File.Exists(path)) 
+                throw new BveFileLoadException("設定ファイルは見つかりませんでした。", "MetroAts");
 
             var dict = new Dictionary<string, string>();
             StreamReader configFile = File.OpenText(path);
@@ -66,8 +68,8 @@ namespace MetroAts {
             configFile.Close();
 
             dict.Cfg("EmergencyBrakeDeceleration", ref EBDec);
-            dict.Cfg("MaxSpeed", ref MaxSpeed);
-            dict.Cfg("ATCLimitPerLamp", ref ATCLimitPerLamp);
+            dict.Cfg("TobuMaxSpeed", ref TobuMaxSpeed);
+            dict.Cfg("ATClamptype", ref ATCLimitPerLamp);
         }
     }
 }

@@ -55,16 +55,16 @@ namespace MetroAts {
                     if (e.SignalIndex == 0) {
                         SignalPattern = new SpeedLimit(15, MetroAts.state.Location + e.Distance);
                         EBType = 1;
-                    } else if (e.SignalIndex == 4) SignalPattern = new SpeedLimit(Config.MaxSpeed, MetroAts.state.Location);
+                    } else if (e.SignalIndex == 4) SignalPattern = new SpeedLimit(Config.TobuMaxSpeed, MetroAts.state.Location);
                     break;
                 case 1:
                     if (e.SignalIndex == 0) SignalPattern = new SpeedLimit(15, MetroAts.state.Location + 180);
                     else if (e.SignalIndex < 4 && e.SignalIndex > 0) SignalPattern = new SpeedLimit(60, MetroAts.state.Location + e.Distance);
-                    else if (e.SignalIndex == 4) SignalPattern = new SpeedLimit(Config.MaxSpeed, MetroAts.state.Location);
+                    else if (e.SignalIndex == 4) SignalPattern = new SpeedLimit(Config.TobuMaxSpeed, MetroAts.state.Location);
                     break;
                 case 2:
                     if (e.SignalIndex < 4) SignalPattern = new SpeedLimit(60, MetroAts.state.Location + 180);
-                    else if (e.SignalIndex == 4) SignalPattern = new SpeedLimit(Config.MaxSpeed, MetroAts.state.Location);
+                    else if (e.SignalIndex == 4) SignalPattern = new SpeedLimit(Config.TobuMaxSpeed, MetroAts.state.Location);
                     break;
                 case 3:
                     if (MetroAts.state.Time.TotalMilliseconds - LastBeaconPassTime < 1000) EBType = 1;
@@ -88,7 +88,7 @@ namespace MetroAts {
                     break;
                 case 15:
                     if (e.SignalIndex == 0) SignalPattern = new SpeedLimit(15, MetroAts.state.Location + e.Distance);
-                    else if (e.SignalIndex == 4) SignalPattern = new SpeedLimit(Config.MaxSpeed, MetroAts.state.Location);
+                    else if (e.SignalIndex == 4) SignalPattern = new SpeedLimit(Config.TobuMaxSpeed, MetroAts.state.Location);
                     break;
             }
         }
@@ -101,7 +101,7 @@ namespace MetroAts {
 
         public static void Tick(double Location, double Speed, double Time, Section nextSection) {
             if (ATSEnable) {
-                if (Time - InitializeStartTime < 5000) {
+                if (Time - InitializeStartTime < 3000) {
                     ATS_ATSEmergencyBrake = true;
                     BrakeCommand = MetroAts.vehicleSpec.BrakeNotches + 1;
                 } else {

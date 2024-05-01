@@ -22,8 +22,8 @@ Twitter: @wup99925510
 ## 現在の開発状況
 - [x] TSP-ATS
 - [x] T-DATC
-- [ ] 新CS-ATC
-- [ ] ATC-P
-- [ ] 西武ATC（旧CS-ATC）
+- [x] 新CS-ATC
+- [x] ATC-P
+- [x] 西武ATC（旧CS-ATC）
 - [ ] 西武ATS
 - [ ] 信号切替 · マスコンキープラグイン

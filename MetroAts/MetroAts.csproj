@@ -85,6 +85,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY $(TargetPath) C:\Users\Lenovo\Documents\BveTs\ScenarioS\A7\TOBU50000\Vehicle\PI\50090\AtsEXPlugins\$(TargetFileName)</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

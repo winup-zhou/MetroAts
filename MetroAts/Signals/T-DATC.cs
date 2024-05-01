@@ -9,7 +9,7 @@ namespace MetroAts {
         public static INative Native;
 
         //InternalValue -> ATC
-        public static int[] ATCLimits = { -2, 25, 55, 75, -2, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
+        public static int[] ATCLimits = { -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
             -1, -2, -2, -1, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
         private static int LastSignal = 0;
         private static SpeedLimit ATCPattern = new SpeedLimit(), StationPattern = new SpeedLimit(), DistanceDisplayPattern = new SpeedLimit();
@@ -139,10 +139,10 @@ namespace MetroAts {
 
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == MetroAts.vehicleSpec.BrakeNotches + 1;
-                if (CurrentSection.CurrentSignalIndex < 9 && CurrentSection.CurrentSignalIndex >= 49) {
+                if (CurrentSection.CurrentSignalIndex < 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
                     ATC_X = true;
                     ATC_Stop = ATC_Proceed = ATC_P = false;
-                    if (Config.ATCLimitPerLamp) {
+                    if (Config.ATCLimitPerLamp == 1) {
                         ATC_01 = ATC_10 = ATC_15 = ATC_20 = ATC_25 = ATC_30
                         = ATC_35 = ATC_40 = ATC_45 = ATC_50 = ATC_55 = ATC_60
                         = ATC_65 = ATC_70 = ATC_75 = ATC_80 = ATC_85 = ATC_90
@@ -156,10 +156,10 @@ namespace MetroAts {
                     BrakeCommand = MetroAts.vehicleSpec.BrakeNotches + 1;
 
                 } else {
-                    if (Time - InitializeStartTime < 5000) {
+                    if (Time - InitializeStartTime < 3000) {
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = ATC_P = false;
-                        if (Config.ATCLimitPerLamp) {
+                        if (Config.ATCLimitPerLamp == 1) {
                             ATC_01 = ATC_10 = ATC_15 = ATC_20 = ATC_25 = ATC_30
                             = ATC_35 = ATC_40 = ATC_45 = ATC_50 = ATC_55 = ATC_60
                             = ATC_65 = ATC_70 = ATC_75 = ATC_80 = ATC_85 = ATC_90
@@ -181,8 +181,8 @@ namespace MetroAts {
                         if (ATC_X) ATC_X = false;
 
                         LastSignal = ATCTargetSpeed;
-                        if (NextSection.CurrentSignalIndex < 9 && NextSection.CurrentSignalIndex >= 49) {
-                            ATCPattern = new SpeedLimit(NextSection.CurrentSignalIndex == 0 ? 7 : ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex],
+                        if (NextSection.CurrentSignalIndex < 9 || NextSection.CurrentSignalIndex == 34 || NextSection.CurrentSignalIndex >= 49) {
+                            ATCPattern = new SpeedLimit(ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex],
                                         NextSection.CurrentSignalIndex == 0 ? NextSection.Location - 25 : NextSection.Location);
                             ATCTargetSpeed = NextSection.CurrentSignalIndex == 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex];
                             TargetSpeedUp = false;
@@ -205,11 +205,11 @@ namespace MetroAts {
                                 }
                             }
                         }
-                        ATCLimitSpeed = (TargetSpeedUp && NextSection.Location - Location <= 25) ? (int)Math.Min(Config.MaxSpeed, ATCPattern.AtLocation(Location, SignalPatternDec)) :
-                            (int)Math.Min(Config.MaxSpeed, Math.Min(ATCPattern.AtLocation(Location, SignalPatternDec), ATCLimits[CurrentSection.CurrentSignalIndex]));
+                        ATCLimitSpeed = (TargetSpeedUp && NextSection.Location - Location <= 25) ? (int)Math.Min(Config.TobuMaxSpeed, ATCPattern.AtLocation(Location, SignalPatternDec)) :
+                            (int)Math.Min(Config.TobuMaxSpeed, Math.Min(ATCPattern.AtLocation(Location, SignalPatternDec), ATCLimits[CurrentSection.CurrentSignalIndex]));
 
                         BrakeCommand = Math.Max(Speed > ATCLimitSpeed + 1.5 ? MetroAts.vehicleSpec.BrakeNotches
-                            : (Speed > ATCLimitSpeed ? 4 : 0),
+                            : (Speed > ATCLimitSpeed ? 3 : 0),
                             StationStop ? (Speed > StationPattern.AtLocation(Location, Config.EBDec) ?
                             MetroAts.vehicleSpec.BrakeNotches + 1 : 0) : 0);
 
@@ -268,7 +268,7 @@ namespace MetroAts {
                         }
 
                         //ATC速度指示
-                        if (Config.ATCLimitPerLamp) {
+                        if (Config.ATCLimitPerLamp  == 1) {
                             ATC_01 = ATCTargetSpeed == 0;
                             ATC_10 = ATCTargetSpeed == 10;
                             ATC_15 = ATCTargetSpeed == 15;
