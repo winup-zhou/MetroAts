@@ -2,7 +2,7 @@ using System;
 
 
 
-namespace ATC {
+namespace MetroAts {
     public class SpeedLimit {
         public double Limit;
         public double Location;
@@ -21,7 +21,7 @@ namespace ATC {
             if (location >= Location) {
                 return offsetLimit;
             } else {
-                double dat = (offsetLimit * 1000 / 3600) * (offsetLimit * 1000 / 3600) 
+                double dat = (offsetLimit * 1000 / 3600) * (offsetLimit * 1000 / 3600)
                     - 2 * idealDecel * 1000 / 3600 * (Location - location);
                 if (dat > 0) {
                     return Math.Sqrt(dat) * 3600 / 1000;

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("SeibuAts")]
-[assembly: AssemblyDescription("西武ATSプラグイン for BVE TrainSim")]
+[assembly: AssemblyTitle("TobuAts-EX")]
+[assembly: AssemblyDescription("有・副直通系統向けATC/Sプラグイン based on AtsEX")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Win_Update Studio")]
-[assembly: AssemblyProduct("SeibuAts")]
-[assembly: AssemblyCopyright("Copyright © Win_Update Studio 2023")]
+[assembly: AssemblyCompany("Win_Update")]
+[assembly: AssemblyProduct("MetroAts")]
+[assembly: AssemblyCopyright("Copyright © Win_Update 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("50e78bb4-4244-4f5f-91ad-cfd77374b97b")]
+[assembly: Guid("0e78e42e-dd6a-45fb-a25d-7b00db220918")]
 
 // 程序集的版本信息由下列四个值组成: 
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.1.*")]
-//[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("0.3.*")]
+//[assembly: AssemblyFileVersion("0.2.*")]

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SeibuAts {
+namespace MetroAts {
     internal class SeibuATS {
         public static INative Native;
         public static SpeedLimit ATSPattern = new SpeedLimit(), SignalPattern = new SpeedLimit(), StopPattern = new SpeedLimit(), LimitPattern = new SpeedLimit();
@@ -65,13 +65,13 @@ namespace SeibuAts {
         public static void BeaconPassed(AtsEx.PluginHost.Native.BeaconPassedEventArgs e) {
             switch (e.Type) {//1 2 5 8 20
                 case 1:
-                    PointUpdate(SeibuAts.state.Location, 1, e.Distance);
+                    PointUpdate(MetroAts.state.Location, 1, e.Distance);
                     break;
                 case 2:
-                    PointUpdate(SeibuAts.state.Location, 2, e.Distance);
+                    PointUpdate(MetroAts.state.Location, 2, e.Distance);
                     break;
                 case 5:
-                    if (StopPattern == SpeedLimit.inf) StopPattern = new SpeedLimit(0, SeibuAts.state.Location + 590);
+                    if (StopPattern == SpeedLimit.inf) StopPattern = new SpeedLimit(0, MetroAts.state.Location + 590);
                     break;
                 case 8:
                     break;

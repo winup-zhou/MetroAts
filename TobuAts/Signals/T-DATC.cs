@@ -27,7 +27,7 @@ namespace TobuAts {
         //panel -> ATC
         private static IAtsPanelValue<bool> ATC_X, ATC_01, ATC_10, ATC_15, ATC_20, ATC_25, ATC_30, ATC_35, ATC_40, ATC_45, ATC_50, ATC_55, ATC_60, ATC_65, ATC_70,
             ATC_75, ATC_80, ATC_85, ATC_90, ATC_95, ATC_100, ATC_110,
-            ATC_Stop, ATC_Proceed, ATC_P, ATC_TobuATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_PatternApproach, ATC_StationStop;
+            ATC_Stop, ATC_Proceed, ATC_Plamp, ATC_TobuATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_PatternApproach, ATC_StationStop;
         public static IAtsPanelValue<int> ORPNeedle, ATCNeedle, ATCNeedle_Disappear;
         private static IAtsPanelValue<int> ATC_EndPointDistance, ATC_SwitcherPosition;
         private static IAtsSound ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
@@ -101,7 +101,7 @@ namespace TobuAts {
             ATC_Stop = Native.AtsPanelValues.RegisterBoolean(131);
             ATC_Proceed = Native.AtsPanelValues.RegisterBoolean(132);
 
-            ATC_P = Native.AtsPanelValues.RegisterBoolean(134);
+            ATC_Plamp = Native.AtsPanelValues.RegisterBoolean(134);
             ATC_X = Native.AtsPanelValues.RegisterBoolean(101);
 
             ORPNeedle = Native.AtsPanelValues.RegisterInt32(135);
@@ -120,7 +120,7 @@ namespace TobuAts {
 
             ATC_SwitcherPosition = Native.AtsPanelValues.RegisterInt32(130);
 
-            ATC_P.ValueChanged += ValueChanged;
+            ATC_Plamp.ValueChanged += ValueChanged;
             ATC_Depot.ValueChanged += ValueChanged;
         }
 
@@ -168,7 +168,7 @@ namespace TobuAts {
             ATC_EmergencyBrake.Value = BrakeCommand == TobuAts.vehicleSpec.BrakeNotches + 1;
             if(TobuAts.state.Time.TotalMilliseconds - InitializeStartTime < 5000) {
                 ATC_X.Value = true;
-                ATC_Stop.Value = ATC_Proceed.Value = ATC_P.Value = false;
+                ATC_Stop.Value = ATC_Proceed.Value = ATC_Plamp.Value = false;
                 if (Config.ATCLimitPerLamp) {
                     ATC_01.Value = ATC_10.Value = ATC_15.Value = ATC_20.Value = ATC_25.Value = ATC_30.Value
                     = ATC_35.Value = ATC_40.Value = ATC_45.Value = ATC_50.Value = ATC_55.Value = ATC_60.Value
@@ -185,7 +185,7 @@ namespace TobuAts {
             } else {
                 if (CurrentSection.CurrentSignalIndex <= 9 && CurrentSection.CurrentSignalIndex >= 49) {
                     ATC_X.Value = true;
-                    ATC_Stop.Value = ATC_Proceed.Value = ATC_P.Value = false;
+                    ATC_Stop.Value = ATC_Proceed.Value = ATC_Plamp.Value = false;
                     if (Config.ATCLimitPerLamp) {
                         ATC_01.Value = ATC_10.Value = ATC_15.Value = ATC_20.Value = ATC_25.Value = ATC_30.Value
                         = ATC_35.Value = ATC_40.Value = ATC_45.Value = ATC_50.Value = ATC_55.Value = ATC_60.Value
@@ -256,7 +256,7 @@ namespace TobuAts {
                         (int)Math.Min(Config.MaxSpeed,Math.Min(ATCPattern.AtLocation(Location, SignalPatternDec), ATCLimits[CurrentSection.CurrentSignalIndex]));
                     ORPNeedle.Value = ATCLimitSpeed * 10;
 
-                    ATC_P.Value = ORPlamp;
+                    ATC_Plamp.Value = ORPlamp;
 
                     if (ATCLimitSpeed - Speed < 5 && ATCLimitSpeed > 0) ATC_PatternApproachBeep.Play();
                     else ATC_PatternApproachBeep.Stop();
@@ -315,7 +315,7 @@ namespace TobuAts {
         }
 
         public static void Dispose() {
-            ATC_P.ValueChanged -= ValueChanged;
+            ATC_Plamp.ValueChanged -= ValueChanged;
             ATC_Depot.ValueChanged -= ValueChanged;
 
             ATC_01.Dispose();
@@ -343,7 +343,7 @@ namespace TobuAts {
             ATC_Stop.Dispose();
             ATC_Proceed.Dispose();
 
-            ATC_P.Dispose();
+            ATC_Plamp.Dispose();
             ATC_X.Dispose();
 
             ORPNeedle.Dispose();
