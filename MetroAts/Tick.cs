@@ -39,6 +39,7 @@ namespace MetroAts {
             ATC_SeibuStationStop, ATC_SignalAnn, ATC_SeibuNoset, ATC_MetroNoset, ATC_TokyuNoset, ATC_TempLimit;
         public static IAtsPanelValue<int> ORPNeedle, ATCNeedle, ATCNeedle_Disappear, ATC_EndPointDistance, ATC_SwitcherPosition;
         public static IAtsPanelValue<bool> ATS_TobuATS, ATS_ATSEmergencyBrake, ATS_EmergencyOperation, ATS_Confirm, ATS_60, ATS_15;
+        public static IAtsPanelValue<int> PowerOutput, BrakeOutput;
 
         public static double LastUpdateTime = 0, PretrainLocation = 0;
         public static int SignalMode = 0; //0:東武 1:西武 2:ATC 3:相鉄 4:非設
@@ -158,6 +159,9 @@ namespace MetroAts {
             //ATS_Confirm = Native.AtsPanelValues.RegisterBoolean(512);
             ATS_60 = Native.AtsPanelValues.RegisterBoolean(43);
             ATS_15 = Native.AtsPanelValues.RegisterBoolean(42);
+
+            PowerOutput = Native.AtsPanelValues.RegisterInt32(66); 
+            BrakeOutput = Native.AtsPanelValues.RegisterInt32(51);
         }
 
         private void OnA1Pressed(object sender, EventArgs e) {
@@ -179,6 +183,7 @@ namespace MetroAts {
         private void OnGPressed(object sender, EventArgs e) {
             if (CanSwitch) {
                 if (SignalMode != 4) {
+                    if (SignalEnable) SignalEnable = false;
                     ATCCgS.Play();
                     SignalMode += 1;
                 }
@@ -188,6 +193,7 @@ namespace MetroAts {
         private void OnHPressed(object sender, EventArgs e) {
             if (CanSwitch) {
                 if (SignalMode != 0) {
+                    if (SignalEnable) SignalEnable = false;
                     ATCCgS.Play();
                     SignalMode -= 1;
                 }
@@ -198,9 +204,11 @@ namespace MetroAts {
         private void OnIPressed(object sender, EventArgs e) {
             if (CanSwitch) {
                 if (KeyPosition > 0) {
+                    if (SignalEnable) SignalEnable = false;
                     KeyPosition = 0;
                     KeyOff.Play();
                 } else if (KeyPosition == 0) {
+                    if (SignalEnable) SignalEnable = false;
                     KeyPosition = -1;
                     KeyOn.Play();
                 }
@@ -210,9 +218,11 @@ namespace MetroAts {
         private void OnJPressed(object sender, EventArgs e) {
             if (CanSwitch) {
                 if (KeyPosition == -1) {
+                    if (SignalEnable) SignalEnable = false;
                     KeyPosition = 0;
                     KeyOff.Play();
                 } else if (KeyPosition != 4) {
+                    if (SignalEnable) SignalEnable = false;
                     KeyPosition += 1;
                     KeyOn.Play();
                 }
@@ -251,7 +261,7 @@ namespace MetroAts {
             ReverserPositionCommandBase reverserCommand = ReverserPositionCommandBase.Continue;
             ConstantSpeedCommand? constantSpeedCommand = ConstantSpeedCommand.Continue;
 
-            CanSwitch = handles.Brake.Notch == vehicleSpec.BrakeNotches + 1 && handles.Reverser.Position == ReverserPosition.N;
+            CanSwitch = handles.Brake.Notch == vehicleSpec.BrakeNotches + 1 && handles.Reverser.Position == ReverserPosition.N && state.Speed == 0;
 
             //閉塞情報
             int pointer = 0, pointer_ = 0;
@@ -424,17 +434,36 @@ namespace MetroAts {
                     //ATC_EmergencyOperation = ;
                     ATC_TokyuStationStop.Value = ATC.ATC_TokyuStationStop;
                     ATC_SeibuStationStop.Value = ATC.ATC_SeibuStationStop;
+
+                    ATC_EndPointDistance.Value = T_DATC.ATC_EndPointDistance;
+                    ATC_SwitcherPosition.Value = T_DATC.ATC_SwitcherPosition;
+
+                    ATC_TobuATC.Value = T_DATC.ATC_TobuATC;
+                    ATC_TobuDepot.Value = T_DATC.ATC_Depot;
+                    ATC_TobuServiceBrake.Value = T_DATC.ATC_ServiceBrake;
+                    ATC_TobuEmergencyBrake.Value = T_DATC.ATC_EmergencyBrake;
+                    //ATC_EmergencyOperation.Value = T_DATC.ATC_EmergencyOperation;
+                    ATC_TobuStationStop.Value = T_DATC.ATC_StationStop;
+                    ATC_PatternApproach.Value = T_DATC.ATC_PatternApproach;
+
+                    ATS_TobuATS.Value = TSP_ATS.ATS_TobuAts;
+                    ATS_ATSEmergencyBrake.Value = TSP_ATS.ATS_ATSEmergencyBrake;
+                    //ATS_EmergencyOperation.Value = TSP_ATS.ATS_EmergencyOperation;
+                    //ATS_Confirm.Value = TSP_ATS.ATS_Confirm;
+                    ATS_60.Value = TSP_ATS.ATS_60;
+                    ATS_15.Value = TSP_ATS.ATS_15;
                 } else if (SignalMode == 3) {//相鉄
 
                 } else if (SignalMode == 4) {//非設
                     TSP_ATS.Disable();
                     T_DATC.Disable();
                     if (KeyPosition != 0) {
-                        ATC.Enable(state.Time.TotalMilliseconds);
                         if (ATC.ATCEnable) {
                             ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
                             CurrentSection, NextSection, handles.Brake.Notch == vehicleSpec.BrakeNotches + 1, KeyPosition, true);
                             brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATC.BrakeCommand, handles.Brake.Notch));
+                        } else {
+                            ATC.Enable(state.Time.TotalMilliseconds);
                         }
                     }
                     ATC_01.Value = ATC.ATC_01;
@@ -489,6 +518,24 @@ namespace MetroAts {
                     //ATC_EmergencyOperation = ;
                     ATC_TokyuStationStop.Value = ATC.ATC_TokyuStationStop;
                     ATC_SeibuStationStop.Value = ATC.ATC_SeibuStationStop;
+
+                    ATC_EndPointDistance.Value = T_DATC.ATC_EndPointDistance;
+                    ATC_SwitcherPosition.Value = T_DATC.ATC_SwitcherPosition;
+
+                    ATC_TobuATC.Value = T_DATC.ATC_TobuATC;
+                    ATC_TobuDepot.Value = T_DATC.ATC_Depot;
+                    ATC_TobuServiceBrake.Value = T_DATC.ATC_ServiceBrake;
+                    ATC_TobuEmergencyBrake.Value = T_DATC.ATC_EmergencyBrake;
+                    //ATC_EmergencyOperation.Value = T_DATC.ATC_EmergencyOperation;
+                    ATC_TobuStationStop.Value = T_DATC.ATC_StationStop;
+                    ATC_PatternApproach.Value = T_DATC.ATC_PatternApproach;
+
+                    ATS_TobuATS.Value = TSP_ATS.ATS_TobuAts;
+                    ATS_ATSEmergencyBrake.Value = TSP_ATS.ATS_ATSEmergencyBrake;
+                    //ATS_EmergencyOperation.Value = TSP_ATS.ATS_EmergencyOperation;
+                    //ATS_Confirm.Value = TSP_ATS.ATS_Confirm;
+                    ATS_60.Value = TSP_ATS.ATS_60;
+                    ATS_15.Value = TSP_ATS.ATS_15;
                 }
             } else {
                 ATCNeedle_Disappear.Value = 1;
@@ -497,6 +544,9 @@ namespace MetroAts {
                 if (!SignalEnable && handles.Reverser.Position != ReverserPosition.N && handles.Brake.Notch != vehicleSpec.BrakeNotches + 1)
                     SignalEnable = true;
             }
+
+            PowerOutput.Value = (int)powerCommand.GetOverridenNotch(handles.Power.Notch);
+            BrakeOutput.Value = (int)brakeCommand.GetOverridenNotch(handles.Brake.Notch);
 
             tickResult.HandleCommandSet = new HandleCommandSet(powerCommand, brakeCommand, reverserCommand, constantSpeedCommand);
 
@@ -611,6 +661,8 @@ namespace MetroAts {
             //ATS_Confirm = Native.AtsPanelValues.RegisterBoolean(512);
             ATS_60.Dispose();
             ATS_15.Dispose();
+            PowerOutput.Dispose();
+            BrakeOutput.Dispose();
         }
     }
 }

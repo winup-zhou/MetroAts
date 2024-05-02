@@ -248,6 +248,8 @@ namespace MetroAts {
                     } else {
                         BrakeCommand = 0;
 
+                        var inDepot = CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48;
+
                         if (Noset) {
                             if (ATCType == -1) {
                                 ATC_TokyuNoset = true;
@@ -274,7 +276,7 @@ namespace MetroAts {
 
                         var ORPSpeed = 0.0;
                         if (CurrentSection.CurrentSignalIndex == 35 || CurrentSection.CurrentSignalIndex == 38) {
-                            if (ATCType == 2) ATCSpeed = 0; 
+                            if (ATCType == 2) ATCSpeed = 0;
                             else {
                                 if (ORPPattern == SpeedLimit.inf) {
                                     ORPPattern = new SpeedLimit(0, NextSection.Location);
@@ -285,7 +287,7 @@ namespace MetroAts {
                                     if (ORPSpeed - Speed < 5 || ORPSpeed == 7) ATC_ORPBeep.PlayLoop();
                                     else ATC_ORPBeep.Stop();
                                 }
-                            }                            
+                            }
                         } else {
                             ORPPattern = SpeedLimit.inf;
                             if (ATC_ORPBeep.PlayState == AtsEx.PluginHost.Sound.PlayState.PlayingLoop) ATC_ORPBeep.Stop();
@@ -298,9 +300,9 @@ namespace MetroAts {
                             ATCSpeed = 0;
                         }
 
-                        if (lastATCSpeed != ATCSpeed) ATC_Ding.Play();
+                        if (lastATCSpeed != ATCSpeed && !inDepot) ATC_Ding.Play();
 
-                        if (CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48) {
+                        if (inDepot) {
                             if (ATCType == -1) {
                                 ATC_TokyuDepot = true;
                                 ATC_SeibuDepot = ATC_MetroDepot = false;
@@ -316,7 +318,7 @@ namespace MetroAts {
                         }
 
                         var lastAnn = SignalAnn;
-                        SignalAnn = ATCSpeed > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex]);
+                        SignalAnn = ATCSpeed > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex]) && !inDepot;
                         if (SignalAnn) {
                             if (ATCType == -1) ATC_SignalAnn = Time % 2000 < 1000;
                             else if (ATCType == 2) ATC_SignalAnn = false;
@@ -360,7 +362,7 @@ namespace MetroAts {
                             ORPPattern = new SpeedLimit(7, Location);
                         }
 
-                        if(ORPPattern != SpeedLimit.inf) {
+                        if (ORPPattern != SpeedLimit.inf) {
                             if (ATCType == -1) {
                                 ATC_P = Time % 800 < 400;
                             } else if (ATCType == 3) {
@@ -373,36 +375,66 @@ namespace MetroAts {
                         }
 
                         //ATC速度指示
-                        if (Config.ATCLimitPerLamp == 1) {
-                            ATC_01 = ATCSpeed == 0;
-                            ATC_10 = ATCSpeed == 10;
-                            ATC_15 = ATCSpeed == 15;
-                            ATC_20 = ATCSpeed == 20;
-                            ATC_25 = ATCSpeed == 25;
-                            ATC_30 = ATCSpeed == 30;
-                            ATC_35 = ATCSpeed == 35;
-                            ATC_40 = ATCSpeed == 40;
-                            ATC_45 = ATCSpeed == 45;
-                            ATC_50 = ATCSpeed == 50;
-                            ATC_55 = ATCSpeed == 55;
-                            ATC_60 = ATCSpeed == 60;
-                            ATC_65 = ATCSpeed == 65;
-                            ATC_70 = ATCSpeed == 70;
-                            ATC_75 = ATCSpeed == 75;
-                            ATC_80 = ATCSpeed == 80;
-                            ATC_85 = ATCSpeed == 85;
-                            ATC_90 = ATCSpeed == 90;
-                            ATC_95 = ATCSpeed == 95;
-                            ATC_100 = ATCSpeed == 100;
-                            ATC_110 = ATCSpeed == 110;
-                        } else {
-                            ATCNeedle = ATCSpeed;
-                            ATCNeedle_Disappear = ATCSpeed != -1 ? 1 : 0;
-                        }
+                        if (!inDepot) {
+                            if (Config.ATCLimitPerLamp == 1) {
+                                ATC_01 = ATCSpeed == 0;
+                                ATC_10 = ATCSpeed == 10;
+                                ATC_15 = ATCSpeed == 15;
+                                ATC_20 = ATCSpeed == 20;
+                                ATC_25 = ATCSpeed == 25;
+                                ATC_30 = ATCSpeed == 30;
+                                ATC_35 = ATCSpeed == 35;
+                                ATC_40 = ATCSpeed == 40;
+                                ATC_45 = ATCSpeed == 45;
+                                ATC_50 = ATCSpeed == 50;
+                                ATC_55 = ATCSpeed == 55;
+                                ATC_60 = ATCSpeed == 60;
+                                ATC_65 = ATCSpeed == 65;
+                                ATC_70 = ATCSpeed == 70;
+                                ATC_75 = ATCSpeed == 75;
+                                ATC_80 = ATCSpeed == 80;
+                                ATC_85 = ATCSpeed == 85;
+                                ATC_90 = ATCSpeed == 90;
+                                ATC_95 = ATCSpeed == 95;
+                                ATC_100 = ATCSpeed == 100;
+                                ATC_110 = ATCSpeed == 110;
+                            } else {
+                                ATCNeedle = ATCSpeed;
+                                ATCNeedle_Disappear = ATCSpeed != -1 ? 1 : 0;
+                            }
 
-                        //進行・停止
-                        ATC_Stop = ATCSpeed == 0 || ATCSpeed == -1;
-                        ATC_Proceed = ATCSpeed > 0;
+                            //進行・停止
+                            ATC_Stop = ATCSpeed == 0 || ATCSpeed == -1;
+                            ATC_Proceed = ATCSpeed > 0;
+                        } else {
+                            ATC_01 = false;
+                            ATC_10 = false;
+                            ATC_15 = false;
+                            ATC_20 = false;
+                            ATC_25 = false;
+                            ATC_30 = false;
+                            ATC_35 = false;
+                            ATC_40 = false;
+                            ATC_45 = false;
+                            ATC_50 = false;
+                            ATC_55 = false;
+                            ATC_60 = false;
+                            ATC_65 = false;
+                            ATC_70 = false;
+                            ATC_75 = false;
+                            ATC_80 = false;
+                            ATC_85 = false;
+                            ATC_90 = false;
+                            ATC_95 = false;
+                            ATC_100 = false;
+                            ATC_110 = false;
+
+                            ATCNeedle = 0;
+                            ATCNeedle_Disappear = 1;
+
+                            //進行・停止
+                            ATC_Stop = ATC_Proceed = false;
+                        }
                     }
                 }
             } else {
