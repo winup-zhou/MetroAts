@@ -98,4 +98,4 @@ jobs:
           asset_path: ./plugins/${{env.FILE_NAME}}.zip
           asset_name: ${{env.FILE_NAME}}.zip
           asset_content_type: application/zip
-          upload_url: ${{steps.create-draft.outputs.upload_url}} 
+          upload_url: ${{ github.event.release.upload_url }} 
