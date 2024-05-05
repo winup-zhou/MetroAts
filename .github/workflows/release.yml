@@ -78,6 +78,10 @@ jobs:
         run: |
           echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}" >> $GITHUB_ENV
           echo "FILE_NAME=${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}_${{needs.build.outputs.version}}" >> $GITHUB_ENV
+      - name: Debug Create Release Output
+        run: | 
+         echo "Release ID: ${{ env.RELEASE_ID }}" 
+         echo "Release Upload URL: ${{ env.RELEASE_UPLOAD_URL }}" env: RELEASE_ID: ${{ steps.create_release.outputs.id }} RELEASE_UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
       - name: Compress DLLs
         run: |
            cd plugins/
