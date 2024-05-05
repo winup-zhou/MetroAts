@@ -83,8 +83,8 @@ jobs:
          echo "Release ID: ${{ env.RELEASE_ID }}" 
          echo "Release Upload URL: ${{ env.RELEASE_UPLOAD_URL }}" 
         env: 
-         RELEASE_ID: ${{ steps.create_release.outputs.id }} 
-         RELEASE_UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
+         RELEASE_ID: ${{ steps.create-draft.outputs.id }} 
+         RELEASE_UPLOAD_URL: ${{ steps.create-draft.outputs.upload_url }}
       - name: Compress DLLs
         run: |
            cd plugins/
