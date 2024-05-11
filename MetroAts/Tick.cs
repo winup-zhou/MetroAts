@@ -16,7 +16,7 @@ namespace MetroAts {
     [Plugin(PluginType.VehiclePlugin)]
     public partial class MetroAts : AssemblyPluginBase {
         static MetroAts() {
-            Config.Load(Path.Combine(Config.PluginDir, "MetroAtsConfig.txt"));
+            Config.Load();
         }
 
         private SectionManager sectionManager;
@@ -160,7 +160,7 @@ namespace MetroAts {
             ATS_60 = Native.AtsPanelValues.RegisterBoolean(43);
             ATS_15 = Native.AtsPanelValues.RegisterBoolean(42);
 
-            PowerOutput = Native.AtsPanelValues.RegisterInt32(66); 
+            PowerOutput = Native.AtsPanelValues.RegisterInt32(66);
             BrakeOutput = Native.AtsPanelValues.RegisterInt32(51);
         }
 
@@ -183,7 +183,6 @@ namespace MetroAts {
         private void OnGPressed(object sender, EventArgs e) {
             if (CanSwitch) {
                 if (SignalMode != 4) {
-                    if (SignalEnable) SignalEnable = false;
                     ATCCgS.Play();
                     SignalMode += 1;
                 }
@@ -193,7 +192,6 @@ namespace MetroAts {
         private void OnHPressed(object sender, EventArgs e) {
             if (CanSwitch) {
                 if (SignalMode != 0) {
-                    if (SignalEnable) SignalEnable = false;
                     ATCCgS.Play();
                     SignalMode -= 1;
                 }
@@ -290,6 +288,7 @@ namespace MetroAts {
                             if (T_DATC.ATCEnable) {
                                 T_DATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds, CurrentSection, NextSection, Next2Section, PretrainLocation);
                                 brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(T_DATC.BrakeCommand, handles.Brake.Notch));
+                                powerCommand = handles.Power.GetCommandToSetNotchTo(T_DATC.BrakeCommand > 0 ? 0 : handles.Power.Notch);
                             } else {
                                 if (TSP_ATS.ATSEnable) {
                                     TSP_ATS.Disable();
@@ -304,6 +303,7 @@ namespace MetroAts {
                             if (TSP_ATS.ATSEnable) {
                                 TSP_ATS.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds, NextSection);
                                 brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(TSP_ATS.BrakeCommand, handles.Brake.Notch));
+                                powerCommand = handles.Power.GetCommandToSetNotchTo(TSP_ATS.BrakeCommand > 0 ? 0 : handles.Power.Notch);
                             } else {
                                 if (T_DATC.ATCEnable) {
                                     T_DATC.Disable();
@@ -376,6 +376,7 @@ namespace MetroAts {
                             ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
                             CurrentSection, NextSection, handles.Brake.Notch == vehicleSpec.BrakeNotches + 1, KeyPosition, false);
                             brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATC.BrakeCommand, handles.Brake.Notch));
+                            powerCommand = handles.Power.GetCommandToSetNotchTo(ATC.BrakeCommand > 0 ? 0 : handles.Power.Notch);
                         } else {
                             if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
                             if (T_DATC.ATCEnable) T_DATC.Disable();
@@ -462,6 +463,7 @@ namespace MetroAts {
                             ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
                             CurrentSection, NextSection, handles.Brake.Notch == vehicleSpec.BrakeNotches + 1, KeyPosition, true);
                             brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATC.BrakeCommand, handles.Brake.Notch));
+                            powerCommand = handles.Power.GetCommandToSetNotchTo(ATC.BrakeCommand > 0 ? 0 : handles.Power.Notch);
                         } else {
                             ATC.Enable(state.Time.TotalMilliseconds);
                         }
@@ -538,6 +540,81 @@ namespace MetroAts {
                     ATS_15.Value = TSP_ATS.ATS_15;
                 }
             } else {
+                if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
+                if (T_DATC.ATCEnable) T_DATC.Disable();
+                if (ATC.ATCEnable) ATC.Disable();
+
+                ATC_01.Value = false;
+                ATC_10.Value = false;
+                ATC_15.Value = false;
+                ATC_20.Value = false;
+                ATC_25.Value = false;
+                ATC_30.Value = false;
+                ATC_35.Value = false;
+                ATC_40.Value = false;
+                ATC_45.Value = false;
+                ATC_50.Value = false;
+                ATC_55.Value = false;
+                ATC_60.Value = false;
+                ATC_65.Value = false;
+                ATC_70.Value = false;
+                ATC_75.Value = false;
+                ATC_80.Value = false;
+                ATC_85.Value = false;
+                ATC_90.Value = false;
+                ATC_95.Value = false;
+                ATC_100.Value = false;
+                ATC_110.Value = false;
+
+                ATC_Stop.Value = false;
+                ATC_Proceed.Value = false;
+
+                ATC_P.Value = false;
+                ATC_X.Value = false;
+
+                ORPNeedle.Value = 0;
+                ATCNeedle.Value = 0;
+                ATCNeedle_Disappear.Value = 0;
+
+                ATC_SeibuATC.Value = false;
+                ATC_MetroATC.Value = false;
+                ATC_TokyuATC.Value = false;
+
+                ATC_SignalAnn.Value = false;
+                ATC_SeibuNoset.Value = false;
+                ATC_TokyuNoset.Value = false;
+                ATC_MetroNoset.Value = false;
+                //ATC_TempLimit.Value = ATC.ATC_TempLimit;
+
+                ATC_TokyuDepot.Value = false;
+                ATC_SeibuDepot.Value = false;
+                ATC_MetroDepot.Value = false;
+                ATC_SeibuServiceBrake.Value = false;
+                ATC_MetroAndTokyuServiceBrake.Value = false;
+                ATC_SeibuEmergencyBrake.Value = false;
+                ATC_MetroAndTokyuEmergencyBrake.Value = false;
+                //ATC_EmergencyOperation = ;
+                ATC_TokyuStationStop.Value = false;
+                ATC_SeibuStationStop.Value = false;
+
+                ATC_EndPointDistance.Value = 0;
+                ATC_SwitcherPosition.Value = 0;
+
+                ATC_TobuATC.Value = false;
+                ATC_TobuDepot.Value = false;
+                ATC_TobuServiceBrake.Value = false;
+                ATC_TobuEmergencyBrake.Value = false;
+                //ATC_EmergencyOperation.Value = T_DATC.ATC_EmergencyOperation;
+                ATC_TobuStationStop.Value = false;
+                ATC_PatternApproach.Value = false;
+
+                ATS_TobuATS.Value = false;
+                ATS_ATSEmergencyBrake.Value = false;
+                //ATS_EmergencyOperation.Value = TSP_ATS.ATS_EmergencyOperation;
+                //ATS_Confirm.Value = TSP_ATS.ATS_Confirm;
+                ATS_60.Value = false;
+                ATS_15.Value = false;
+
                 ATCNeedle_Disappear.Value = 1;
                 //reverserCommand = handles.Reverser.Position;
                 brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(vehicleSpec.BrakeNotches + 1, handles.Brake.Notch));

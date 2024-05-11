@@ -10,12 +10,12 @@ namespace MetroAts {
 
         //InternalValue -> ATC
         public static int[] ATCLimits = { -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
-            -1, -2, -2, -1, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
+            -2, -2, -2, -1, -2, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
 
         private static SpeedLimit ORPPattern = new SpeedLimit(), StationPattern = new SpeedLimit();
-        public static bool ATCEnable = false;
+        public static bool ATCEnable = false, inDepot = false;
         private static bool StationStop = false, EBUntilStop = false, ServiceBrake = false, SignalAnn = false;
-        private const double ORPPatternDec = -2.25; //*10
+        private const double ORPPatternDec = -2.3; //*10
         private const double StationPatternDec = -4.0;
         private static double InitializeStartTime = 0, BrakeStartTime = Config.LessInf, LastATCSpeed = 0;
 
@@ -44,6 +44,7 @@ namespace MetroAts {
             LastATCSpeed = 0;
             SignalAnn = false;
             ATCType = 0;
+            inDepot = false;
 
             ATC_Ding = MetroAts.ATC_Ding;
             ATC_SignalAnnBeep = MetroAts.ATC_SignalAnnBeep;
@@ -141,22 +142,21 @@ namespace MetroAts {
                     ATC_SeibuEmergencyBrake = false;
                 }
 
-                if (ATCType == -1) {
-                    ATC_TokyuATC = true;
-                    ATC_SeibuATC = ATC_MetroATC = false;
-                } else if (ATCType == 2) {
-                    ATC_SeibuATC = true;
-                    ATC_TokyuATC = ATC_MetroATC = false;
-                } else if (ATCType == 3) {
-                    ATC_MetroATC = true;
-                    ATC_SeibuATC = ATC_TokyuATC = false;
-                }
-
                 if (CurrentSection.CurrentSignalIndex < 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
+                    if (ATCType == -1) {
+                        ATC_TokyuNoset = true;
+                        ATC_SeibuNoset = ATC_MetroNoset = false;
+                    } else if (ATCType == 2) {
+                        ATC_SeibuNoset = true;
+                        ATC_TokyuNoset = ATC_MetroNoset = false;
+                    } else if (ATCType == 3) {
+                        ATC_MetroNoset = true;
+                        ATC_SeibuNoset = ATC_TokyuNoset = false;
+                    }
                     if (!Noset) {
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = ATC_P = false;
-                        if (Config.ATCLimitPerLamp == 1) {
+                        if (!Config.ATCLimitUseNeedle) {
                             ATC_01 = ATC_10 = ATC_15 = ATC_20 = ATC_25 = ATC_30
                             = ATC_35 = ATC_40 = ATC_45 = ATC_50 = ATC_55 = ATC_60
                             = ATC_65 = ATC_70 = ATC_75 = ATC_80 = ATC_85 = ATC_90
@@ -212,9 +212,6 @@ namespace MetroAts {
                         ATC_TokyuATC = false;
 
                         ATC_SignalAnn = false;
-                        ATC_SeibuNoset = false;
-                        ATC_TokyuNoset = false;
-                        ATC_MetroNoset = false;
                         ATC_TempLimit = false;
 
                         ATC_TokyuDepot = false;
@@ -232,7 +229,7 @@ namespace MetroAts {
                     if (Time - InitializeStartTime < 3000) {
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = ATC_P = false;
-                        if (Config.ATCLimitPerLamp == 1) {
+                        if (!Config.ATCLimitUseNeedle) {
                             ATC_01 = ATC_10 = ATC_15 = ATC_20 = ATC_25 = ATC_30
                             = ATC_35 = ATC_40 = ATC_45 = ATC_50 = ATC_55 = ATC_60
                             = ATC_65 = ATC_70 = ATC_75 = ATC_80 = ATC_85 = ATC_90
@@ -246,9 +243,22 @@ namespace MetroAts {
 
                         BrakeCommand = MetroAts.vehicleSpec.BrakeNotches + 1;
                     } else {
+                        if (ATCType == -1) {
+                            ATC_TokyuATC = true;
+                            ATC_SeibuATC = ATC_MetroATC = false;
+                        } else if (ATCType == 2) {
+                            ATC_SeibuATC = true;
+                            ATC_TokyuATC = ATC_MetroATC = false;
+                        } else if (ATCType == 3) {
+                            ATC_MetroATC = true;
+                            ATC_SeibuATC = ATC_TokyuATC = false;
+                        }
+
                         BrakeCommand = 0;
 
-                        var inDepot = CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48;
+                        var lastinDepot = inDepot;
+                        inDepot = CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48;
+                        if (lastinDepot != inDepot) ATC_Ding.Play();
 
                         if (Noset) {
                             if (ATCType == -1) {
@@ -364,7 +374,7 @@ namespace MetroAts {
 
                         if (ORPPattern != SpeedLimit.inf) {
                             if (ATCType == -1) {
-                                ATC_P = Time % 800 < 400;
+                                ATC_P = Time % 1000 < 500;
                             } else if (ATCType == 3) {
                                 ATC_P = true;
                                 ORPNeedle = (int)ORPSpeed * 10;
@@ -376,7 +386,7 @@ namespace MetroAts {
 
                         //ATC速度指示
                         if (!inDepot) {
-                            if (Config.ATCLimitPerLamp == 1) {
+                            if (!Config.ATCLimitUseNeedle) {
                                 ATC_01 = ATCSpeed == 0;
                                 ATC_10 = ATCSpeed == 10;
                                 ATC_15 = ATCSpeed == 15;
@@ -400,7 +410,7 @@ namespace MetroAts {
                                 ATC_110 = ATCSpeed == 110;
                             } else {
                                 ATCNeedle = ATCSpeed;
-                                ATCNeedle_Disappear = ATCSpeed != -1 ? 1 : 0;
+                                ATCNeedle_Disappear = (ATCSpeed != -1 || ORPNeedle > 0) ? 1 : 0;
                             }
 
                             //進行・停止
