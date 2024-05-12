@@ -28,7 +28,7 @@ namespace MetroAts {
         //sounds
         public static IAtsSound Switchover, KeyOn, KeyOff, ATCCgS, ResetSW;
         public static IAtsSound ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce, ATC_WarningBell,
-            ATC_SignalAnnBeep, ATC_ORPBeep;
+            ATC_SignalAnnBeep, ATC_ORPBeep, ATS_Chime;
 
         //panels
         public static IAtsPanelValue<bool> ATC_X, ATC_01, ATC_10, ATC_15, ATC_20, ATC_25, ATC_30, ATC_35, ATC_40, ATC_45,
@@ -39,6 +39,8 @@ namespace MetroAts {
             ATC_SeibuStationStop, ATC_SignalAnn, ATC_SeibuNoset, ATC_MetroNoset, ATC_TokyuNoset, ATC_TempLimit;
         public static IAtsPanelValue<int> ORPNeedle, ATCNeedle, ATCNeedle_Disappear, ATC_EndPointDistance, ATC_SwitcherPosition;
         public static IAtsPanelValue<bool> ATS_TobuATS, ATS_ATSEmergencyBrake, ATS_EmergencyOperation, ATS_Confirm, ATS_60, ATS_15;
+        public static IAtsPanelValue<bool> P_Power, P_PatternApproach, P_BrakeActioned, P_EBActioned, P_BrakeOverride, P_PEnable, P_Fail,
+            SN_Power, SN_Action;
         public static IAtsPanelValue<int> PowerOutput, BrakeOutput;
 
         public static double LastUpdateTime = 0, PretrainLocation = 0;
@@ -72,6 +74,8 @@ namespace MetroAts {
             ATC_SignalAnnBeep = Native.AtsSounds.Register(4);
             ATC_ORPBeep = Native.AtsSounds.Register(3);
 
+            ATS_Chime = Native.AtsSounds.Register(1);
+
             Native.BeaconPassed += BeaconPassed;
             Native.DoorOpened += DoorOpened;
             Native.Started += Initialize;
@@ -88,6 +92,16 @@ namespace MetroAts {
             BveHacker.ScenarioCreated += OnScenarioCreated;
 
             vehicleSpec = Native.VehicleSpec;
+
+            P_Power = Native.AtsPanelValues.RegisterBoolean(2);
+            P_PatternApproach = Native.AtsPanelValues.RegisterBoolean(3);
+            P_BrakeActioned = Native.AtsPanelValues.RegisterBoolean(5);
+            P_EBActioned = Native.AtsPanelValues.RegisterBoolean(8);
+            P_BrakeOverride = Native.AtsPanelValues.RegisterBoolean(4);
+            P_PEnable = Native.AtsPanelValues.RegisterBoolean(6);
+            P_Fail = Native.AtsPanelValues.RegisterBoolean(7);
+            SN_Power = Native.AtsPanelValues.RegisterBoolean(0);
+            SN_Action = Native.AtsPanelValues.RegisterBoolean(1);
 
             ATC_01 = Native.AtsPanelValues.RegisterBoolean(102);
             ATC_10 = Native.AtsPanelValues.RegisterBoolean(104);
@@ -174,10 +188,11 @@ namespace MetroAts {
 
         private void OnB1Pressed(object sender, EventArgs e) {
             TSP_ATS.OnB1Pressed(sender, e);
+            ATS_P_SN.OnB1Pressed(sender, e);
         }
 
         private void OnB2Pressed(object sender, EventArgs e) {
-            throw new NotImplementedException();
+            ATS_P_SN.OnB2Pressed(sender, e);
         }
 
         private void OnGPressed(object sender, EventArgs e) {
@@ -232,6 +247,7 @@ namespace MetroAts {
             T_DATC.Initialize(e);
             TSP_ATS.Initialize(e);
             ATC.Initialize(e);
+            ATS_P_SN.Initialize(e);
         }
 
         private void DoorOpened(AtsEx.PluginHost.Native.DoorEventArgs e) {
@@ -244,6 +260,7 @@ namespace MetroAts {
             T_DATC.BeaconPassed(e);
             TSP_ATS.BeaconPassed(e);
             ATC.BeaconPassed(e);
+            ATS_P_SN.BeaconPassed(e);
         }
 
         private void OnScenarioCreated(ScenarioCreatedEventArgs e) {
@@ -282,7 +299,8 @@ namespace MetroAts {
             if (SignalEnable) {
                 if (SignalMode == 0) { //東武
                     if (ATC.ATCEnable) ATC.Disable();
-                    if (KeyPosition == 2) {
+                    ATS_P_SN.Disable();
+                    if (KeyPosition == 1) {
                         if (CurrentSection.CurrentSignalIndex >= 9 && CurrentSection.CurrentSignalIndex != 34 && CurrentSection.CurrentSignalIndex < 49) {
                             //T-DATC
                             if (T_DATC.ATCEnable) {
@@ -367,10 +385,22 @@ namespace MetroAts {
                     //ATS_Confirm.Value = TSP_ATS.ATS_Confirm;
                     ATS_60.Value = TSP_ATS.ATS_60;
                     ATS_15.Value = TSP_ATS.ATS_15;
+
+                    P_Power.Value = ATS_P_SN.P_Power;
+                    P_PatternApproach.Value = ATS_P_SN.P_PatternApproach;
+                    P_BrakeActioned.Value = ATS_P_SN.P_BrakeActioned;
+                    P_EBActioned.Value = ATS_P_SN.P_EBActioned;
+                    P_BrakeOverride.Value = ATS_P_SN.P_BrakeOverride;
+                    P_PEnable.Value = ATS_P_SN.P_PEnable;
+                    P_Fail.Value = ATS_P_SN.P_Fail;
+                    SN_Power.Value = ATS_P_SN.SN_Power;
+                    SN_Action.Value = ATS_P_SN.SN_Action;
                 } else if (SignalMode == 1) {//西武
                     if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
                     if (T_DATC.ATCEnable) T_DATC.Disable();
+                    ATS_P_SN.Disable();
                 } else if (SignalMode == 2) {//ATC
+                    ATS_P_SN.Disable();
                     if (KeyPosition != 0) {
                         if (ATC.ATCEnable) {
                             ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
@@ -453,11 +483,108 @@ namespace MetroAts {
                     //ATS_Confirm.Value = TSP_ATS.ATS_Confirm;
                     ATS_60.Value = TSP_ATS.ATS_60;
                     ATS_15.Value = TSP_ATS.ATS_15;
-                } else if (SignalMode == 3) {//相鉄
 
+                    P_Power.Value = ATS_P_SN.P_Power;
+                    P_PatternApproach.Value = ATS_P_SN.P_PatternApproach;
+                    P_BrakeActioned.Value = ATS_P_SN.P_BrakeActioned;
+                    P_EBActioned.Value = ATS_P_SN.P_EBActioned;
+                    P_BrakeOverride.Value = ATS_P_SN.P_BrakeOverride;
+                    P_PEnable.Value = ATS_P_SN.P_PEnable;
+                    P_Fail.Value = ATS_P_SN.P_Fail;
+                    SN_Power.Value = ATS_P_SN.SN_Power;
+                    SN_Action.Value = ATS_P_SN.SN_Action;
+                } else if (SignalMode == 3) {//相鉄
+                    if (ATS_P_SN.ATSEnable) {
+                        ATS_P_SN.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds);
+                        brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATS_P_SN.BrakeCommand, handles.Brake.Notch));
+                        powerCommand = handles.Power.GetCommandToSetNotchTo(ATS_P_SN.BrakeCommand > 0 ? 0 : handles.Power.Notch);
+                    } else {
+                        ATS_P_SN.Enable(state.Time.TotalMilliseconds);
+                    }
+                    ATC_01.Value = ATC.ATC_01;
+                    ATC_10.Value = ATC.ATC_10;
+                    ATC_15.Value = ATC.ATC_15;
+                    ATC_20.Value = ATC.ATC_20;
+                    ATC_25.Value = ATC.ATC_25;
+                    ATC_30.Value = ATC.ATC_30;
+                    ATC_35.Value = ATC.ATC_35;
+                    ATC_40.Value = ATC.ATC_40;
+                    ATC_45.Value = ATC.ATC_45;
+                    ATC_50.Value = ATC.ATC_50;
+                    ATC_55.Value = ATC.ATC_55;
+                    ATC_60.Value = ATC.ATC_60;
+                    ATC_65.Value = ATC.ATC_65;
+                    ATC_70.Value = ATC.ATC_70;
+                    ATC_75.Value = ATC.ATC_75;
+                    ATC_80.Value = ATC.ATC_80;
+                    ATC_85.Value = ATC.ATC_85;
+                    ATC_90.Value = ATC.ATC_90;
+                    ATC_95.Value = ATC.ATC_95;
+                    ATC_100.Value = ATC.ATC_100;
+                    ATC_110.Value = ATC.ATC_110;
+
+                    ATC_Stop.Value = ATC.ATC_Stop;
+                    ATC_Proceed.Value = ATC.ATC_Proceed;
+
+                    ATC_P.Value = ATC.ATC_P;
+                    ATC_X.Value = ATC.ATC_X;
+
+                    ORPNeedle.Value = ATC.ORPNeedle;
+                    ATCNeedle.Value = ATC.ATCNeedle;
+                    ATCNeedle_Disappear.Value = ATC.ATCNeedle_Disappear;
+
+                    ATC_SeibuATC.Value = ATC.ATC_SeibuATC;
+                    ATC_MetroATC.Value = ATC.ATC_MetroATC;
+                    ATC_TokyuATC.Value = ATC.ATC_TokyuATC;
+
+                    ATC_SignalAnn.Value = ATC.ATC_SignalAnn;
+                    ATC_SeibuNoset.Value = ATC.ATC_SeibuNoset;
+                    ATC_TokyuNoset.Value = ATC.ATC_TokyuNoset;
+                    ATC_MetroNoset.Value = ATC.ATC_MetroNoset;
+                    //ATC_TempLimit.Value = ATC.ATC_TempLimit;
+
+                    ATC_TokyuDepot.Value = ATC.ATC_TokyuDepot;
+                    ATC_SeibuDepot.Value = ATC.ATC_SeibuDepot;
+                    ATC_MetroDepot.Value = ATC.ATC_MetroDepot;
+                    ATC_SeibuServiceBrake.Value = ATC.ATC_SeibuServiceBrake;
+                    ATC_MetroAndTokyuServiceBrake.Value = ATC.ATC_MetroAndTokyuServiceBrake;
+                    ATC_SeibuEmergencyBrake.Value = ATC.ATC_SeibuEmergencyBrake;
+                    ATC_MetroAndTokyuEmergencyBrake.Value = ATC.ATC_MetroAndTokyuEmergencyBrake;
+                    //ATC_EmergencyOperation = ;
+                    ATC_TokyuStationStop.Value = ATC.ATC_TokyuStationStop;
+                    ATC_SeibuStationStop.Value = ATC.ATC_SeibuStationStop;
+
+                    ATC_EndPointDistance.Value = T_DATC.ATC_EndPointDistance;
+                    ATC_SwitcherPosition.Value = T_DATC.ATC_SwitcherPosition;
+
+                    ATC_TobuATC.Value = T_DATC.ATC_TobuATC;
+                    ATC_TobuDepot.Value = T_DATC.ATC_Depot;
+                    ATC_TobuServiceBrake.Value = T_DATC.ATC_ServiceBrake;
+                    ATC_TobuEmergencyBrake.Value = T_DATC.ATC_EmergencyBrake;
+                    //ATC_EmergencyOperation.Value = T_DATC.ATC_EmergencyOperation;
+                    ATC_TobuStationStop.Value = T_DATC.ATC_StationStop;
+                    ATC_PatternApproach.Value = T_DATC.ATC_PatternApproach;
+
+                    ATS_TobuATS.Value = TSP_ATS.ATS_TobuAts;
+                    ATS_ATSEmergencyBrake.Value = TSP_ATS.ATS_ATSEmergencyBrake;
+                    //ATS_EmergencyOperation.Value = TSP_ATS.ATS_EmergencyOperation;
+                    //ATS_Confirm.Value = TSP_ATS.ATS_Confirm;
+                    ATS_60.Value = TSP_ATS.ATS_60;
+                    ATS_15.Value = TSP_ATS.ATS_15;
+
+                    P_Power.Value = ATS_P_SN.P_Power;
+                    P_PatternApproach.Value = ATS_P_SN.P_PatternApproach;
+                    P_BrakeActioned.Value = ATS_P_SN.P_BrakeActioned;
+                    P_EBActioned.Value = ATS_P_SN.P_EBActioned;
+                    P_BrakeOverride.Value = ATS_P_SN.P_BrakeOverride;
+                    P_PEnable.Value = ATS_P_SN.P_PEnable;
+                    P_Fail.Value = ATS_P_SN.P_Fail;
+                    SN_Power.Value = ATS_P_SN.SN_Power;
+                    SN_Action.Value = ATS_P_SN.SN_Action;
                 } else if (SignalMode == 4) {//非設
                     TSP_ATS.Disable();
                     T_DATC.Disable();
+                    ATS_P_SN.Disable();
                     if (KeyPosition != 0) {
                         if (ATC.ATCEnable) {
                             ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
@@ -652,6 +779,8 @@ namespace MetroAts {
             ATC_SignalAnnBeep.Dispose();
             ATC_ORPBeep.Dispose();
 
+            ATS_Chime.Dispose();
+
             Native.BeaconPassed -= BeaconPassed;
             Native.DoorOpened -= DoorOpened;
             Native.Started -= Initialize;
@@ -667,6 +796,15 @@ namespace MetroAts {
 
             BveHacker.ScenarioCreated -= OnScenarioCreated;
 
+            P_Power.Dispose();
+            P_PatternApproach.Dispose();
+            P_BrakeActioned.Dispose();
+            P_EBActioned.Dispose();
+            P_BrakeOverride.Dispose();
+            P_PEnable.Dispose();
+            P_Fail.Dispose();
+            SN_Power.Dispose();
+            SN_Action.Dispose();
 
             ATC_01.Dispose();
             ATC_10.Dispose();
