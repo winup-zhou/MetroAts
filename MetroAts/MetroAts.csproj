@@ -73,6 +73,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="Input.cs" />
+    <Compile Include="Load.cs" />
     <Compile Include="Signals\ATC.cs" />
     <Compile Include="Signals\ATS-P_SN.cs" />
     <Compile Include="Signals\SeibuATS.cs" />
@@ -88,7 +90,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>COPY $(TargetPath) C:\Users\Lenovo\Documents\BveTs\Scenarios\f_c_70359\05b\Ats\AtsEXPlugins\$(TargetFileName)</PostBuildEvent>
   </PropertyGroup>
 </Project>

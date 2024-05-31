@@ -84,14 +84,20 @@ namespace MetroAts {
                 case 4:
                     if (ATSEnable)
                         if (!P_Enable) { P_Enable = true; P_Ding.Play(); }
-                    P_SignalPattern = new SpeedLimit(0, e.Distance - 25 + MetroAts.state.Location);
-                    EBBeacon = true;
+                    P_SignalPattern = new SpeedLimit(0, e.Distance + MetroAts.state.Location);
+                    if (e.Distance < 50) {
+                        BrakeUntilStop = true;
+                        EBBeacon = true;
+                    }
                     break;
                 case 5:
                     if (ATSEnable)
                         if (!P_Enable) { P_Enable = true; P_Ding.Play(); }
-                    P_SignalPattern = new SpeedLimit(0, e.Distance - 25 + MetroAts.state.Location);
-                    EBBeacon = true;
+                    P_SignalPattern = new SpeedLimit(0, e.Distance + MetroAts.state.Location);
+                    if (e.Distance < 50) {
+                        BrakeUntilStop = true;
+                        EBBeacon = true;
+                    }
                     break;
                 case 6:
                     if (ATSEnable) P_SpeedLimit1 = new SpeedLimit(e.Optional / 1000, e.Optional % 1000 + MetroAts.state.Location);
@@ -185,7 +191,7 @@ namespace MetroAts {
                     if (P_Enable) {
                         var lastPatternApproach = P_PatternApproach;
                         var lastPBrakeActioned = P_BrakeActioned;
-                        P_PatternApproach = P_SignalPattern.AtLocation(Location, -2.7) - Speed < 5;
+                        P_PatternApproach = P_SignalPattern.AtLocation(Location + (Speed / 3.6) * 3, -2.7) < Speed;
 
                         if (Speed > P_SignalPattern.AtLocation(Location, -2.7)) {
                             BrakeUntilStop = true;
