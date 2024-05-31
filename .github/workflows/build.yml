@@ -37,8 +37,6 @@ jobs:
       run: |
         ls -alR
         mkdir plugins/
-        find . -type f -path '*/out/TobuAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
-        find . -type f -path '*/out/SeibuAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
         find . -type f -path '*/out/MetroAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
       shell: bash
 
