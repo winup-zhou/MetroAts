@@ -24,8 +24,8 @@ namespace MetroAts {
             P_SpeedLimit2 = new SpeedLimit(),//下り勾配速度制限
             P_SpeedLimit3 = new SpeedLimit(),//曲線速度制限
             P_SpeedLimit4 = new SpeedLimit(),//臨時速度制限
-            P_SpeedLimit5 = new SpeedLimit(),//誘導信号機速度制限
-            P_WarningPattern = new SpeedLimit();
+            P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+            
 
         //panel
         public static bool P_Power, P_PatternApproach, P_BrakeActioned, P_EBActioned, P_BrakeOverride, P_PEnable, P_Fail,
@@ -52,7 +52,7 @@ namespace MetroAts {
             P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
             P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
             P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
-            P_WarningPattern = new SpeedLimit();
+            
 
             P_Ding = MetroAts.ATC_Ding;
             SN_WarningBell = MetroAts.ATC_WarningBell;
@@ -257,7 +257,6 @@ namespace MetroAts {
                 P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
                 P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
                 P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
-                P_WarningPattern = new SpeedLimit();
             }
 
         }
@@ -280,7 +279,7 @@ namespace MetroAts {
             P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
             P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
             P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
-            P_WarningPattern = new SpeedLimit();
+            
 
             P_Ding.Stop();
             SN_WarningBell.Stop();
@@ -289,7 +288,6 @@ namespace MetroAts {
 
         private static double CalculatePattern1(double Location) {
             var ResultSpeed = Config.LessInf;
-            ResultSpeed = Math.Min(ResultSpeed, P_MaxSpeed);
             ResultSpeed = Math.Min(ResultSpeed, P_SignalPattern.AtLocation(Location, SignalDec));
             ResultSpeed = Math.Min(ResultSpeed, P_StationStopPattern.AtLocation(Location, SignalDec));
             return ResultSpeed;
@@ -297,6 +295,7 @@ namespace MetroAts {
 
         private static double CalculatePattern2(double Location) { //速度制限
             var ResultSpeed = Config.LessInf;
+            ResultSpeed = Math.Min(ResultSpeed, P_MaxSpeed);
             ResultSpeed = Math.Min(ResultSpeed, P_SpeedLimit1.AtLocation(Location, SignalDec));
             ResultSpeed = Math.Min(ResultSpeed, P_SpeedLimit2.AtLocation(Location, SignalDec));
             ResultSpeed = Math.Min(ResultSpeed, P_SpeedLimit3.AtLocation(Location, SignalDec));
