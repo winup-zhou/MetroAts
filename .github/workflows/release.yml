@@ -63,15 +63,6 @@ jobs:
         run: |
            git tag ${{needs.build.outputs.version}}
            git push origin ${{needs.build.outputs.version}}
-      - name: Create release draft
-        id: create-draft
-        uses: release-drafter/release-drafter@v5.12.1
-        with:
-          version: ${{needs.build.outputs.version}}
-          name: ${{needs.build.outputs.version}}
-          tag: ${{needs.build.outputs.version}}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Download a build artifact
         uses: actions/download-artifact@v3.0.2
       - name: Get repository name
@@ -82,13 +73,15 @@ jobs:
         run: |
            cd plugins/
            zip ${{env.FILE_NAME}}.zip -r *
-      - name: Upload release asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          asset_path: ./plugins/${{env.FILE_NAME}}.zip
-          asset_name: ${{env.FILE_NAME}}.zip
-          asset_content_type: application/zip
-          upload_url: ${{steps.create-draft.outputs.upload_url}} 
+           tag_name: ${{ github.ref }}
+           name: Release ${{ github.ref }}
+           body: TODO New Release.
+           draft: true
+           prerelease: true
+           files: |
+             ./plugins/${{env.FILE_NAME}}.zip
+             LICENSE 
