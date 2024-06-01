@@ -143,17 +143,17 @@ namespace MetroAts {
                 }
 
                 if (CurrentSection.CurrentSignalIndex < 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
-                    if (ATCType == -1) {
-                        ATC_TokyuNoset = true;
-                        ATC_SeibuNoset = ATC_MetroNoset = false;
-                    } else if (ATCType == 2) {
-                        ATC_SeibuNoset = true;
-                        ATC_TokyuNoset = ATC_MetroNoset = false;
-                    } else if (ATCType == 3) {
-                        ATC_MetroNoset = true;
-                        ATC_SeibuNoset = ATC_TokyuNoset = false;
-                    }
                     if (!Noset) {
+                        if (ATCType == -1) {
+                            ATC_TokyuNoset = true;
+                            ATC_SeibuNoset = ATC_MetroNoset = false;
+                        } else if (ATCType == 2) {
+                            ATC_SeibuNoset = true;
+                            ATC_TokyuNoset = ATC_MetroNoset = false;
+                        } else if (ATCType == 3) {
+                            ATC_MetroNoset = true;
+                            ATC_SeibuNoset = ATC_TokyuNoset = false;
+                        }
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = ATC_P = false;
                         if (!Config.ATCLimitUseNeedle) {
@@ -169,6 +169,8 @@ namespace MetroAts {
 
                         BrakeCommand = MetroAts.vehicleSpec.BrakeNotches + 1;
                     } else {
+                        BrakeCommand = 0;
+
                         ATC_Ding.Stop();
                         ATC_SignalAnnBeep.Stop();
                         ATC_ORPBeep.Stop();
@@ -448,6 +450,8 @@ namespace MetroAts {
                     }
                 }
             } else {
+                BrakeCommand = 0;
+
                 ATC_Ding.Stop();
                 ATC_SignalAnnBeep.Stop();
                 ATC_ORPBeep.Stop();
@@ -511,6 +515,8 @@ namespace MetroAts {
 
         public static void Disable() {
             ATCEnable = false;
+
+            BrakeCommand = 0;
 
             ATC_Ding.Stop();
             ATC_SignalAnnBeep.Stop();

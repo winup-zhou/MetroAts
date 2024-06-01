@@ -48,7 +48,7 @@ namespace MetroAts {
             if (SignalEnable) {
                 if (SignalMode == 0) { //東武
                     if (ATC.ATCEnable) ATC.Disable();
-                    ATS_P_SN.Disable();
+                    if (ATS_P_SN.ATSEnable) ATS_P_SN.Disable();
                     if (KeyPosition == 1) {
                         if (CurrentSection.CurrentSignalIndex >= 9 && CurrentSection.CurrentSignalIndex != 34 && CurrentSection.CurrentSignalIndex < 49) {
                             //T-DATC
@@ -147,9 +147,20 @@ namespace MetroAts {
                 } else if (SignalMode == 1) {//西武
                     if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
                     if (T_DATC.ATCEnable) T_DATC.Disable();
-                    ATS_P_SN.Disable();
+                    if (ATS_P_SN.ATSEnable) ATS_P_SN.Disable();
+                    if (CurrentSection.CurrentSignalIndex >= 9 && CurrentSection.CurrentSignalIndex != 34 && CurrentSection.CurrentSignalIndex < 49) {
+                        ATC.Enable(state.Time.TotalMilliseconds);
+                        ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
+                            CurrentSection, NextSection, handles.Brake.Notch == vehicleSpec.BrakeNotches + 1, KeyPosition, false);
+                        brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATC.BrakeCommand, handles.Brake.Notch));
+                        powerCommand = handles.Power.GetCommandToSetNotchTo(ATC.BrakeCommand > 0 ? 0 : handles.Power.Notch);
+                    } else {
+                        if (ATC.ATCEnable) ATC.Disable();
+                    }
                 } else if (SignalMode == 2) {//ATC
-                    ATS_P_SN.Disable();
+                    if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
+                    if (T_DATC.ATCEnable) T_DATC.Disable();
+                    if (ATS_P_SN.ATSEnable) ATS_P_SN.Disable();
                     if (KeyPosition != 0) {
                         if (ATC.ATCEnable) {
                             ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
@@ -244,6 +255,8 @@ namespace MetroAts {
                     SN_Power.Value = ATS_P_SN.SN_Power;
                     SN_Action.Value = ATS_P_SN.SN_Action;
                 } else if (SignalMode == 3) {//相鉄
+                    if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
+                    if (T_DATC.ATCEnable) T_DATC.Disable();
                     if (ATS_P_SN.ATSEnable) {
                         ATS_P_SN.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds);
                         brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATS_P_SN.BrakeCommand, handles.Brake.Notch));
@@ -252,6 +265,17 @@ namespace MetroAts {
                         brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(vehicleSpec.BrakeNotches + 1, handles.Brake.Notch));
                         ATS_P_SN.Enable(state.Time.TotalMilliseconds);
                     }
+
+                    if (CurrentSection.CurrentSignalIndex >= 9 && CurrentSection.CurrentSignalIndex != 34 && CurrentSection.CurrentSignalIndex < 49) {
+                        ATC.Enable(state.Time.TotalMilliseconds);
+                        ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
+                            CurrentSection, NextSection, handles.Brake.Notch == vehicleSpec.BrakeNotches + 1, KeyPosition, false);
+                        brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATC.BrakeCommand, handles.Brake.Notch));
+                        powerCommand = handles.Power.GetCommandToSetNotchTo(ATC.BrakeCommand > 0 ? 0 : handles.Power.Notch);
+                    } else {
+                        if (ATC.ATCEnable) ATC.Disable();
+                    }
+
                     ATC_01.Value = ATC.ATC_01;
                     ATC_10.Value = ATC.ATC_10;
                     ATC_15.Value = ATC.ATC_15;
@@ -333,9 +357,9 @@ namespace MetroAts {
                     SN_Power.Value = ATS_P_SN.SN_Power;
                     SN_Action.Value = ATS_P_SN.SN_Action;
                 } else if (SignalMode == 4) {//非設
-                    TSP_ATS.Disable();
-                    T_DATC.Disable();
-                    ATS_P_SN.Disable();
+                    if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
+                    if (T_DATC.ATCEnable) T_DATC.Disable();
+                    if (ATS_P_SN.ATSEnable) ATS_P_SN.Disable();
                     if (KeyPosition != 0) {
                         if (ATC.ATCEnable) {
                             ATC.Tick(state.Location, state.Speed, state.Time.TotalMilliseconds,
@@ -417,11 +441,22 @@ namespace MetroAts {
                     //ATS_Confirm.Value = TSP_ATS.ATS_Confirm;
                     ATS_60.Value = TSP_ATS.ATS_60;
                     ATS_15.Value = TSP_ATS.ATS_15;
+
+                    P_Power.Value = ATS_P_SN.P_Power;
+                    P_PatternApproach.Value = ATS_P_SN.P_PatternApproach;
+                    P_BrakeActioned.Value = ATS_P_SN.P_BrakeActioned;
+                    P_EBActioned.Value = ATS_P_SN.P_EBActioned;
+                    P_BrakeOverride.Value = ATS_P_SN.P_BrakeOverride;
+                    P_PEnable.Value = ATS_P_SN.P_PEnable;
+                    P_Fail.Value = ATS_P_SN.P_Fail;
+                    SN_Power.Value = ATS_P_SN.SN_Power;
+                    SN_Action.Value = ATS_P_SN.SN_Action;
                 }
             } else {
                 if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
                 if (T_DATC.ATCEnable) T_DATC.Disable();
                 if (ATC.ATCEnable) ATC.Disable();
+                if (ATS_P_SN.ATSEnable) ATS_P_SN.Disable();
 
                 ATC_01.Value = false;
                 ATC_10.Value = false;
@@ -495,6 +530,16 @@ namespace MetroAts {
                 ATS_15.Value = false;
 
                 ATCNeedle_Disappear.Value = 1;
+                P_Power.Value = false;
+                P_PatternApproach.Value = false;
+                P_BrakeActioned.Value = false;
+                P_EBActioned.Value = false;
+                P_BrakeOverride.Value = false;
+                P_PEnable.Value = false;
+                P_Fail.Value = false;
+                SN_Power.Value = false;
+                SN_Action.Value = false;
+
                 //reverserCommand = handles.Reverser.Position;
                 brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(vehicleSpec.BrakeNotches + 1, handles.Brake.Notch));
                 if (!SignalEnable && handles.Reverser.Position != ReverserPosition.N && handles.Brake.Notch != vehicleSpec.BrakeNotches + 1)
@@ -545,7 +590,7 @@ namespace MetroAts {
 
             description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
             leverText = (LeverText)BveHacker.MainForm.AssistantDrawer.Items.First(item => item is LeverText);
-            leverText.Text = $"{description} | マスコンキー: {KeyPos}  保安装置: {ATCCgSPos}";
+            leverText.Text = $"{description}\nマスコンキー: {KeyPos}\n保安装置: {ATCCgSPos}";
 
             PowerOutput.Value = (int)powerCommand.GetOverridenNotch(handles.Power.Notch);
             BrakeOutput.Value = (int)brakeCommand.GetOverridenNotch(handles.Brake.Notch);

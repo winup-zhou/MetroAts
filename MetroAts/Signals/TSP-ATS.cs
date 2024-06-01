@@ -135,6 +135,9 @@ namespace MetroAts {
                 }
             } else {
                 ATS_TobuAts = false;
+
+                BrakeCommand = 0;
+
                 ATS_ATSEmergencyBrake = false;
                 //ATS_EmergencyOperation = false;
                 //ATS_Confirm = false;
@@ -147,6 +150,8 @@ namespace MetroAts {
 
         public static void Disable() {
             ATSEnable = false;
+
+            BrakeCommand = 0;
 
             ATS_TobuAts = false;
             ATS_ATSEmergencyBrake = false;

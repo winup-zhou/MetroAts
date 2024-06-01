@@ -319,6 +319,8 @@ namespace MetroAts {
                     }
                 }
             } else {
+                BrakeCommand = 0;
+
                 ATC_Ding.Stop();
                 ATC_PatternApproachBeep.Stop();
                 ATC_StationStopAnnounce.Stop();
@@ -373,6 +375,8 @@ namespace MetroAts {
 
         public static void Disable() {
             ATCEnable = false;
+
+            BrakeCommand = 0;
 
             ATC_Ding.Stop();
             ATC_PatternApproachBeep.Stop();
