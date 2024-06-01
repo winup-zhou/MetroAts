@@ -10,7 +10,7 @@ namespace MetroAts {
 
         //InternalValue -> ATC
         public static int[] ATCLimits = { -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
-            -1, -2, -2, -1, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
+            -2, 35, -2, -1, 35, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
         private static int LastSignal = 0;
         private static SpeedLimit ATCPattern = new SpeedLimit(), StationPattern = new SpeedLimit(), DistanceDisplayPattern = new SpeedLimit();
         private static int TrackPos = 0;
@@ -142,7 +142,7 @@ namespace MetroAts {
                 if (CurrentSection.CurrentSignalIndex < 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
                     ATC_X = true;
                     ATC_Stop = ATC_Proceed = ATC_P = false;
-                    if (Config.ATCLimitPerLamp == 1) {
+                    if (!Config.ATCLimitUseNeedle) {
                         ATC_01 = ATC_10 = ATC_15 = ATC_20 = ATC_25 = ATC_30
                         = ATC_35 = ATC_40 = ATC_45 = ATC_50 = ATC_55 = ATC_60
                         = ATC_65 = ATC_70 = ATC_75 = ATC_80 = ATC_85 = ATC_90
@@ -159,7 +159,7 @@ namespace MetroAts {
                     if (Time - InitializeStartTime < 3000) {
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = ATC_P = false;
-                        if (Config.ATCLimitPerLamp == 1) {
+                        if (!Config.ATCLimitUseNeedle) {
                             ATC_01 = ATC_10 = ATC_15 = ATC_20 = ATC_25 = ATC_30
                             = ATC_35 = ATC_40 = ATC_45 = ATC_50 = ATC_55 = ATC_60
                             = ATC_65 = ATC_70 = ATC_75 = ATC_80 = ATC_85 = ATC_90
@@ -173,6 +173,8 @@ namespace MetroAts {
 
                         BrakeCommand = MetroAts.vehicleSpec.BrakeNotches + 1;
                     } else {
+                        LastSignal = ATCTargetSpeed;
+
                         if (ATC_WarningBell.PlayState == AtsEx.PluginHost.Sound.PlayState.PlayingLoop) {
                             ATC_WarningBell.Stop();
                             ATC_Ding.Play();
@@ -180,45 +182,50 @@ namespace MetroAts {
                         }
                         if (ATC_X) ATC_X = false;
 
-                        LastSignal = ATCTargetSpeed;
+                        ATCLimitSpeed = (TargetSpeedUp && NextSection.Location - Location <= 25) ? (int)Math.Min(Config.TobuMaxSpeed, ATCPattern.AtLocation(Location, SignalPatternDec)) :
+                                        (int)Math.Min(Config.TobuMaxSpeed, Math.Min(ATCPattern.AtLocation(Location, SignalPatternDec), ATCLimits[CurrentSection.CurrentSignalIndex]));
+
                         if (NextSection.CurrentSignalIndex < 9 || NextSection.CurrentSignalIndex == 34 || NextSection.CurrentSignalIndex >= 49) {
-                            ATCPattern = new SpeedLimit(ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex],
+                            ATCPattern = new SpeedLimit(ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex],
                                         NextSection.CurrentSignalIndex == 0 ? NextSection.Location - 25 : NextSection.Location);
-                            ATCTargetSpeed = NextSection.CurrentSignalIndex == 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex];
+                            ATCTargetSpeed = NextSection.CurrentSignalIndex == 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex];
                             TargetSpeedUp = false;
                             if (LastSignal != ATCTargetSpeed && (ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])
                                 > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex])) ORPlamp = true;
                         } else {
                             if (CurrentSection.CurrentSignalIndex >= 9 && CurrentSection.CurrentSignalIndex < 49) {
-                                if (CurrentSection.CurrentSignalIndex < NextSection.CurrentSignalIndex) {
+                                if ((ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])
+                                    < (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex])) {
                                     ATCPattern = new SpeedLimit(ATCLimits[NextSection.CurrentSignalIndex], NextSection.Location - 25);
-                                    ATCTargetSpeed = ATCLimits[CurrentSection.CurrentSignalIndex];
+                                    ATCTargetSpeed = ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex];
                                     TargetSpeedUp = true;
                                     ORPlamp = false;
                                 } else {
                                     ATCPattern = new SpeedLimit(ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex],
                                         ATCLimits[NextSection.CurrentSignalIndex] <= 0 ? NextSection.Location - 25 : NextSection.Location);
-                                    ATCTargetSpeed = ATCLimits[NextSection.CurrentSignalIndex];
+                                    ATCTargetSpeed = ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex];
                                     TargetSpeedUp = false;
                                     if (LastSignal != ATCTargetSpeed && (ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[CurrentSection.CurrentSignalIndex])
                                         > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex])) ORPlamp = true;
                                 }
+                            } else {
+                                ATCTargetSpeed = ATCLimitSpeed = 0;
+                                ATC_X = true;
                             }
                         }
-                        ATCLimitSpeed = (TargetSpeedUp && NextSection.Location - Location <= 25) ? (int)Math.Min(Config.TobuMaxSpeed, ATCPattern.AtLocation(Location, SignalPatternDec)) :
-                            (int)Math.Min(Config.TobuMaxSpeed, Math.Min(ATCPattern.AtLocation(Location, SignalPatternDec), ATCLimits[CurrentSection.CurrentSignalIndex]));
 
                         BrakeCommand = Math.Max(Speed > ATCLimitSpeed + 1.5 ? MetroAts.vehicleSpec.BrakeNotches
-                            : (Speed > ATCLimitSpeed ? 3 : 0),
+                            : (Speed > ATCLimitSpeed ? (int)Math.Ceiling(MetroAts.vehicleSpec.BrakeNotches * 0.5) : 0),
                             StationStop ? (Speed > StationPattern.AtLocation(Location, Config.EBDec) ?
                             MetroAts.vehicleSpec.BrakeNotches + 1 : 0) : 0);
 
                         //開通情報
-                        if (ATCLimits[NextSection.SignalIndexes[NextSection.SignalIndexes.Length - 1]] >
-                            DistanceDisplayPattern.AtLocation(Next2Section.Location, SignalPatternDec) != DistanceDisplay) ATC_Ding.Play();
+                        var lastDistanceDisplay = DistanceDisplay;
 
                         DistanceDisplay = ATCLimits[NextSection.SignalIndexes[NextSection.SignalIndexes.Length - 1]]
-                            > DistanceDisplayPattern.AtLocation(Next2Section.Location, SignalPatternDec);
+                            > DistanceDisplayPattern.AtLocation(Next2Section.Location, SignalPatternDec)
+                            && !(NextSection.CurrentSignalIndex >= 38 && NextSection.CurrentSignalIndex <= 48)
+                            && !(Next2Section.CurrentSignalIndex >= 38 && Next2Section.CurrentSignalIndex <= 48);
                         if (DistanceDisplay) {
                             if (pretrainLocation < 200) ATC_EndPointDistance = 0;
                             else if (pretrainLocation >= 200 && pretrainLocation < 400) ATC_EndPointDistance = 1;
@@ -249,8 +256,14 @@ namespace MetroAts {
                             ORPlamp = false;
                         ATC_P = ORPlamp;
 
+                        if (ATCLimits[CurrentSection.CurrentSignalIndex] <= 0) {
+                            BrakeCommand = MetroAts.vehicleSpec.BrakeNotches;
+                            ORPNeedle = 0;
+                            ATCTargetSpeed = 0;
+                        }
+
                         //ATCベル
-                        if (LastSignal != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot) {
+                        if (LastSignal != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot || lastDistanceDisplay != DistanceDisplay) {
                             ATC_Ding.Play();
                             LastDingTime = MetroAts.state.Time.TotalMilliseconds;
                         }
@@ -259,16 +272,10 @@ namespace MetroAts {
                             LastDingTime = Config.LessInf;
                         }
 
-                        ORPNeedle = ATCLimitSpeed * 10;
-
-                        if (ATCLimits[CurrentSection.CurrentSignalIndex] <= 0) {
-                            BrakeCommand = MetroAts.vehicleSpec.BrakeNotches;
-                            ORPNeedle = 0;
-                            ATCTargetSpeed = 0;
-                        }
+                        ORPNeedle = (ATCLimitSpeed < 0 ? 0 : ATCLimitSpeed) * 10;
 
                         //ATC速度指示
-                        if (Config.ATCLimitPerLamp  == 1) {
+                        if (!Config.ATCLimitUseNeedle) {
                             ATC_01 = ATCTargetSpeed == 0;
                             ATC_10 = ATCTargetSpeed == 10;
                             ATC_15 = ATCTargetSpeed == 15;
