@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 
 namespace MetroAts {
     internal class ATS_P_SN {
+        const double SignalDec = -2.445;
+
         private static double P_OverrideStartTime = -60000;
         private static double P_MaxSpeed = Config.LessInf;
         public static int BrakeCommand = 0;
         private static double InitStartTime = 0;
-        public static bool ATSEnable = false, BrakeUntilStop = false;
+        public static bool ATSEnable = false, BrakeUntilStop = false, BrakeCanRelease = false;
         private static bool EBBeacon = false;
         private static bool SN_Enable = false, P_Enable = false;
         private static SpeedLimit P_SignalPattern = new SpeedLimit(),
@@ -22,7 +24,8 @@ namespace MetroAts {
             P_SpeedLimit2 = new SpeedLimit(),//下り勾配速度制限
             P_SpeedLimit3 = new SpeedLimit(),//曲線速度制限
             P_SpeedLimit4 = new SpeedLimit(),//臨時速度制限
-            P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+            P_SpeedLimit5 = new SpeedLimit(),//誘導信号機速度制限
+            P_WarningPattern = new SpeedLimit();
 
         //panel
         public static bool P_Power, P_PatternApproach, P_BrakeActioned, P_EBActioned, P_BrakeOverride, P_PEnable, P_Fail,
@@ -33,6 +36,7 @@ namespace MetroAts {
 
         public static void Initialize(AtsEx.PluginHost.Native.StartedEventArgs e) {
             BrakeUntilStop = false;
+            BrakeCanRelease = false;
             BrakeCommand = 0;
             EBBeacon = false;
             P_OverrideStartTime = -60000;
@@ -48,6 +52,7 @@ namespace MetroAts {
             P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
             P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
             P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+            P_WarningPattern = new SpeedLimit();
 
             P_Ding = MetroAts.ATC_Ding;
             SN_WarningBell = MetroAts.ATC_WarningBell;
@@ -57,6 +62,7 @@ namespace MetroAts {
         public static void Enable(double Time) {
             InitStartTime = Time;
             ATSEnable = true;
+            P_Ding.Play();
         }
 
         public static void DoorOpened(AtsEx.PluginHost.Native.DoorEventArgs e) {
@@ -78,13 +84,13 @@ namespace MetroAts {
                 case 3:
                     if (ATSEnable)
                         if (!P_Enable) { P_Enable = true; P_Ding.Play(); }
-                    P_SignalPattern = new SpeedLimit(0, e.Distance + MetroAts.state.Location);
+                    P_SignalPattern = new SpeedLimit(-1, e.Distance + MetroAts.state.Location);
                     EBBeacon = false;
                     break;
                 case 4:
                     if (ATSEnable)
                         if (!P_Enable) { P_Enable = true; P_Ding.Play(); }
-                    P_SignalPattern = new SpeedLimit(0, e.Distance + MetroAts.state.Location);
+                    P_SignalPattern = new SpeedLimit(-1, e.Distance + MetroAts.state.Location);
                     if (e.Distance < 50) {
                         BrakeUntilStop = true;
                         EBBeacon = true;
@@ -93,7 +99,7 @@ namespace MetroAts {
                 case 5:
                     if (ATSEnable)
                         if (!P_Enable) { P_Enable = true; P_Ding.Play(); }
-                    P_SignalPattern = new SpeedLimit(0, e.Distance + MetroAts.state.Location);
+                    P_SignalPattern = new SpeedLimit(-1, e.Distance + MetroAts.state.Location);
                     if (e.Distance < 50) {
                         BrakeUntilStop = true;
                         EBBeacon = true;
@@ -191,29 +197,50 @@ namespace MetroAts {
                     if (P_Enable) {
                         var lastPatternApproach = P_PatternApproach;
                         var lastPBrakeActioned = P_BrakeActioned;
-                        P_PatternApproach = P_SignalPattern.AtLocation(Location + (Speed / 3.6) * 3, -2.7) < Speed;
+                        var lastPEBActioned = P_EBActioned;
 
-                        if (Speed > P_SignalPattern.AtLocation(Location, -2.7)) {
+                        P_PatternApproach = CalculatePattern1(Location + 50) - 5 < Speed ||
+                            CalculatePattern2(Location + 50) - 5 < Speed
+                            || P_MaxSpeed - 5 < Speed || P_EBActioned;
+
+                        if (Speed > CalculatePattern1(Location)) {
                             BrakeUntilStop = true;
                         }
 
-                        if (Time - P_OverrideStartTime > 60000 && BrakeUntilStop) {
-                            P_BrakeActioned = true;
-                            if (EBBeacon) {
-                                P_EBActioned = true;
-                                BrakeCommand = MetroAts.vehicleSpec.BrakeNotches + 1;
+                        if (Speed > CalculatePattern2(Location)) {
+                            BrakeCanRelease = true;
+                        }
+
+                        if (Time - P_OverrideStartTime > 60000) {
+                            if (BrakeUntilStop) {
+                                P_BrakeActioned = true;
+                                if (EBBeacon) {
+                                    P_EBActioned = true;
+                                    BrakeCommand = MetroAts.vehicleSpec.BrakeNotches + 1;
+                                } else {
+                                    BrakeCommand = MetroAts.vehicleSpec.BrakeNotches;
+                                }
                             } else {
-                                BrakeCommand = MetroAts.vehicleSpec.BrakeNotches;
+                                BrakeCommand = 0;
+                                P_EBActioned = P_BrakeActioned = false;
+                                if (BrakeCanRelease) {
+                                    BrakeCommand = MetroAts.vehicleSpec.BrakeNotches;
+                                    P_BrakeActioned = true;
+                                    var ReleaseSpeed = Math.Min(P_SpeedLimit1.Limit, Math.Min(P_SpeedLimit2.Limit, Math.Min(P_SpeedLimit3.Limit, P_SpeedLimit4.Limit)));
+                                    if (Speed < ReleaseSpeed - 5) BrakeCanRelease = false;
+                                }
                             }
                         } else {
                             BrakeCommand = 0;
                             P_EBActioned = P_BrakeActioned = false;
                         }
 
-                        if (lastPatternApproach != P_PatternApproach || lastPBrakeActioned != P_BrakeActioned) P_Ding.Play();
+
+                        if (lastPatternApproach != P_PatternApproach || lastPBrakeActioned != P_BrakeActioned || lastPEBActioned != P_EBActioned) P_Ding.Play();
                     }
                 }
             } else {
+                BrakeCanRelease = false;
                 BrakeUntilStop = false;
                 BrakeCommand = 0;
                 EBBeacon = false;
@@ -230,11 +257,13 @@ namespace MetroAts {
                 P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
                 P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
                 P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+                P_WarningPattern = new SpeedLimit();
             }
 
         }
 
         public static void Disable() {
+            BrakeCanRelease = false;
             BrakeUntilStop = false;
             BrakeCommand = 0;
             EBBeacon = false;
@@ -251,22 +280,29 @@ namespace MetroAts {
             P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
             P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
             P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+            P_WarningPattern = new SpeedLimit();
 
             P_Ding.Stop();
             SN_WarningBell.Stop();
             SN_Chime.Stop();
         }
 
-        static int[] pow10 = new int[] { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000 };
+        private static double CalculatePattern1(double Location) {
+            var ResultSpeed = Config.LessInf;
+            ResultSpeed = Math.Min(ResultSpeed, P_MaxSpeed);
+            ResultSpeed = Math.Min(ResultSpeed, P_SignalPattern.AtLocation(Location, SignalDec));
+            ResultSpeed = Math.Min(ResultSpeed, P_StationStopPattern.AtLocation(Location, SignalDec));
+            return ResultSpeed;
+        }
 
-        static int D(int src, int digit) {
-            if (pow10[digit] > src) {
-                return 10;
-            } else if (digit == 0 && src == 0) {
-                return 0;
-            } else {
-                return src / pow10[digit] % 10;
-            }
+        private static double CalculatePattern2(double Location) { //速度制限
+            var ResultSpeed = Config.LessInf;
+            ResultSpeed = Math.Min(ResultSpeed, P_SpeedLimit1.AtLocation(Location, SignalDec));
+            ResultSpeed = Math.Min(ResultSpeed, P_SpeedLimit2.AtLocation(Location, SignalDec));
+            ResultSpeed = Math.Min(ResultSpeed, P_SpeedLimit3.AtLocation(Location, SignalDec));
+            ResultSpeed = Math.Min(ResultSpeed, P_SpeedLimit4.AtLocation(Location, SignalDec));
+            ResultSpeed = Math.Min(ResultSpeed, P_SpeedLimit5.AtLocation(Location, SignalDec));
+            return ResultSpeed;
         }
     }
 }

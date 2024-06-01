@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace MetroAts {
     [Plugin(PluginType.VehiclePlugin)]
@@ -16,6 +17,9 @@ namespace MetroAts {
         static MetroAts() {
             Config.Load();
         }
+
+        private string description;
+        private LeverText leverText;
 
         private SectionManager sectionManager;
         public static AtsEx.PluginHost.Native.VehicleSpec vehicleSpec;

@@ -9,7 +9,9 @@ using BveTypes.ClassWrappers;
 using SlimDX.DirectInput;
 using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace MetroAts {
@@ -155,6 +157,7 @@ namespace MetroAts {
                             brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATC.BrakeCommand, handles.Brake.Notch));
                             powerCommand = handles.Power.GetCommandToSetNotchTo(ATC.BrakeCommand > 0 ? 0 : handles.Power.Notch);
                         } else {
+                            brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(vehicleSpec.BrakeNotches + 1, handles.Brake.Notch));
                             if (TSP_ATS.ATSEnable) TSP_ATS.Disable();
                             if (T_DATC.ATCEnable) T_DATC.Disable();
                             ATC.Enable(state.Time.TotalMilliseconds);
@@ -246,6 +249,7 @@ namespace MetroAts {
                         brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATS_P_SN.BrakeCommand, handles.Brake.Notch));
                         powerCommand = handles.Power.GetCommandToSetNotchTo(ATS_P_SN.BrakeCommand > 0 ? 0 : handles.Power.Notch);
                     } else {
+                        brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(vehicleSpec.BrakeNotches + 1, handles.Brake.Notch));
                         ATS_P_SN.Enable(state.Time.TotalMilliseconds);
                     }
                     ATC_01.Value = ATC.ATC_01;
@@ -339,6 +343,7 @@ namespace MetroAts {
                             brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(ATC.BrakeCommand, handles.Brake.Notch));
                             powerCommand = handles.Power.GetCommandToSetNotchTo(ATC.BrakeCommand > 0 ? 0 : handles.Power.Notch);
                         } else {
+                            brakeCommand = handles.Brake.GetCommandToSetNotchTo(Math.Max(vehicleSpec.BrakeNotches + 1, handles.Brake.Notch));
                             ATC.Enable(state.Time.TotalMilliseconds);
                         }
                     }
@@ -496,7 +501,51 @@ namespace MetroAts {
                     SignalEnable = true;
             }
 
+            string KeyPos = "", ATCCgSPos = "";
 
+            switch (KeyPosition) {
+                case 0:
+                    KeyPos = "未挿入";
+                    break;
+                case -1:
+                    KeyPos = "東急";
+                    break;
+                case 1:
+                    KeyPos = "東武";
+                    break;
+                case 2:
+                    KeyPos = "西武";
+                    break;
+                case 3:
+                    KeyPos = "メトロ";
+                    break;
+                case 4:
+                    KeyPos = "相鉄";
+                    break;
+            }
+
+            switch (SignalMode) {
+                case 0:
+                    ATCCgSPos = "東武";
+                    break;
+                case 1:
+                    ATCCgSPos = "西武";
+                    break;
+                case 2:
+                    ATCCgSPos = "ATC";
+                    break;
+                case 3:
+                    ATCCgSPos = "相鉄";
+                    break;
+                case 4:
+                    ATCCgSPos = "非設";
+                    break;
+            }
+
+
+            description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
+            leverText = (LeverText)BveHacker.MainForm.AssistantDrawer.Items.First(item => item is LeverText);
+            leverText.Text = $"{description} | マスコンキー: {KeyPos}  保安装置: {ATCCgSPos}";
 
             PowerOutput.Value = (int)powerCommand.GetOverridenNotch(handles.Power.Notch);
             BrakeOutput.Value = (int)brakeCommand.GetOverridenNotch(handles.Brake.Notch);

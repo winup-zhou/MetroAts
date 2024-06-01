@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using SlimDX.DirectInput;
 using System;
+using System.Linq;
 
 namespace MetroAts {
     public static class Config {
@@ -49,6 +50,20 @@ namespace MetroAts {
             var RetVal = new StringBuilder(255);
             GetPrivateProfileString(Section, Key, "", RetVal, 255, path);
             return Convert.ToBoolean(RetVal.ToString());
+        }
+
+        private static List<int> ReadConfigListInt32(string Section, string Key) {
+            var RetVal = new StringBuilder(255);
+            GetPrivateProfileString(Section, Key, "", RetVal, 255, path);
+            string[] strArray = RetVal.ToString().Split(',');
+            return Array.ConvertAll(strArray, s => int.Parse(s)).ToList();
+        }
+
+        private static List<double> ReadConfigListDouble(string Section, string Key) {
+            var RetVal = new StringBuilder(255);
+            GetPrivateProfileString(Section, Key, "", RetVal, 255, path);
+            string[] strArray = RetVal.ToString().Split(',');
+            return Array.ConvertAll(strArray, s => double.Parse(s)).ToList();
         }
     }
 }
