@@ -1,6 +1,6 @@
-﻿using AtsEx.PluginHost;
-using AtsEx.PluginHost.Panels.Native;
-using AtsEx.PluginHost.Sound.Native;
+﻿using BveEx.PluginHost;
+using BveEx.PluginHost.Panels.Native;
+using BveEx.PluginHost.Sound.Native;
 using BveTypes.ClassWrappers;
 using System;
 
@@ -34,7 +34,7 @@ namespace MetroAts {
 
         private static IAtsSound ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
 
-        public static void Initialize(AtsEx.PluginHost.Native.StartedEventArgs e) {
+        public static void Initialize(BveEx.PluginHost.Native.StartedEventArgs e) {
             ATCPattern = new SpeedLimit();
             StationPattern = new SpeedLimit();
             DistanceDisplayPattern = new SpeedLimit();
@@ -106,7 +106,7 @@ namespace MetroAts {
             InitializeStartTime = Time;
         }
 
-        public static void BeaconPassed(AtsEx.PluginHost.Native.BeaconPassedEventArgs e) {
+        public static void BeaconPassed(BveEx.PluginHost.Native.BeaconPassedEventArgs e) {
             switch (e.Type) {
                 case 42:
                     if (e.Optional <= 3) {
@@ -126,7 +126,7 @@ namespace MetroAts {
             }
         }
 
-        public static void DoorOpened(AtsEx.PluginHost.Native.DoorEventArgs e) {
+        public static void DoorOpened(BveEx.PluginHost.Native.DoorEventArgs e) {
             StationStop = false;
         }
 
@@ -175,7 +175,7 @@ namespace MetroAts {
                     } else {
                         LastSignal = ATCTargetSpeed;
 
-                        if (ATC_WarningBell.PlayState == AtsEx.PluginHost.Sound.PlayState.PlayingLoop) {
+                        if (ATC_WarningBell.PlayState == BveEx.PluginHost.Sound.PlayState.PlayingLoop) {
                             ATC_WarningBell.Stop();
                             ATC_Ding.Play();
                             LastDingTime = MetroAts.state.Time.TotalMilliseconds;

@@ -1,5 +1,5 @@
-﻿using AtsEx.PluginHost;
-using AtsEx.PluginHost.Plugins;
+﻿using BveEx.PluginHost;
+using BveEx.PluginHost.Plugins;
 using BveTypes.ClassWrappers;
 using SlimDX.DirectInput;
 using System;
@@ -74,7 +74,7 @@ namespace MetroAts {
             }
         }
 
-        private void Initialize(AtsEx.PluginHost.Native.StartedEventArgs e) {
+        private void Initialize(BveEx.PluginHost.Native.StartedEventArgs e) {
             if (e.DefaultBrakePosition == BrakePosition.Removed) SignalEnable = false;
             T_DATC.Initialize(e);
             TSP_ATS.Initialize(e);
@@ -82,13 +82,13 @@ namespace MetroAts {
             ATS_P_SN.Initialize(e);
         }
 
-        private void DoorOpened(AtsEx.PluginHost.Native.DoorEventArgs e) {
+        private void DoorOpened(BveEx.PluginHost.Native.DoorEventArgs e) {
             T_DATC.DoorOpened(e);
             TSP_ATS.DoorOpened(e);
             ATC.DoorOpened(e);
         }
 
-        private void BeaconPassed(AtsEx.PluginHost.Native.BeaconPassedEventArgs e) {
+        private void BeaconPassed(BveEx.PluginHost.Native.BeaconPassedEventArgs e) {
             T_DATC.BeaconPassed(e);
             TSP_ATS.BeaconPassed(e);
             ATC.BeaconPassed(e);

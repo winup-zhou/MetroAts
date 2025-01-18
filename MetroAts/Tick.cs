@@ -1,12 +1,8 @@
-﻿using AtsEx.Extensions.PreTrainPatch;
-using AtsEx.PluginHost;
-using AtsEx.PluginHost.Handles;
-using AtsEx.PluginHost.Input.Native;
-using AtsEx.PluginHost.Panels.Native;
-using AtsEx.PluginHost.Plugins;
-using AtsEx.PluginHost.Sound.Native;
+﻿using BveEx.Extensions.PreTrainPatch;
+using BveEx.PluginHost;
+using BveEx.PluginHost.Plugins;
+using BveEx.Extensions.Native;
 using BveTypes.ClassWrappers;
-using SlimDX.DirectInput;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -16,7 +12,7 @@ using System.Reflection;
 
 namespace MetroAts {
     public partial class MetroAts : AssemblyPluginBase {
-        public override TickResult Tick(TimeSpan elapsed) {
+        public override void Tick(TimeSpan elapsed) {
             state = Native.VehicleState;
             handles = Native.Handles;
             VehiclePluginTickResult tickResult = new VehiclePluginTickResult();

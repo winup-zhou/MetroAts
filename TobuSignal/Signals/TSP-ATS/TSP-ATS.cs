@@ -1,6 +1,6 @@
-﻿using AtsEx.Extensions.PreTrainPatch;
-using AtsEx.PluginHost;
-using AtsEx.PluginHost.Panels.Native;
+﻿using BveEx.Extensions.PreTrainPatch;
+using BveEx.PluginHost;
+using BveEx.PluginHost.Panels.Native;
 using BveTypes.ClassWrappers;
 using System;
 
@@ -18,7 +18,7 @@ namespace MetroAts {
         //panel -> ATS
         public static bool ATS_TobuAts, ATS_ATSEmergencyBrake, ATS_EmergencyOperation, ATS_Confirm, ATS_60, ATS_15;
 
-        public static void Initialize(AtsEx.PluginHost.Native.StartedEventArgs e) {
+        public static void Initialize(BveEx.PluginHost.Native.StartedEventArgs e) {
             ATSPattern = new SpeedLimit();
             MPPPattern = new SpeedLimit();
             SignalPattern = new SpeedLimit();
@@ -45,11 +45,11 @@ namespace MetroAts {
             InitializeStartTime = Time;
         }
 
-        public static void DoorOpened(AtsEx.PluginHost.Native.DoorEventArgs e) {
+        public static void DoorOpened(BveEx.PluginHost.Native.DoorEventArgs e) {
             IsDoorOpened = true;
         }
 
-        public static void BeaconPassed(AtsEx.PluginHost.Native.BeaconPassedEventArgs e) {
+        public static void BeaconPassed(BveEx.PluginHost.Native.BeaconPassedEventArgs e) {
             switch (e.Type) {//0 1 2 3 5 9 15
                 case 0:
                     if (e.SignalIndex == 0) {

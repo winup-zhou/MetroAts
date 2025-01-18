@@ -1,4 +1,4 @@
-﻿using AtsEx.PluginHost.Sound.Native;
+﻿using BveEx.PluginHost.Sound.Native;
 using BveTypes.ClassWrappers;
 using Microsoft.Win32.SafeHandles;
 using System;
@@ -18,13 +18,13 @@ namespace MetroAts {
         public static bool ATSEnable = false, BrakeUntilStop = false, BrakeCanRelease = false;
         private static bool EBBeacon = false;
         private static bool SN_Enable = false, P_Enable = false;
-        private static SpeedLimit P_SignalPattern = new SpeedLimit(),
-            P_StationStopPattern = new SpeedLimit(),
-            P_SpeedLimit1 = new SpeedLimit(),//分岐器速度制限
-            P_SpeedLimit2 = new SpeedLimit(),//下り勾配速度制限
-            P_SpeedLimit3 = new SpeedLimit(),//曲線速度制限
-            P_SpeedLimit4 = new SpeedLimit(),//臨時速度制限
-            P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+        private static SpeedPattern P_SignalPattern = new SpeedPattern(),
+            P_StationStopPattern = new SpeedPattern(),
+            P_SpeedLimit1 = new SpeedPattern(),//分岐器速度制限
+            P_SpeedLimit2 = new SpeedPattern(),//下り勾配速度制限
+            P_SpeedLimit3 = new SpeedPattern(),//曲線速度制限
+            P_SpeedLimit4 = new SpeedPattern(),//臨時速度制限
+            P_SpeedLimit5 = new SpeedPattern();//誘導信号機速度制限
             
 
         //panel
@@ -34,7 +34,7 @@ namespace MetroAts {
         private static IAtsSound P_Ding, SN_WarningBell, SN_Chime;
 
 
-        public static void Initialize(AtsEx.PluginHost.Native.StartedEventArgs e) {
+        public static void Initialize(BveEx.PluginHost.Native.StartedEventArgs e) {
             BrakeUntilStop = false;
             BrakeCanRelease = false;
             BrakeCommand = 0;
@@ -45,13 +45,13 @@ namespace MetroAts {
             ATSEnable = false;
             SN_Enable = false;
             P_Enable = false;
-            P_SignalPattern = new SpeedLimit();
-            P_StationStopPattern = new SpeedLimit();
-            P_SpeedLimit1 = new SpeedLimit();//分岐器速度制限
-            P_SpeedLimit2 = new SpeedLimit();//下り勾配速度制限
-            P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
-            P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
-            P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+            P_SignalPattern = new SpeedPattern();
+            P_StationStopPattern = new SpeedPattern();
+            P_SpeedLimit1 = new SpeedPattern();//分岐器速度制限
+            P_SpeedLimit2 = new SpeedPattern();//下り勾配速度制限
+            P_SpeedLimit3 = new SpeedPattern();//曲線速度制限
+            P_SpeedLimit4 = new SpeedPattern();//臨時速度制限
+            P_SpeedLimit5 = new SpeedPattern();//誘導信号機速度制限
             
 
             P_Ding = MetroAts.ATC_Ding;
@@ -65,11 +65,11 @@ namespace MetroAts {
             P_Ding.Play();
         }
 
-        public static void DoorOpened(AtsEx.PluginHost.Native.DoorEventArgs e) {
+        public static void DoorOpened(BveEx.PluginHost.Native.DoorEventArgs e) {
 
         }
 
-        public static void BeaconPassed(AtsEx.PluginHost.Native.BeaconPassedEventArgs e) {
+        public static void BeaconPassed(BveEx.PluginHost.Native.BeaconPassedEventArgs e) {
             switch (e.Type) {
                 case 0:
 
@@ -129,19 +129,19 @@ namespace MetroAts {
                     if (ATSEnable) P_SpeedLimit5 = new SpeedLimit(e.Optional / 1000, e.Optional % 1000 + MetroAts.state.Location);
                     break;
                 case 16:
-                    if (ATSEnable) P_SpeedLimit1 = SpeedLimit.inf;
+                    if (ATSEnable) P_SpeedLimit1 = SpeedPattern.inf;
                     break;
                 case 18:
-                    if (ATSEnable) P_SpeedLimit2 = SpeedLimit.inf;
+                    if (ATSEnable) P_SpeedLimit2 = SpeedPattern.inf;
                     break;
                 case 19:
-                    if (ATSEnable) P_SpeedLimit3 = SpeedLimit.inf;
+                    if (ATSEnable) P_SpeedLimit3 = SpeedPattern.inf;
                     break;
                 case 20:
-                    if (ATSEnable) P_SpeedLimit4 = SpeedLimit.inf;
+                    if (ATSEnable) P_SpeedLimit4 = SpeedPattern.inf;
                     break;
                 case 21:
-                    if (ATSEnable) P_SpeedLimit5 = SpeedLimit.inf;
+                    if (ATSEnable) P_SpeedLimit5 = SpeedPattern.inf;
                     break;
                 case 25:
                     if (ATSEnable)
@@ -250,13 +250,13 @@ namespace MetroAts {
                 ATSEnable = false;
                 SN_Enable = false;
                 P_Enable = false;
-                P_SignalPattern = new SpeedLimit();
-                P_StationStopPattern = new SpeedLimit();
-                P_SpeedLimit1 = new SpeedLimit();//分岐器速度制限
-                P_SpeedLimit2 = new SpeedLimit();//下り勾配速度制限
-                P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
-                P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
-                P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+                P_SignalPattern = new SpeedPattern();
+                P_StationStopPattern = new SpeedPattern();
+                P_SpeedLimit1 = new SpeedPattern();//分岐器速度制限
+                P_SpeedLimit2 = new SpeedPattern();//下り勾配速度制限
+                P_SpeedLimit3 = new SpeedPattern();//曲線速度制限
+                P_SpeedLimit4 = new SpeedPattern();//臨時速度制限
+                P_SpeedLimit5 = new SpeedPattern();//誘導信号機速度制限
             }
 
         }
@@ -272,13 +272,13 @@ namespace MetroAts {
             ATSEnable = false;
             SN_Enable = false;
             P_Enable = false;
-            P_SignalPattern = new SpeedLimit();
-            P_StationStopPattern = new SpeedLimit();
-            P_SpeedLimit1 = new SpeedLimit();//分岐器速度制限
-            P_SpeedLimit2 = new SpeedLimit();//下り勾配速度制限
-            P_SpeedLimit3 = new SpeedLimit();//曲線速度制限
-            P_SpeedLimit4 = new SpeedLimit();//臨時速度制限
-            P_SpeedLimit5 = new SpeedLimit();//誘導信号機速度制限
+            P_SignalPattern = new SpeedPattern();
+            P_StationStopPattern = new SpeedPattern();
+            P_SpeedLimit1 = new SpeedPattern();//分岐器速度制限
+            P_SpeedLimit2 = new SpeedPattern();//下り勾配速度制限
+            P_SpeedLimit3 = new SpeedPattern();//曲線速度制限
+            P_SpeedLimit4 = new SpeedPattern();//臨時速度制限
+            P_SpeedLimit5 = new SpeedPattern();//誘導信号機速度制限
             
 
             P_Ding.Stop();

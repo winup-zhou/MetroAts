@@ -1,8 +1,5 @@
-﻿using AtsEx.PluginHost.Input.Native;
-using AtsEx.PluginHost.Panels.Native;
-using AtsEx.PluginHost.Plugins;
-using AtsEx.PluginHost.Sound.Native;
-using AtsEx.PluginHost;
+﻿using BveEx.PluginHost.Plugins;
+using BveEx.PluginHost;
 using BveTypes.ClassWrappers;
 using System;
 using System.Collections.Generic;
@@ -10,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using BveEx.Extensions.Native;
 
 namespace MetroAts {
     [Plugin(PluginType.VehiclePlugin)]
@@ -17,14 +15,15 @@ namespace MetroAts {
         static MetroAts() {
             Config.Load();
         }
+        private readonly INative Native;
 
         private string description;
         private LeverText leverText;
 
         private SectionManager sectionManager;
-        public static AtsEx.PluginHost.Native.VehicleSpec vehicleSpec;
-        public static AtsEx.PluginHost.Native.VehicleState state = new AtsEx.PluginHost.Native.VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
-        public static AtsEx.PluginHost.Handles.HandleSet handles;
+        public static BveEx.PluginHost.Native.VehicleSpec vehicleSpec;
+        public static BveEx.PluginHost.Native.VehicleState state = new BveEx.PluginHost.Native.VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
+        public static BveEx.PluginHost.Handles.HandleSet handles;
         public static Section CurrentSection, NextSection, Next2Section;
 
         //sounds
@@ -57,6 +56,7 @@ namespace MetroAts {
             CanSwitch = false;
             LastUpdateTime = 0;
             PretrainLocation = 0;
+            Native = Extensions.GetExtension<INative>();
 
             TSP_ATS.Native = Native;
             T_DATC.Native = Native;
