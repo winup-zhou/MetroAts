@@ -45,10 +45,10 @@
     <Compile Include="Config.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Load.cs" />
-    <Compile Include="Signals\T-DATC\T-DATC.cs" />
-    <Compile Include="Signals\TSP-ATS\Input.cs" />
+    <Compile Include="Signals\T-DATC\Functions.cs" />
+    <Compile Include="Signals\T-DATC\Tick.cs" />
+    <Compile Include="Signals\TSP-ATS\Functions.cs" />
     <Compile Include="Signals\TSP-ATS\Tick.cs" />
-    <Compile Include="Signals\TSP-ATS\TSP-ATS.cs" />
     <Compile Include="SpeedPattern.cs" />
     <Compile Include="Tick.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

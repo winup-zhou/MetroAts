@@ -22,7 +22,7 @@ namespace TobuSignal {
         private const int buffer_size = 4096;
 
         //≈‰÷√œÓ
-
+        public static double TobuMaxSpeed = 100;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "TobuSignal.ini")).FullName;

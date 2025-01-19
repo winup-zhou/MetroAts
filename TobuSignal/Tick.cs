@@ -9,22 +9,18 @@ using System.Threading.Tasks;
 
 namespace TobuSignal {
     [Plugin(PluginType.VehiclePlugin)]
-    public class TobuSignal : AssemblyPluginBase {
-        private readonly INative Native;
-
-        public TobuSignal(PluginBuilder builder) : base(builder) {
-            Native = Extensions.GetExtension<INative>();
-        }
-
-        public override void Dispose() {
-        }
+    public partial class TobuSignal : AssemblyPluginBase {
 
         public override void Tick(TimeSpan elapsed) {
-            AtsPlugin atsPlugin = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin;
-            atsPlugin.AtsHandles.PowerNotch = 0;
-            atsPlugin.AtsHandles.BrakeNotch = 0;
-            atsPlugin.AtsHandles.ConstantSpeedMode = ConstantSpeedMode.Continue;
-            atsPlugin.AtsHandles.ReverserPosition = ReverserPosition.N;
+            var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.AtsHandles;
+            var state = Native.VehicleState;
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
+
+            //handles.PowerNotch = 0;
+            //handles.BrakeNotch = 0;
+            //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;
+            //handles.ReverserPosition = ReverserPosition.N;
         }
     }
 }
