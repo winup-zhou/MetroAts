@@ -1,14 +1,17 @@
-Ôªøusing System.Collections.Generic;
-using System.Reflection;
+
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 using System.IO;
-using BveEx.PluginHost;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
-using System;
-using System.Linq;
+using System.Diagnostics;
+using BveEx.PluginHost;
 
-namespace MetroAts {
+namespace TobuSignal {
+
     public static class Config {
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern int GetPrivateProfileString(string Section, string Key, string Default, StringBuilder RetVal, int Size, string FilePath);
@@ -18,24 +21,21 @@ namespace MetroAts {
         public static string path;
         private const int buffer_size = 4096;
 
-        public static double EBDec = 5.0;
+        //≈‰÷√œÓ
         public static double TobuMaxSpeed = 100;
-        public static bool ATCLimitUseNeedle = false;//1:pilotlamp 0:needle
 
         public static void Load() {
-            path = new FileInfo(Path.Combine(PluginDir, "MetroAtsConfig.ini")).FullName;
+            path = new FileInfo(Path.Combine(PluginDir, "TobuSignal.ini")).FullName;
             if (File.Exists(path)) {
                 try {
-                    TobuMaxSpeed = ReadConfigDouble("Main", "TobuMaxSpeed");
-                    ATCLimitUseNeedle = ReadConfigBoolean("Main", "LimitUseNeedle");
-                    EBDec = ReadConfigDouble("Main", "MaxEBDeceleration");
 
                 } catch (Exception ex) {
                     throw ex;
                 }
-            } else throw new BveFileLoadException("Ë®≠ÂÆö„Éï„Ç°„Ç§„É´„ÅØË¶ã„Å§„Åã„Çä„Åæ„Åõ„Çì„Åß„Åó„Åü„ÄÇ", "MetroAts");
+            } else throw new BveFileLoadException("Unable to find configuration file: TobuSignal.ini","TobuSignal");
         }
 
+        //∂¡»°≈‰÷√œ‡πÿ∫Ø ˝
         private static void ReadConfig(string Section, string Key, ref int Value) {
             var OriginalVal = Value;
             var RetVal = new StringBuilder(buffer_size);

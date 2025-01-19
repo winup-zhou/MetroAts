@@ -5,6 +5,10 @@ VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetroAts", "MetroAts\MetroAts.csproj", "{D695CCBD-6046-4723-9C59-1E4ECCB1B3CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobuSignal", "TobuSignal\TobuSignal.csproj", "{5C21E6F9-90AF-479E-802A-2CFF8FC59ABE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeibuSignal", "SeibuSignal\SeibuSignal.csproj", "{54E4A8BD-8487-42FE-BACA-4991FDBDC7EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{D695CCBD-6046-4723-9C59-1E4ECCB1B3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D695CCBD-6046-4723-9C59-1E4ECCB1B3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D695CCBD-6046-4723-9C59-1E4ECCB1B3CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C21E6F9-90AF-479E-802A-2CFF8FC59ABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C21E6F9-90AF-479E-802A-2CFF8FC59ABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C21E6F9-90AF-479E-802A-2CFF8FC59ABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C21E6F9-90AF-479E-802A-2CFF8FC59ABE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54E4A8BD-8487-42FE-BACA-4991FDBDC7EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54E4A8BD-8487-42FE-BACA-4991FDBDC7EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54E4A8BD-8487-42FE-BACA-4991FDBDC7EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54E4A8BD-8487-42FE-BACA-4991FDBDC7EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
