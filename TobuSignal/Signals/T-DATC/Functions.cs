@@ -3,30 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BveTypes.ClassWrappers;
+using BveEx.Extensions.Native;
+using static System.Windows.Forms.AxHost;
 
 namespace TobuSignal {
     internal partial class T_DATC {
-        public static void Initialize(BveEx.PluginHost.Native.StartedEventArgs e) {
-            ATCPattern = new SpeedLimit();
-            StationPattern = new SpeedLimit();
-            DistanceDisplayPattern = new SpeedLimit();
+        public static void ResetAll() {
+            ATCPattern = SpeedPattern.inf;
+            StationPattern = SpeedPattern.inf;
+            LimitPattern = SpeedPattern.inf;
             TrackPos = 0;
-            StationStop = false;
-            DistanceDisplay = false;
             BrakeCommand = 0;
             ORPlamp = false;
-            ATCLimitSpeed = 0;
-            LastSignal = 0;
-            TargetSpeedUp = false;
-            LastDingTime = Config.LessInf;
-            TrackPosDisplayEndPos = 0;
+            ATCPatternSpeed = 0;
+            ATCTargetSpeed = 0;
+            ValidSections = 0;
+            EBUntilStop = false;
+            ServiceBrake = false;
+            LastDingTime = TimeSpan.Zero;
+            BrakeStartTime = TimeSpan.Zero;
+            InitializeStartTime = TimeSpan.Zero;
+            TrackPosDisplayEndLocation = 0;
             ATCEnable = false;
 
-            ATC_Ding = MetroAts.ATC_Ding;
-            ATC_PatternApproachBeep = MetroAts.ATC_PatternApproachBeep;
-            ATC_StationStopAnnounce = MetroAts.ATC_StationStopAnnounce;
-            //ATC_EmergencyOperationAnnounce = MetroAts.ATC_EmergencyOperationAnnounce;
-            ATC_WarningBell = MetroAts.ATC_WarningBell;
+            ATC_Ding = AtsSoundControlInstruction.Stop;
+            ATC_PatternApproachBeep = AtsSoundControlInstruction.Stop;
+            ATC_StationStopAnnounce = AtsSoundControlInstruction.Stop;
+            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
+            ATC_WarningBell = AtsSoundControlInstruction.Stop;
 
             ATC_01 = false;
             ATC_10 = false;
@@ -58,13 +63,13 @@ namespace TobuSignal {
 
             ORPNeedle = 0;
             ATCNeedle = 0;
-            ATCNeedle_Disappear = 1;
+            ATCNeedle_Disappear = true;
 
             ATC_TobuATC = false;
             ATC_Depot = false;
             ATC_ServiceBrake = false;
             ATC_EmergencyBrake = false;
-            //ATC_EmergencyOperation = Native.AtsPanelValues.RegisterBoolean(512);
+            ATC_EmergencyOperation = false;
             ATC_StationStop = false;
 
             ATC_PatternApproach = false;
@@ -73,33 +78,42 @@ namespace TobuSignal {
             ATC_SwitcherPosition = 0;
         }
 
-        public static void Enable(double Time) {
+        public static void Init(TimeSpan time) {
             ATCEnable = true;
-            InitializeStartTime = Time;
+            InitializeStartTime = time;
         }
 
-        public static void BeaconPassed(BveEx.PluginHost.Native.BeaconPassedEventArgs e) {
+        public static void SwitchFromATS() {
+            ATCEnable = true;
+        }
+
+        public static void BeaconPassed(VehicleState state, BeaconPassedEventArgs e) {
             switch (e.Type) {
+                case 31:
+                    ValidSections = 4;
+                    break;
                 case 42:
-                    if (e.Optional <= 3) {
-                        TrackPos = e.Optional;
-                        TrackPosDisplayEndPos = MetroAts.state.Location + e.Distance;
-                        if (MetroAts.state.Location == 0) Flag = true;
+                    if (e.Optional > 0) {
+                        TrackPos = D(e.Optional, 0);
+                        if (TrackPos != 0)
+                            TrackPosDisplayEndLocation = state.Location + Math.Floor((double)e.Optional / 10);
                     }
                     break;
                 case 43:
-                    StationStop = true;
-                    StationPattern = new SpeedLimit(0, MetroAts.state.Location + 510);
+                    StationPattern = new SpeedPattern(0, state.Location + e.Optional);
                     break;
                 case 44:
-                    StationStop = true;
-                    StationPattern = new SpeedLimit(0, MetroAts.state.Location);
+                    var lastLimitPattern = LimitPattern;
+                    LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.TargetSpeed);
+                    break;
+                case 45:
+                    LimitPattern = SpeedPattern.inf;
                     break;
             }
         }
 
-        public static void DoorOpened(BveEx.PluginHost.Native.DoorEventArgs e) {
-            StationStop = false;
+        public static void DoorOpened() {
+            StationPattern = SpeedPattern.inf;
         }
 
 
@@ -109,11 +123,11 @@ namespace TobuSignal {
 
             BrakeCommand = 0;
 
-            ATC_Ding.Stop();
-            ATC_PatternApproachBeep.Stop();
-            ATC_StationStopAnnounce.Stop();
-            //ATC_EmergencyOperationAnnounce.Stop();
-            ATC_WarningBell.Stop();
+            ATC_Ding = AtsSoundControlInstruction.Stop;
+            ATC_PatternApproachBeep = AtsSoundControlInstruction.Stop;
+            ATC_StationStopAnnounce = AtsSoundControlInstruction.Stop;
+            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
+            ATC_WarningBell = AtsSoundControlInstruction.Stop;
 
             ATC_01 = false;
             ATC_10 = false;
@@ -145,19 +159,31 @@ namespace TobuSignal {
 
             ORPNeedle = 0;
             ATCNeedle = 0;
-            ATCNeedle_Disappear = 1;
+            ATCNeedle_Disappear = true;
 
             ATC_TobuATC = false;
             ATC_Depot = false;
             ATC_ServiceBrake = false;
             ATC_EmergencyBrake = false;
-            //ATC_EmergencyOperation = Native.AtsPanelValues.RegisterBoolean(512);
+            ATC_EmergencyOperation = false;
             ATC_StationStop = false;
 
             ATC_PatternApproach = false;
             ATC_EndPointDistance = 0;
 
             ATC_SwitcherPosition = 0;
+        }
+
+        //private
+        private static int[] pow10 = new int[] { 1, 10, 100, 1000, 10000, 100000 };
+        private static int D(int src, int digit) {
+            if (pow10[digit] > src) {
+                return 10;
+            } else if (digit == 0 && src == 0) {
+                return 0;
+            } else {
+                return src / pow10[digit] % 10;
+            }
         }
     }
 }

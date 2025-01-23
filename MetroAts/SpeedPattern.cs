@@ -35,7 +35,7 @@ namespace MetroAts {
 
         public override bool Equals(object obj) {
             return (obj is SpeedPattern) && (this.TargetSpeed == ((SpeedPattern)obj).TargetSpeed) &&
-                (this.Location == ((SpeedPattern)obj).Location) && (this.MaxSpeed == ((SpeedPattern)obj).MaxSpeed);
+                (this.Location == ((SpeedPattern)obj).Location);
         }
 
         public override int GetHashCode() {
