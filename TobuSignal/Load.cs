@@ -52,7 +52,17 @@ namespace TobuSignal {
         }
 
         public override void Dispose() {
-            
+            Native.BeaconPassed -= BeaconPassed;
+            Native.DoorOpened -= DoorOpened;
+            Native.DoorClosed -= DoorClosed;
+            Native.Started -= Initialize;
+            Native.AtsKeys.AnyKeyPressed -= KeyDown;
+            Native.AtsKeys.AnyKeyReleased -= KeyUp;
+            Native.VehicleSpecLoaded -= SetVehicleSpec;
+
+            BveHacker.ScenarioCreated -= OnScenarioCreated;
+
+            Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
         }
     }
 }

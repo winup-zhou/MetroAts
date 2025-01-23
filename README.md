@@ -7,7 +7,7 @@
 [The MIT License](LICENSE)
 
 ## Dependencies
-### [AtsEX](https://github.com/automatic9045/AtsEX) (MIT)
+### [BveEX](https://github.com/automatic9045/BveEX) (PolyForm Noncommercial License 1.0.0)
 
 Copyright (c) 2022 automatic9045
 
@@ -20,13 +20,20 @@ Email: 3166832341@qq.com
 Twitter: @wup99925510  
 
 ## 現在の開発状況
+### コアプラグイン
+- [ ] 保安装置選択スイッチ
+- [ ] マスコンキー
+### 東武
 - [x] TSP-ATS
 - [x] T-DATC
-- [x] 新CS-ATC
-- [x] ATC-P
-- [x] 西武ATC（旧CS-ATC）
+### 西武
+- [x] 旧CS-ATC
 - [ ] 西武ATS
-- [x] 相鉄ATS-P
-- [x] 信号切替 · マスコンキー
+### メトロ
+- [ ] 新CS-ATC
+### 東急
+- [ ] ATC-P
+### 相鉄
+- [ ] ATS-P
 
 その他の機能については検討中...
