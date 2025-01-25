@@ -28,7 +28,7 @@ namespace SeibuSignal {
                 if (dat > 0) {
                     return Math.Min(Math.Sqrt(dat) * 3600 / 1000, MaxSpeed);
                 } else {
-                    return offsetLimit;
+                    return Math.Min(offsetLimit, MaxSpeed);
                 }
             }
         }

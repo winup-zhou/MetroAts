@@ -100,14 +100,17 @@ namespace TobuSignal {
                     }
                     break;
                 case 43:
-                    StationPattern = new SpeedPattern(0, state.Location + e.Optional);
+                    if (ATCEnable)
+                        StationPattern = new SpeedPattern(0, state.Location + e.Optional + 25);
                     break;
                 case 44:
                     var lastLimitPattern = LimitPattern;
-                    LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.TargetSpeed);
+                    if (ATCEnable)
+                        LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.TargetSpeed);
                     break;
                 case 45:
-                    LimitPattern = SpeedPattern.inf;
+                    if (ATCEnable)
+                        LimitPattern = SpeedPattern.inf;
                     break;
             }
         }
@@ -121,7 +124,7 @@ namespace TobuSignal {
         public static void Disable() {
             ATCEnable = false;
 
-            BrakeCommand = 0;
+            BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 
             ATC_Ding = AtsSoundControlInstruction.Stop;
             ATC_PatternApproachBeep = AtsSoundControlInstruction.Stop;

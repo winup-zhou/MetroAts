@@ -13,16 +13,21 @@ namespace TobuSignal {
     public partial class TobuSignal : AssemblyPluginBase {
 
         public override void Tick(TimeSpan elapsed) {
-            var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.AtsHandles;
+            var AtsHandles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.AtsHandles;
+            var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             var state = Native.VehicleState;
             var panel = Native.AtsPanelArray;
             var sound = Native.AtsSoundArray;
 
             int pointer = 0;
-            while (sectionManager.Sections[pointer].Location < state.Location)
+            while (sectionManager.Sections[pointer].Location < state.Location) {
                 pointer++;
-            if (pointer >= sectionManager.Sections.Count)
-                pointer = sectionManager.Sections.Count - 1;
+                if (pointer >= sectionManager.Sections.Count) {
+                    pointer = sectionManager.Sections.Count - 1;
+                    break;
+                }
+            }
+
 
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
@@ -31,8 +36,8 @@ namespace TobuSignal {
                     //T-DATC
                     if (T_DATC.ATCEnable) {
                         T_DATC.Tick(state, sectionManager, handles);
-                        handles.BrakeNotch = Math.Max(handles.BrakeNotch, T_DATC.BrakeCommand);
-                        if (T_DATC.BrakeCommand > 0) handles.PowerNotch = 0;
+                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, T_DATC.BrakeCommand);
+                        if (T_DATC.BrakeCommand > 0) AtsHandles.PowerNotch = 0;
                     } else {
                         if (TSP_ATS.ATSEnable) {
                             TSP_ATS.Disable();
@@ -46,8 +51,8 @@ namespace TobuSignal {
                     //TSP-ATS
                     if (TSP_ATS.ATSEnable) {
                         TSP_ATS.Tick(state);
-                        handles.BrakeNotch = Math.Max(handles.BrakeNotch, TSP_ATS.BrakeCommand);
-                        if (TSP_ATS.BrakeCommand > 0) handles.PowerNotch = 0;
+                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, TSP_ATS.BrakeCommand);
+                        if (TSP_ATS.BrakeCommand > 0) AtsHandles.PowerNotch = 0;
                     } else {
                         if (T_DATC.ATCEnable) {
                             T_DATC.Disable();

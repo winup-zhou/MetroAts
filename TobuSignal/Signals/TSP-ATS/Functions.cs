@@ -51,7 +51,7 @@ namespace TobuSignal {
 
         public static void Disable() {
             ATSEnable = false;
-            BrakeCommand = 0;
+            BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
             ATS_TobuAts = false;
             ATS_ATSEmergencyBrake = false;
             ATS_EmergencyOperation = false;

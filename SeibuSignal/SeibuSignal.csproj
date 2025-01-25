@@ -47,7 +47,10 @@
     <Compile Include="Load.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Signals\CS-ATC\ATC.cs" />
-    <Compile Include="Signals\SeibuATS\SeibuATS.cs" />
+    <Compile Include="Signals\CS-ATC\Functions.cs" />
+    <Compile Include="Signals\CS-ATC\Tick.cs" />
+    <Compile Include="Signals\SeibuATS\Functions.cs" />
+    <Compile Include="Signals\SeibuATS\Tick.cs" />
     <Compile Include="SpeedPattern.cs" />
     <Compile Include="Tick.cs" />
   </ItemGroup>
@@ -60,4 +63,7 @@
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>COPY $(TargetPath) D:\Scenarios\vertah\tm10000\BveExPlugins\$(TargetFileName)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -63,7 +63,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>COPY $(TargetPath) D:\Scenarios\A7\TOBU50000\Vehicle\BveExPlugins\$(TargetFileName)</PostBuildEvent>
   </PropertyGroup>
 </Project>

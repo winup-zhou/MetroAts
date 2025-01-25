@@ -28,6 +28,7 @@ namespace TobuSignal {
         public static bool ATS_TobuAts, ATS_ATSEmergencyBrake, ATS_EmergencyOperation, ATS_Confirm, ATS_60, ATS_15;
         public static void Tick(VehicleState state) {
             if (ATSEnable) {
+                ATS_TobuAts = true;
                 if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 3000) {
                     ATS_ATSEmergencyBrake = true;
                     BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
@@ -36,8 +37,6 @@ namespace TobuSignal {
                         MPPPattern = SpeedPattern.inf;
                         isDoorOpened = false;
                     }
-
-                    ATS_TobuAts = true;
 
                     ATSPattern = SignalPattern.AtLocation(state.Location, -3.5) < MPPPattern.AtLocation(state.Location, -3.5) ? SignalPattern : MPPPattern;
 

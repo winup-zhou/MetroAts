@@ -14,8 +14,8 @@ namespace TobuSignal {
 
         private void BeaconPassed(object sender, BeaconPassedEventArgs e) {
             var state = Native.VehicleState;
-            if (state is null) state = new VehicleState(0,0,TimeSpan.Zero,0,0,0,0,0,0);
-            TSP_ATS.BeaconPassed(state, e);
+            if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
+            if (TSP_ATS.ATSEnable) TSP_ATS.BeaconPassed(state, e);
             T_DATC.BeaconPassed(state, e);
         }
 
@@ -25,8 +25,8 @@ namespace TobuSignal {
         }
 
         private void DoorOpened(object sender, EventArgs e) {
-            TSP_ATS.DoorOpened();
-            T_DATC.DoorOpened();
+            if (TSP_ATS.ATSEnable) TSP_ATS.DoorOpened();
+            if (T_DATC.ATCEnable) T_DATC.DoorOpened();
         }
 
         private void DoorClosed(object sender, EventArgs e) {
@@ -39,15 +39,16 @@ namespace TobuSignal {
 
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
-            var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.AtsHandles;
+            var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
                 if (TSP_ATS.ATSEnable) TSP_ATS.ResetBrake(state, handles);
             }
-            if (StandAloneMode) {
+            if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == BveTypes.ClassWrappers.ReverserPosition.N) {
                 if (e.KeyName == AtsKeyName.I) {
                     Sound_Keyout = AtsSoundControlInstruction.Play;
                     Keyin = false;
+                    SignalEnable = false;
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;
