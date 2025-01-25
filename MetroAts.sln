@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TobuSignal", "TobuSignal\To
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeibuSignal", "SeibuSignal\SeibuSignal.csproj", "{54E4A8BD-8487-42FE-BACA-4991FDBDC7EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JR_SotetsuSignal", "SotetsuSignal\JR_SotetsuSignal.csproj", "{5291C113-A4FF-46B8-ACB6-9B55E3516630}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JR_SotetsuSignal", "JR_SotetsuSignal\JR_SotetsuSignal.csproj", "{5291C113-A4FF-46B8-ACB6-9B55E3516630}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetroSignal", "MetroSignal\MetroSignal.csproj", "{9517642B-7FC6-4F66-8BB9-2DF9B20F4665}"
 EndProject
