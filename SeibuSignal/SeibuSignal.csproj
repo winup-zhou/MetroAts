@@ -62,6 +62,12 @@
       <Version>2.0.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MetroAts\MetroAts.csproj">
+      <Project>{d695ccbd-6046-4723-9c59-1e4eccb1b3cb}</Project>
+      <Name>MetroAts</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>COPY $(TargetPath) D:\Scenarios\vertah\tm10000\BveExPlugins\$(TargetFileName)</PostBuildEvent>

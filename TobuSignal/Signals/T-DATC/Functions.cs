@@ -26,12 +26,12 @@ namespace TobuSignal {
             InitializeStartTime = TimeSpan.Zero;
             TrackPosDisplayEndLocation = 0;
             ATCEnable = false;
+            ATCswitchoverSection = false;
 
             ATC_Ding = AtsSoundControlInstruction.Stop;
             ATC_PatternApproachBeep = AtsSoundControlInstruction.Stop;
             ATC_StationStopAnnounce = AtsSoundControlInstruction.Stop;
             ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_WarningBell = AtsSoundControlInstruction.Stop;
 
             ATC_01 = false;
             ATC_10 = false;
@@ -112,6 +112,10 @@ namespace TobuSignal {
                     if (ATCEnable)
                         LimitPattern = SpeedPattern.inf;
                     break;
+                case 46:
+                    if (ATCEnable)
+                        ATCswitchoverSection = true;
+                    break;
             }
         }
 
@@ -122,6 +126,7 @@ namespace TobuSignal {
 
 
         public static void Disable() {
+            ATCswitchoverSection = false;
             ATCEnable = false;
 
             BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
@@ -130,7 +135,6 @@ namespace TobuSignal {
             ATC_PatternApproachBeep = AtsSoundControlInstruction.Stop;
             ATC_StationStopAnnounce = AtsSoundControlInstruction.Stop;
             ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_WarningBell = AtsSoundControlInstruction.Stop;
 
             ATC_01 = false;
             ATC_10 = false;
@@ -175,6 +179,12 @@ namespace TobuSignal {
             ATC_EndPointDistance = 0;
 
             ATC_SwitcherPosition = 0;
+        }
+
+        public static void SignalUpdated() {
+            if (ATCEnable && ATCswitchoverSection) {
+                InitializeStartTime = TimeSpan.MaxValue;
+            }
         }
 
         //private

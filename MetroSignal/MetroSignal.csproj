@@ -4,14 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5C21E6F9-90AF-479E-802A-2CFF8FC59ABE}</ProjectGuid>
+    <ProjectGuid>{9517642B-7FC6-4F66-8BB9-2DF9B20F4665}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TobuSignal</RootNamespace>
-    <AssemblyName>TobuSignal</AssemblyName>
+    <RootNamespace>MetroSignal</RootNamespace>
+    <AssemblyName>MetroSignal</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <Deterministic>false</Deterministic>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,7 +33,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,16 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config.cs" />
-    <Compile Include="Input.cs" />
-    <Compile Include="Load.cs" />
-    <Compile Include="Signals\T-DATC\Functions.cs" />
-    <Compile Include="Signals\T-DATC\Tick.cs" />
-    <Compile Include="Signals\TSP-ATS\Functions.cs" />
-    <Compile Include="Signals\TSP-ATS\Tick.cs" />
-    <Compile Include="SpeedPattern.cs" />
-    <Compile Include="Tick.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Signals\CS-ATC\ATC.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MetroAts\MetroAts.csproj">
+      <Project>{d695ccbd-6046-4723-9c59-1e4eccb1b3cb}</Project>
+      <Name>MetroAts</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BveEx.CoreExtensions">
@@ -62,13 +60,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MetroAts\MetroAts.csproj">
-      <Project>{d695ccbd-6046-4723-9c59-1e4eccb1b3cb}</Project>
-      <Name>MetroAts</Name>
-    </ProjectReference>
+    <Folder Include="Signals\WS-ATC\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>COPY $(TargetPath) D:\Scenarios\A7\TOBU50000\Vehicle\BveExPlugins\$(TargetFileName)</PostBuildEvent>
-  </PropertyGroup>
 </Project>

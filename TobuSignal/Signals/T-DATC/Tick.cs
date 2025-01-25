@@ -15,7 +15,7 @@ namespace TobuSignal {
             -2, 35, -2, -1, 35, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
         private static SpeedPattern ATCPattern = SpeedPattern.inf, StationPattern = SpeedPattern.inf, LimitPattern = SpeedPattern.inf;
         private static int TrackPos = 0, ValidSections = 0;
-        private static bool EBUntilStop = false, ORPlamp = false, ServiceBrake = false;
+        private static bool EBUntilStop = false, ORPlamp = false, ServiceBrake = false, ATCswitchoverSection = false;
         private static int ATCTargetSpeed = 0, ATCPatternSpeed = 0;
         private static double TrackPosDisplayEndLocation = 0;
         private static TimeSpan InitializeStartTime = TimeSpan.Zero, LastDingTime = TimeSpan.Zero, BrakeStartTime = TimeSpan.Zero;
@@ -36,7 +36,7 @@ namespace TobuSignal {
             ATC_Stop, ATC_Proceed, ATC_P, ATC_TobuATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_PatternApproach, ATCNeedle_Disappear, ATC_StationStop;
         public static int ORPNeedle, ATCNeedle, ATC_EndPointDistance, ATC_SwitcherPosition;
 
-        public static AtsSoundControlInstruction ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
+        public static AtsSoundControlInstruction ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce;
 
         public static void Tick(VehicleState state, SectionManager sectionManager, HandleSet handles) {
             if (ATCEnable) {
@@ -67,7 +67,7 @@ namespace TobuSignal {
                 ATC_TobuATC = true;
 
                 //Sound values reset
-                ATC_Ding = ATC_PatternApproachBeep = ATC_StationStopAnnounce = ATC_EmergencyOperationAnnounce = ATC_WarningBell = AtsSoundControlInstruction.Continue;
+                ATC_Ding = ATC_PatternApproachBeep = ATC_StationStopAnnounce = ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Continue;
 
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == TobuSignal.vehicleSpec.BrakeNotches + 1;
@@ -85,7 +85,6 @@ namespace TobuSignal {
                         ATCNeedle = 0;
                         ATCNeedle_Disappear = true;
                     }
-                    ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
 
                     BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 
@@ -106,9 +105,6 @@ namespace TobuSignal {
                         BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
                     } else {
                         //After initializing
-                        if (ATC_WarningBell == AtsSoundControlInstruction.PlayLooping) {
-                            ATC_WarningBell = AtsSoundControlInstruction.Stop;
-                        }
                         if (ATC_X) {
                             ATC_X = false;
                             ATC_Ding = AtsSoundControlInstruction.Play;

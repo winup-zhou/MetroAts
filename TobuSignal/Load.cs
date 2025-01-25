@@ -21,7 +21,7 @@ namespace TobuSignal {
         public static VehicleSpec vehicleSpec;
         public static SectionManager sectionManager;
 
-        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover;
+        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover, Sound_SignalSWPosNotCorrect;
 
         private static bool SignalEnable = false;
         private static bool Keyin = false;
@@ -36,6 +36,7 @@ namespace TobuSignal {
             Native.AtsKeys.AnyKeyPressed += KeyDown;
             Native.AtsKeys.AnyKeyReleased += KeyUp;
             Native.VehicleSpecLoaded += SetVehicleSpec;
+            Native.SignalUpdated += SetSignal;
 
             BveHacker.ScenarioCreated += OnScenarioCreated;
 
