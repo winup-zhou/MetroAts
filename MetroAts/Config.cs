@@ -18,22 +18,35 @@ namespace MetroAts {
         public static string path;
         private const int buffer_size = 4096;
 
-        public static double EBDec = 5.0;
-        public static double TobuMaxSpeed = 100;
-        public static bool ATCLimitUseNeedle = false;//1:pilotlamp 0:needle
+        public static List<KeyPosList> KeyPosLists;
+        public static List<SignalSWList> SignalSWLists;
+        public static bool SignalSW_loop = false;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroAtsConfig.ini")).FullName;
             if (File.Exists(path)) {
                 try {
-                    TobuMaxSpeed = ReadConfigDouble("Main", "TobuMaxSpeed");
-                    ATCLimitUseNeedle = ReadConfigBoolean("Main", "LimitUseNeedle");
-                    EBDec = ReadConfigDouble("Main", "MaxEBDeceleration");
+                    var KeysString = "";
+                    ReadConfig("keys", "positions", ref KeysString);
+                    foreach (var Key in KeysString.Split(',')) {
+                        KeyPosLists.Add((KeyPosList)Enum.Parse(typeof(KeyPosList), Key, false));
+                    }
+                    if (!KeyPosLists.Contains(KeyPosList.None)) KeyPosLists.Add(KeyPosList.None);
+                    KeyPosLists.Sort();
 
+                    var SignalSWString = "";
+                    ReadConfig("signalsw", "positions", ref SignalSWString);
+                    foreach (var SignalSW in SignalSWString.Split(',')) {
+                        SignalSWLists.Add((SignalSWList)Enum.Parse(typeof(SignalSWList), SignalSW, false));
+                    }
+                    if (!SignalSWLists.Contains(SignalSWList.Noset)) SignalSWLists.Add(SignalSWList.Noset);
+                    SignalSWLists.Sort();
+
+                    ReadConfig("signalsw", "isloop", ref SignalSW_loop);
                 } catch (Exception ex) {
                     throw ex;
                 }
-            } else throw new BveFileLoadException("設定ファイルは見つかりませんでした。", "MetroAts");
+            } else throw new BveFileLoadException("Unable to find configuration file: MetroAtsConfig.ini", "MetroAts");
         }
 
         private static void ReadConfig(string Section, string Key, ref int Value) {

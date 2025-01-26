@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CorePlugin = MetroAts.MetroAts;
 
 namespace SeibuSignal {
     public enum AtsSoundControlInstruction {
@@ -19,6 +20,7 @@ namespace SeibuSignal {
         private readonly INative Native;
         public static VehicleSpec vehicleSpec;
         public static SectionManager sectionManager;
+        private CorePlugin corePlugin;
 
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover;
 
@@ -27,6 +29,8 @@ namespace SeibuSignal {
         private static bool StandAloneMode = true;
 
         public SeibuSignal(PluginBuilder builder) : base(builder) {
+            Config.Load();
+
             Native = Extensions.GetExtension<INative>();
             Native.BeaconPassed += BeaconPassed;
             Native.DoorOpened += DoorOpened;
@@ -42,12 +46,12 @@ namespace SeibuSignal {
         }
 
         private void OnAllPluginsLoaded(object sender, EventArgs e) {
-            //try {
-            //    //mapPlugin = Plugins[PluginType.MapPlugin]["TGMT_WCU_Plugin"] as MapPlugin;
-            //    StandAloneMode = false;
-            //} catch (Exception ex) {
-            //    StandAloneMode = true;
-            //}
+            try {
+                corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin;
+                StandAloneMode = false;
+            } catch (Exception ex) {
+                StandAloneMode = true;
+            }
         }
 
         public override void Dispose() {

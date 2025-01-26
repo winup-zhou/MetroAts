@@ -1,102 +1,102 @@
-﻿using BveEx.PluginHost;
+﻿using BveEx.Extensions.Native.Input;
+using BveEx.Extensions.Native;
+using BveEx.PluginHost;
+using BveEx.PluginHost.Input;
 using BveEx.PluginHost.Plugins;
 using BveTypes.ClassWrappers;
-using SlimDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MetroAts {
     public partial class MetroAts : AssemblyPluginBase {
-        private void OnA1Pressed(object sender, EventArgs e) {
-            throw new NotImplementedException();
+
+        private void Initialize(object sender, StartedEventArgs e) {
+            if (e.DefaultBrakePosition == BrakePosition.Emergency) {
+                for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
+                    if (Config.KeyPosLists[i] == KeyPosList.None) {
+                        NowKey = i;
+                        break;
+                    }
+                }
+                for (int i = 0; i < Config.SignalSWLists.Count; ++i) {
+                    if (Config.SignalSWLists[i] == SignalSWList.Noset) {
+                        NowSignalSW = i;
+                        break;
+                    }
+                }
+            }
+        }
+        private void DoorOpened(object sender, EventArgs e) {
+            isDoorOpen = true;
         }
 
-        private void OnA2Pressed(object sender, EventArgs e) {
-            throw new NotImplementedException();
+        private void DoorClosed(object sender, EventArgs e) {
+            isDoorOpen = false;
         }
 
-        private void OnB1Pressed(object sender, EventArgs e) {
-            TSP_ATS.OnB1Pressed(sender, e);
-            ATS_P_SN.OnB1Pressed(sender, e);
+        private void KeyUp(object sender, AtsKeyEventArgs e) {
+            //throw new NotImplementedException();
         }
 
-        private void OnB2Pressed(object sender, EventArgs e) {
-            ATS_P_SN.OnB2Pressed(sender, e);
-        }
-
-        private void OnGPressed(object sender, EventArgs e) {
-            if (CanSwitch) {
-                if (SignalMode != 4) {
-                    ATCCgS.Play();
-                    SignalMode += 1;
+        private void KeyDown(object sender, AtsKeyEventArgs e) {
+            var state = Native.VehicleState;
+            var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
+            if (state.Speed == 0 && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
+                if (e.KeyName == AtsKeyName.I) {
+                    if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey > 0) {
+                        NowKey--;
+                        Sound_Keyin = AtsSoundControlInstruction.Play;
+                    } else {
+                        for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
+                            if (Config.KeyPosLists[i] == KeyPosList.None) {
+                                NowKey = i;
+                                break;
+                            }
+                        }
+                        Sound_Keyout = AtsSoundControlInstruction.Play;
+                    }
+                } else if (e.KeyName == AtsKeyName.J) {
+                    if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey < Config.KeyPosLists.Count - 1) {
+                        NowKey++;
+                        Sound_Keyin = AtsSoundControlInstruction.Play;
+                    } else {
+                        for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
+                            if (Config.KeyPosLists[i] == KeyPosList.None) {
+                                NowKey = i;
+                                break;
+                            }
+                        }
+                        Sound_Keyout = AtsSoundControlInstruction.Play;
+                    }
+                } else if (e.KeyName == AtsKeyName.G) {
+                    if (Config.SignalSW_loop) {
+                        NowSignalSW--;
+                        NowSignalSW %= Config.SignalSWLists.Count;
+                        Sound_SignalSW = AtsSoundControlInstruction.Play;
+                    } else if (NowSignalSW < Config.SignalSWLists.Count - 1) {
+                        NowSignalSW++;
+                        Sound_SignalSW = AtsSoundControlInstruction.Play;
+                    }
+                } else if (e.KeyName == AtsKeyName.H) {
+                    if (Config.SignalSW_loop) {
+                        NowSignalSW++;
+                        NowSignalSW %= Config.SignalSWLists.Count;
+                        Sound_SignalSW = AtsSoundControlInstruction.Play;
+                    } else if (NowSignalSW > 1) {
+                        NowSignalSW--;
+                        Sound_SignalSW = AtsSoundControlInstruction.Play;
+                    }
                 }
             }
         }
 
-        private void OnHPressed(object sender, EventArgs e) {
-            if (CanSwitch) {
-                if (SignalMode != 0) {
-                    ATCCgS.Play();
-                    SignalMode -= 1;
-                }
-            }
+        private void SetVehicleSpec(object sender, EventArgs e) {
+            vehicleSpec = Native.VehicleSpec;
         }
 
-        //
-        private void OnIPressed(object sender, EventArgs e) {
-            if (CanSwitch) {
-                if (KeyPosition > 0) {
-                    if (SignalEnable) SignalEnable = false;
-                    KeyPosition = 0;
-                    KeyOff.Play();
-                } else if (KeyPosition == 0) {
-                    if (SignalEnable) SignalEnable = false;
-                    KeyPosition = -1;
-                    KeyOn.Play();
-                }
-            }
-        }
-
-        private void OnJPressed(object sender, EventArgs e) {
-            if (CanSwitch) {
-                if (KeyPosition == -1) {
-                    if (SignalEnable) SignalEnable = false;
-                    KeyPosition = 0;
-                    KeyOff.Play();
-                } else if (KeyPosition != 4) {
-                    if (SignalEnable) SignalEnable = false;
-                    KeyPosition += 1;
-                    KeyOn.Play();
-                }
-            }
-        }
-
-        private void Initialize(BveEx.PluginHost.Native.StartedEventArgs e) {
-            if (e.DefaultBrakePosition == BrakePosition.Removed) SignalEnable = false;
-            T_DATC.Initialize(e);
-            TSP_ATS.Initialize(e);
-            ATC.Initialize(e);
-            ATS_P_SN.Initialize(e);
-        }
-
-        private void DoorOpened(BveEx.PluginHost.Native.DoorEventArgs e) {
-            T_DATC.DoorOpened(e);
-            TSP_ATS.DoorOpened(e);
-            ATC.DoorOpened(e);
-        }
-
-        private void BeaconPassed(BveEx.PluginHost.Native.BeaconPassedEventArgs e) {
-            T_DATC.BeaconPassed(e);
-            TSP_ATS.BeaconPassed(e);
-            ATC.BeaconPassed(e);
-            ATS_P_SN.BeaconPassed(e);
-        }
-
-        private void OnScenarioCreated(ScenarioCreatedEventArgs e) {
-            sectionManager = e.Scenario.SectionManager;
-        }
     }
 }

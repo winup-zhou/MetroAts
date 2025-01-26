@@ -37,7 +37,7 @@ namespace TobuSignal {
                     if (T_DATC.ATCEnable) {
                         T_DATC.Tick(state, sectionManager, handles);
                         AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, T_DATC.BrakeCommand);
-                        if (T_DATC.BrakeCommand > 0) AtsHandles.PowerNotch = 0;
+                        if (T_DATC.BrakeCommand > 0) handles.PowerNotch = 0;
                     } else {
                         if (TSP_ATS.ATSEnable) {
                             TSP_ATS.Disable();
@@ -52,7 +52,7 @@ namespace TobuSignal {
                     if (TSP_ATS.ATSEnable) {
                         TSP_ATS.Tick(state);
                         AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, TSP_ATS.BrakeCommand);
-                        if (TSP_ATS.BrakeCommand > 0) AtsHandles.PowerNotch = 0;
+                        if (TSP_ATS.BrakeCommand > 0) handles.PowerNotch = 0;
                     } else {
                         if (T_DATC.ATCEnable) {
                             T_DATC.Disable();

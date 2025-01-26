@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CorePlugin = MetroAts.MetroAts;
 
 namespace TobuSignal {
     public enum AtsSoundControlInstruction {
@@ -20,6 +21,7 @@ namespace TobuSignal {
         private readonly INative Native;
         public static VehicleSpec vehicleSpec;
         public static SectionManager sectionManager;
+        private CorePlugin corePlugin;
 
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover, Sound_SignalSWPosNotCorrect;
 
@@ -28,6 +30,8 @@ namespace TobuSignal {
         private static bool StandAloneMode = true;
 
         public TobuSignal(PluginBuilder builder) : base(builder) {
+            Config.Load();
+
             Native = Extensions.GetExtension<INative>();
             Native.BeaconPassed += BeaconPassed;
             Native.DoorOpened += DoorOpened;
@@ -44,12 +48,12 @@ namespace TobuSignal {
         }
 
         private void OnAllPluginsLoaded(object sender, EventArgs e) {
-            //try {
-            //    //mapPlugin = Plugins[PluginType.MapPlugin]["TGMT_WCU_Plugin"] as MapPlugin;
-            //    StandAloneMode = false;
-            //} catch (Exception ex) {
-            //    StandAloneMode = true;
-            //}
+            try {
+                corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin;
+                StandAloneMode = false;
+            } catch (Exception ex) {
+                StandAloneMode = true;
+            }
         }
 
         public override void Dispose() {

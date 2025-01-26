@@ -22,13 +22,13 @@ namespace SeibuSignal {
         private const int buffer_size = 4096;
 
         //≈‰÷√œÓ
-
+        
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "SeibuSignal.ini")).FullName;
             if (File.Exists(path)) {
                 try {
-
+                    
                 } catch (Exception ex) {
                     throw ex;
                 }

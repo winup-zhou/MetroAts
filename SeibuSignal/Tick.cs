@@ -32,7 +32,7 @@ namespace SeibuSignal {
                     if (SeibuATS.ATSEnable) {
                         SeibuATS.Tick(state, sectionManager);
                         AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, SeibuATS.BrakeCommand);
-                        if (SeibuATS.BrakeCommand > 0) AtsHandles.PowerNotch = 0;
+                        if (SeibuATS.BrakeCommand > 0) handles.PowerNotch = 0;
                     } else {
                         SeibuATS.Init(state.Time);
                     }
