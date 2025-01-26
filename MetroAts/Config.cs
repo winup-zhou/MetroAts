@@ -18,8 +18,8 @@ namespace MetroAts {
         public static string path;
         private const int buffer_size = 4096;
 
-        public static List<KeyPosList> KeyPosLists;
-        public static List<SignalSWList> SignalSWLists;
+        public static List<KeyPosList> KeyPosLists = new List<KeyPosList>();
+        public static List<SignalSWList> SignalSWLists = new List<SignalSWList>();
         public static bool SignalSW_loop = false;
 
         public static void Load() {
@@ -28,16 +28,16 @@ namespace MetroAts {
                 try {
                     var KeysString = "";
                     ReadConfig("keys", "positions", ref KeysString);
-                    foreach (var Key in KeysString.Split(',')) {
-                        KeyPosLists.Add((KeyPosList)Enum.Parse(typeof(KeyPosList), Key, false));
+                    foreach (var i in KeysString.Split(',')) {
+                        KeyPosLists.Add((KeyPosList)Enum.Parse(typeof(KeyPosList), i, true));
                     }
                     if (!KeyPosLists.Contains(KeyPosList.None)) KeyPosLists.Add(KeyPosList.None);
                     KeyPosLists.Sort();
 
                     var SignalSWString = "";
                     ReadConfig("signalsw", "positions", ref SignalSWString);
-                    foreach (var SignalSW in SignalSWString.Split(',')) {
-                        SignalSWLists.Add((SignalSWList)Enum.Parse(typeof(SignalSWList), SignalSW, false));
+                    foreach (var i in SignalSWString.Split(',')) {
+                        SignalSWLists.Add((SignalSWList)Enum.Parse(typeof(SignalSWList), i, true));
                     }
                     if (!SignalSWLists.Contains(SignalSWList.Noset)) SignalSWLists.Add(SignalSWList.Noset);
                     SignalSWLists.Sort();

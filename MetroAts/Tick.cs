@@ -89,12 +89,6 @@ namespace MetroAts {
             leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
             leverText.Text = $"キー:{KeyText} 保安:{SignalSWText}\n{description}";
 
-            if (isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
-            if (Config.KeyPosLists[NowKey] == KeyPosList.None) {
-                AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
-                AtsHandles.ReverserPosition = ReverserPosition.N;
-            }
-
             sound[271] = (int)Sound_Keyin;
             sound[272] = (int)Sound_Keyout;
             sound[273] = (int)Sound_SignalSW;

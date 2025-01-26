@@ -123,17 +123,30 @@ namespace TobuSignal {
                 sound[118] = (int)Sound_Switchover;
                 sound[119] = (int)T_DATC.ATC_EmergencyOperationAnnounce;
 
+                if (!StandAloneMode) {
+                    if ((corePlugin.KeyPos != MetroAts.KeyPosList.Tobu || corePlugin.SignalSWPos != MetroAts.SignalSWList.Tobu))
+                        SignalEnable = false;
+                }
             } else {
                 for (var i = 287; i <= 330; ++i) panel[i] = 0;
                 panel[312] = 1;
-                if (!SignalEnable && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1
-                    && Keyin && StandAloneMode)
-                    SignalEnable = true;
-                handles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
-                handles.ReverserPosition = ReverserPosition.N;
 
+                if (!StandAloneMode) {
+                    Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Tobu;
+                    if (!SignalEnable && Keyin && corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                        SignalEnable = true;
+                } else {
+                    if (!SignalEnable && Keyin && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                        SignalEnable = true;
+                }
+                AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
+                AtsHandles.ReverserPosition = ReverserPosition.N;
+            }
 
-
+            if (StandAloneMode) {
+                var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
+                leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
+                leverText.Text = $"キー:{(Keyin ? "入" : "切")} \n{description}";
             }
             sound[10] = (int)Sound_Keyin;
             sound[11] = (int)Sound_Keyout;

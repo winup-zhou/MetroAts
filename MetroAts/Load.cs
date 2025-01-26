@@ -53,8 +53,8 @@ namespace MetroAts {
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_SignalSW;
 
         //Infomation that should be readable by sub-plugins
-        public static KeyPosList KeyPos {  get { return Config.KeyPosLists[NowKey]; } }
-        public static SignalSWList SignalSWPos {  get { return Config.SignalSWLists[NowSignalSW]; } } 
+        public KeyPosList KeyPos {  get { return Config.KeyPosLists[NowKey]; } }
+        public SignalSWList SignalSWPos {  get { return Config.SignalSWLists[NowSignalSW]; } } 
 
         public MetroAts(PluginBuilder services) : base(services) {
             Config.Load();

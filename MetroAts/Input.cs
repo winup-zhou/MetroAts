@@ -50,7 +50,7 @@ namespace MetroAts {
                     if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey > 0) {
                         NowKey--;
                         Sound_Keyin = AtsSoundControlInstruction.Play;
-                    } else {
+                    } else if(NowKey > 0) {
                         for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
                             if (Config.KeyPosLists[i] == KeyPosList.None) {
                                 NowKey = i;
@@ -63,7 +63,7 @@ namespace MetroAts {
                     if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey < Config.KeyPosLists.Count - 1) {
                         NowKey++;
                         Sound_Keyin = AtsSoundControlInstruction.Play;
-                    } else {
+                    } else if(NowKey < Config.KeyPosLists.Count - 1) {
                         for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
                             if (Config.KeyPosLists[i] == KeyPosList.None) {
                                 NowKey = i;
@@ -77,8 +77,8 @@ namespace MetroAts {
                         NowSignalSW--;
                         NowSignalSW %= Config.SignalSWLists.Count;
                         Sound_SignalSW = AtsSoundControlInstruction.Play;
-                    } else if (NowSignalSW < Config.SignalSWLists.Count - 1) {
-                        NowSignalSW++;
+                    } else if (NowSignalSW > 0) {
+                        NowSignalSW--;
                         Sound_SignalSW = AtsSoundControlInstruction.Play;
                     }
                 } else if (e.KeyName == AtsKeyName.H) {
@@ -86,8 +86,8 @@ namespace MetroAts {
                         NowSignalSW++;
                         NowSignalSW %= Config.SignalSWLists.Count;
                         Sound_SignalSW = AtsSoundControlInstruction.Play;
-                    } else if (NowSignalSW > 1) {
-                        NowSignalSW--;
+                    } else if (NowSignalSW < Config.SignalSWLists.Count - 1) {
+                        NowSignalSW++;
                         Sound_SignalSW = AtsSoundControlInstruction.Play;
                     }
                 }

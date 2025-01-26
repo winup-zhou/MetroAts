@@ -21,6 +21,8 @@ namespace TobuSignal {
         private readonly INative Native;
         public static VehicleSpec vehicleSpec;
         public static SectionManager sectionManager;
+
+        private LeverText leverText;
         private CorePlugin corePlugin;
 
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover, Sound_SignalSWPosNotCorrect;
