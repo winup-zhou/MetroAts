@@ -27,6 +27,7 @@ Twitter: @wup99925510
 #### 東武
 - [x] TSP-ATS
 - [x] T-DATC
+- [ ] ~~TC-ATS~~ __暫定計画__
 #### 西武
 - [x] 旧CS-ATC
 - [x] 西武ATS
