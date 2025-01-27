@@ -74,7 +74,7 @@ namespace SeibuSignal {
                     ATS_Power = true;
                     //if (state.Location > B2MonitorSectionLocation) B2MonitorSectionLocation = sectionManager.LasSection.Location;
                     if (CurrentSection.CurrentSignalIndex >= 9 && CurrentSection.CurrentSignalIndex < 49 && CurrentSection.CurrentSignalIndex != 34) {
-                        B1Speed = B2Speed = -1;
+                        B1Speed = B2Speed = 30;
                     } else {
                         if (B1MonitorSection.CurrentSignalIndex == 0) { //fR
                             B1Pattern.Location = B1MonitorSection.Location - 10;

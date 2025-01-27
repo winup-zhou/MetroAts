@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MetroSignal
-{
-    public class Class1
-    {
+namespace MetroSignal.Signals.CS_ATC {
+    internal class Functions {
     }
 }

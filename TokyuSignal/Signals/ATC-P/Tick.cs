@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SotetsuSignal
-{
-    public class Class1
-    {
+namespace TokyuSignal.Signals.ATC_P {
+    internal class Tick {
     }
 }

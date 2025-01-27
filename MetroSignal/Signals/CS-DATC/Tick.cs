@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TokyuSignal
-{
-    public class Class1
-    {
+namespace MetroSignal.Signals.CS_DATC {
+    internal class Tick {
     }
 }

@@ -31,7 +31,8 @@ namespace MetroAts {
         Sotetsu = 5,
         JR = 6,
         TokyuATS = 7,
-        WS_ATC = 8
+        WS_ATC = 8,
+        ATP = 9
     }
 
     public enum AtsSoundControlInstruction {

@@ -80,6 +80,9 @@ namespace MetroAts {
                 case SignalSWList.WS_ATC:
                     SignalSWText = "WS-ATC";
                     break;
+                case SignalSWList.ATP:
+                    SignalSWText = "ATP";
+                    break;
                 default:
                     SignalSWText = "無効";
                     break;
