@@ -20,13 +20,17 @@ namespace SeibuSignal {
         private readonly INative Native;
         public static VehicleSpec vehicleSpec;
         public static SectionManager sectionManager;
+
+        private LeverText leverText;
         private CorePlugin corePlugin;
 
-        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover;
+        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW;
 
         private static bool SignalEnable = false;
         private static bool Keyin = false;
         private static bool StandAloneMode = true;
+        private static bool isDoorOpen = false;
+        private static bool BrakeTriggered = false;
 
         public SeibuSignal(PluginBuilder builder) : base(builder) {
             Config.Load();

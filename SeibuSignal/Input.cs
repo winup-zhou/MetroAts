@@ -23,14 +23,21 @@ namespace SeibuSignal {
 
         private void Initialize(object sender, StartedEventArgs e) {
             SeibuATS.ResetAll();
+            ATC.ResetAll();
+            if(e.DefaultBrakePosition == BrakePosition.Emergency && !StandAloneMode) {
+                BrakeTriggered = false;
+                Keyin = false;
+                SignalEnable = false;
+            }
         }
 
         private void DoorOpened(object sender, EventArgs e) {
             if(SeibuATS.ATSEnable)SeibuATS.DoorOpened();
+            isDoorOpen = true;
         }
 
         private void DoorClosed(object sender, EventArgs e) {
-            //throw new NotImplementedException();
+            isDoorOpen = false;
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
@@ -48,7 +55,10 @@ namespace SeibuSignal {
                 if (e.KeyName == AtsKeyName.I) {
                     Sound_Keyout = AtsSoundControlInstruction.Play;
                     Keyin = false;
+                    BrakeTriggered = false;
                     SignalEnable = false;
+                    SeibuATS.ResetAll();
+                    ATC.ResetAll();
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;

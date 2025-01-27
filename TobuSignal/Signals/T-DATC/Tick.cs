@@ -17,7 +17,7 @@ namespace TobuSignal {
         private static int TrackPos = 0, ValidSections = 0;
         private static bool EBUntilStop = false, ORPlamp = false, ServiceBrake = false, ATCswitchoverSection = false;
         private static int ATCTargetSpeed = 0, ATCPatternSpeed = 0;
-        private static double TrackPosDisplayEndLocation = 0;
+        private static double TrackPosDisplayEndLocation = 0, LimitPatternSignalEndLocation = 0;
         private static TimeSpan InitializeStartTime = TimeSpan.Zero, LastDingTime = TimeSpan.Zero, BrakeStartTime = TimeSpan.Zero;
         private const double SignalPatternDec = -2.25; //*10
         private const double StationPatternDec = -4.0;
@@ -56,7 +56,7 @@ namespace TobuSignal {
                         break;
                     }
                 }
-                    
+
 
                 LastCurrentSection = currentSection;
                 currentSection = sectionManager.Sections[pointer > 0 ? pointer - 1 : 0] as Section;
@@ -103,6 +103,9 @@ namespace TobuSignal {
                             ATCNeedle_Disappear = true;
                         }
                         BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
+                        ValidSections = 0;
+
+                        if (TrackPos > 0 && TrackPosDisplayEndLocation < NextSection.Location) TrackPosDisplayEndLocation = NextSection.Location;
                     } else {
                         //After initializing
                         if (ATC_X) {
@@ -161,11 +164,22 @@ namespace TobuSignal {
 
                         //P表示灯
                         var lastORPlamp = ORPlamp;
-                        if (Math.Min(ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec), LimitPattern.AtLocation(NextSection.Location - 26, SignalPatternDec)) >
-                            Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex))
-                            && SignalIndexToSpeed(NextSection.CurrentSignalIndex) <= SignalIndexToSpeed(currentSection.CurrentSignalIndex))
-                            ORPlamp = true;
-                        else ORPlamp = false;
+                        if (ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec) < LimitPattern.AtLocation(NextSection.Location - 26, SignalPatternDec)) {
+                            if (ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec) >
+                                Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex))
+                                && (SignalIndexToSpeed(NextSection.CurrentSignalIndex) <= SignalIndexToSpeed(currentSection.CurrentSignalIndex) || sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4)) {
+                                ORPlamp = true;
+                            } else {
+                                ORPlamp = false;
+                            }
+                        } else {
+                            if (LimitPattern != SpeedPattern.inf && state.Location < LimitPatternSignalEndLocation &&
+                                    LimitPattern.AtLocation(NextSection.Location - 26, SignalPatternDec) >= Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex))) {
+                                ORPlamp = true;
+                            } else ORPlamp = false;
+                        }
+
+
                         ATC_P = ORPlamp;
 
                         if (ATCLimits[currentSection.CurrentSignalIndex] <= 0) {

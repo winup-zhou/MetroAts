@@ -28,7 +28,6 @@ namespace TobuSignal {
                 }
             }
 
-
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
             if (SignalEnable) {
@@ -37,7 +36,7 @@ namespace TobuSignal {
                     if (T_DATC.ATCEnable) {
                         T_DATC.Tick(state, sectionManager, handles);
                         AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, T_DATC.BrakeCommand);
-                        if (T_DATC.BrakeCommand > 0) handles.PowerNotch = 0;
+                        if (T_DATC.BrakeCommand > 0) BrakeTriggered = true;
                     } else {
                         if (TSP_ATS.ATSEnable) {
                             TSP_ATS.Disable();
@@ -52,7 +51,7 @@ namespace TobuSignal {
                     if (TSP_ATS.ATSEnable) {
                         TSP_ATS.Tick(state);
                         AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, TSP_ATS.BrakeCommand);
-                        if (TSP_ATS.BrakeCommand > 0) handles.PowerNotch = 0;
+                        if (TSP_ATS.BrakeCommand > 0) BrakeTriggered = true;
                     } else {
                         if (T_DATC.ATCEnable) {
                             T_DATC.Disable();
@@ -64,93 +63,106 @@ namespace TobuSignal {
                     }
                 }
 
-                //panel
-                panel[290] = Convert.ToInt32(T_DATC.ATC_01);
-                panel[291] = Convert.ToInt32(T_DATC.ATC_10);
-                panel[292] = Convert.ToInt32(T_DATC.ATC_15);
-                panel[293] = Convert.ToInt32(T_DATC.ATC_20);
-                panel[294] = Convert.ToInt32(T_DATC.ATC_25);
-                panel[295] = Convert.ToInt32(T_DATC.ATC_30);
-                panel[296] = Convert.ToInt32(T_DATC.ATC_35);
-                panel[297] = Convert.ToInt32(T_DATC.ATC_40);
-                panel[298] = Convert.ToInt32(T_DATC.ATC_45);
-                panel[299] = Convert.ToInt32(T_DATC.ATC_50);
-                panel[300] = Convert.ToInt32(T_DATC.ATC_55);
-                panel[301] = Convert.ToInt32(T_DATC.ATC_60);
-                panel[302] = Convert.ToInt32(T_DATC.ATC_65);
-                panel[303] = Convert.ToInt32(T_DATC.ATC_70);
-                panel[304] = Convert.ToInt32(T_DATC.ATC_75);
-                panel[305] = Convert.ToInt32(T_DATC.ATC_80);
-                panel[306] = Convert.ToInt32(T_DATC.ATC_85);
-                panel[307] = Convert.ToInt32(T_DATC.ATC_90);
-                panel[308] = Convert.ToInt32(T_DATC.ATC_95);
-                panel[309] = Convert.ToInt32(T_DATC.ATC_100);
-                panel[310] = Convert.ToInt32(T_DATC.ATC_110);
-
-                panel[288] = Convert.ToInt32(T_DATC.ATC_Stop);
-                panel[289] = Convert.ToInt32(T_DATC.ATC_Proceed);
-
-                panel[315] = Convert.ToInt32(T_DATC.ATC_P);
-                panel[287] = Convert.ToInt32(T_DATC.ATC_X);
-
-                panel[316] = T_DATC.ORPNeedle;
-                panel[313] = T_DATC.ATCNeedle;
-                panel[312] = Convert.ToInt32(T_DATC.ATCNeedle_Disappear);
-                panel[322] = T_DATC.ATC_EndPointDistance;
-                panel[323] = T_DATC.ATC_SwitcherPosition;
-
-                panel[317] = Convert.ToInt32(T_DATC.ATC_TobuATC);
-                panel[318] = Convert.ToInt32(T_DATC.ATC_Depot);
-                panel[320] = Convert.ToInt32(T_DATC.ATC_ServiceBrake);
-                panel[319] = Convert.ToInt32(T_DATC.ATC_EmergencyBrake);
-                panel[324] = Convert.ToInt32(T_DATC.ATC_EmergencyOperation);
-                panel[254] = Convert.ToInt32(T_DATC.ATC_StationStop);
-                panel[321] = Convert.ToInt32(T_DATC.ATC_PatternApproach);
-
-                panel[325] = Convert.ToInt32(TSP_ATS.ATS_TobuAts);
-                panel[328] = Convert.ToInt32(TSP_ATS.ATS_ATSEmergencyBrake);
-                panel[330] = Convert.ToInt32(TSP_ATS.ATS_EmergencyOperation);
-                panel[329] = Convert.ToInt32(TSP_ATS.ATS_Confirm);
-                panel[326] = Convert.ToInt32(TSP_ATS.ATS_60);
-                panel[327] = Convert.ToInt32(TSP_ATS.ATS_15);
-
-                //sound
-                //sound[0] = (int)T_DATC.ATC_WarningBell;
-                //sound[1] = (int)T_DATC.ATC_WarningBell;
-                sound[2] = (int)T_DATC.ATC_Ding;
-                sound[116] = (int)T_DATC.ATC_PatternApproachBeep;
-                sound[117] = (int)T_DATC.ATC_StationStopAnnounce;
-                sound[118] = (int)Sound_Switchover;
-                sound[119] = (int)T_DATC.ATC_EmergencyOperationAnnounce;
-
                 if (!StandAloneMode) {
-                    if ((corePlugin.KeyPos != MetroAts.KeyPosList.Tobu || corePlugin.SignalSWPos != MetroAts.SignalSWList.Tobu))
+                    if (corePlugin.KeyPos != MetroAts.KeyPosList.Tobu) {
+                        BrakeTriggered = false;
                         SignalEnable = false;
+                        T_DATC.ResetAll();
+                        TSP_ATS.ResetAll();
+                    }     
+                    if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49)
+                        sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset ?
+                            (int)AtsSoundControlInstruction.PlayLooping : (int)AtsSoundControlInstruction.Stop;
+                }
+                if (BrakeTriggered) {
+                    AtsHandles.PowerNotch = 0;
+                    if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
             } else {
-                for (var i = 287; i <= 330; ++i) panel[i] = 0;
-                panel[312] = 1;
+                for (var i = 284; i <= 328; ++i) panel[i] = 0;
+                panel[309] = 1;
 
                 if (!StandAloneMode) {
                     Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Tobu;
-                    if (!SignalEnable && Keyin && corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset) && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                 } else {
                     if (!SignalEnable && Keyin && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
+                    AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
+                    AtsHandles.ReverserPosition = ReverserPosition.N;
                 }
-                AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
-                AtsHandles.ReverserPosition = ReverserPosition.N;
             }
 
             if (StandAloneMode) {
                 var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
                 leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
                 leverText.Text = $"キー:{(Keyin ? "入" : "切")} \n{description}";
+                if (isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
+                sound[270] = (int)Sound_Keyin;
+                sound[271] = (int)Sound_Keyout;
             }
-            sound[10] = (int)Sound_Keyin;
-            sound[11] = (int)Sound_Keyout;
-            sound[24] = (int)Sound_ResetSW;
+            sound[273] = (int)Sound_ResetSW;
+
+            //panel
+            panel[287] = Convert.ToInt32(T_DATC.ATC_01);
+            panel[288] = Convert.ToInt32(T_DATC.ATC_10);
+            panel[289] = Convert.ToInt32(T_DATC.ATC_15);
+            panel[290] = Convert.ToInt32(T_DATC.ATC_20);
+            panel[291] = Convert.ToInt32(T_DATC.ATC_25);
+            panel[292] = Convert.ToInt32(T_DATC.ATC_30);
+            panel[293] = Convert.ToInt32(T_DATC.ATC_35);
+            panel[294] = Convert.ToInt32(T_DATC.ATC_40);
+            panel[295] = Convert.ToInt32(T_DATC.ATC_45);
+            panel[296] = Convert.ToInt32(T_DATC.ATC_50);
+            panel[297] = Convert.ToInt32(T_DATC.ATC_55);
+            panel[298] = Convert.ToInt32(T_DATC.ATC_60);
+            panel[299] = Convert.ToInt32(T_DATC.ATC_65);
+            panel[300] = Convert.ToInt32(T_DATC.ATC_70);
+            panel[301] = Convert.ToInt32(T_DATC.ATC_75);
+            panel[302] = Convert.ToInt32(T_DATC.ATC_80);
+            panel[303] = Convert.ToInt32(T_DATC.ATC_85);
+            panel[304] = Convert.ToInt32(T_DATC.ATC_90);
+            panel[305] = Convert.ToInt32(T_DATC.ATC_95);
+            panel[306] = Convert.ToInt32(T_DATC.ATC_100);
+            panel[307] = Convert.ToInt32(T_DATC.ATC_110);
+
+            panel[285] = Convert.ToInt32(T_DATC.ATC_Stop);
+            panel[286] = Convert.ToInt32(T_DATC.ATC_Proceed);
+
+            panel[312] = Convert.ToInt32(T_DATC.ATC_P);
+            panel[284] = Convert.ToInt32(T_DATC.ATC_X);
+
+            panel[313] = T_DATC.ORPNeedle;
+            panel[310] = T_DATC.ATCNeedle;
+            panel[309] = Convert.ToInt32(T_DATC.ATCNeedle_Disappear);
+            panel[319] = T_DATC.ATC_EndPointDistance;
+            panel[320] = T_DATC.ATC_SwitcherPosition;
+
+            panel[314] = Convert.ToInt32(T_DATC.ATC_TobuATC);
+            panel[315] = Convert.ToInt32(T_DATC.ATC_Depot);
+            panel[317] = Convert.ToInt32(T_DATC.ATC_ServiceBrake);
+            panel[316] = Convert.ToInt32(T_DATC.ATC_EmergencyBrake);
+            panel[322] = Convert.ToInt32(T_DATC.ATC_EmergencyOperation);
+            panel[321] = Convert.ToInt32(T_DATC.ATC_StationStop);
+            panel[318] = Convert.ToInt32(T_DATC.ATC_PatternApproach);
+
+            panel[323] = Convert.ToInt32(TSP_ATS.ATS_TobuAts);
+            panel[326] = Convert.ToInt32(TSP_ATS.ATS_ATSEmergencyBrake);
+            panel[328] = Convert.ToInt32(TSP_ATS.ATS_EmergencyOperation);
+            panel[327] = Convert.ToInt32(TSP_ATS.ATS_Confirm);
+            panel[324] = Convert.ToInt32(TSP_ATS.ATS_60);
+            panel[325] = Convert.ToInt32(TSP_ATS.ATS_15);
+
+            //sound
+            sound[258] = (int)T_DATC.ATC_Ding;
+            var soundPlayMode = SoundPlayCommands.GetMode(sound[265]);
+            if (soundPlayMode == SoundPlayMode.Continue && T_DATC.ATC_PatternApproachBeep == AtsSoundControlInstruction.Play)
+                sound[265] = (int)AtsSoundControlInstruction.Stop;
+            sound[265] = (int)T_DATC.ATC_PatternApproachBeep;
+            sound[267] = (int)T_DATC.ATC_StationStopAnnounce;
+            sound[266] = (int)Sound_Switchover;
+            sound[268] = (int)T_DATC.ATC_EmergencyOperationAnnounce;
 
             //sound reset
             Sound_Keyin = Sound_Keyout = Sound_ResetSW = Sound_Switchover = AtsSoundControlInstruction.Continue;

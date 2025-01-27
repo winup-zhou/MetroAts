@@ -28,6 +28,8 @@ namespace TobuSignal {
             ATCEnable = false;
             ATCswitchoverSection = false;
 
+            BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
+
             ATC_Ding = AtsSoundControlInstruction.Stop;
             ATC_PatternApproachBeep = AtsSoundControlInstruction.Stop;
             ATC_StationStopAnnounce = AtsSoundControlInstruction.Stop;
@@ -91,12 +93,9 @@ namespace TobuSignal {
             switch (e.Type) {
                 case 31:
                     ValidSections = 4;
-                    break;
-                case 42:
-                    if (e.Optional > 0) {
-                        TrackPos = D(e.Optional, 0);
-                        if (TrackPos != 0)
-                            TrackPosDisplayEndLocation = state.Location + Math.Floor((double)e.Optional / 10);
+                    if (e.Optional < 4) {
+                        TrackPos = e.Optional;
+                        TrackPosDisplayEndLocation = state.Location + e.Distance;
                     }
                     break;
                 case 43:
@@ -105,14 +104,16 @@ namespace TobuSignal {
                     break;
                 case 44:
                     var lastLimitPattern = LimitPattern;
-                    if (ATCEnable)
+                    if (ATCEnable) {
+                        LimitPatternSignalEndLocation = state.Location + e.Distance;
                         LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.TargetSpeed);
+                    }
                     break;
                 case 45:
                     if (ATCEnable)
                         LimitPattern = SpeedPattern.inf;
                     break;
-                case 46:
+                case 42:
                     if (ATCEnable)
                         ATCswitchoverSection = true;
                     break;

@@ -63,7 +63,9 @@ namespace SeibuSignal {
                 var PreviousSection = sectionManager.Sections[pointer3 > 1 ? pointer3 - 2 : 0] as Section;
 
                 if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 2000) {
+                    if (CurrentSection.CurrentSignalIndex > 4) InitializeStartTime = state.Time;
                     B1MonitorSectionLocation = B2MonitorSectionLocation = sectionManager.Sections[pointer3].Location;
+                    EBType = EBTypes.CanReleaseWithoutstop;
                     ATS_EBAnnounce = AtsSoundControlInstruction.PlayLooping;
                     ATS_EB = true;
                     ATS_Power = false;
@@ -72,7 +74,7 @@ namespace SeibuSignal {
                     ATS_Power = true;
                     //if (state.Location > B2MonitorSectionLocation) B2MonitorSectionLocation = sectionManager.LasSection.Location;
                     if (CurrentSection.CurrentSignalIndex >= 9 && CurrentSection.CurrentSignalIndex < 49 && CurrentSection.CurrentSignalIndex != 34) {
-                        B1Speed = B2Speed = 0;
+                        B1Speed = B2Speed = -1;
                     } else {
                         if (B1MonitorSection.CurrentSignalIndex == 0) { //fR
                             B1Pattern.Location = B1MonitorSection.Location - 10;

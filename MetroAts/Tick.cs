@@ -88,10 +88,15 @@ namespace MetroAts {
             var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
             leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
             leverText.Text = $"キー:{KeyText} 保安:{SignalSWText}\n{description}";
+            if (Config.KeyPosLists[NowKey] == KeyPosList.None) {
+                AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
+                AtsHandles.ReverserPosition = ReverserPosition.N;
+            }
+            if(isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
 
-            sound[271] = (int)Sound_Keyin;
-            sound[272] = (int)Sound_Keyout;
-            sound[273] = (int)Sound_SignalSW;
+            sound[270] = (int)Sound_Keyin;
+            sound[271] = (int)Sound_Keyout;
+            sound[272] = (int)Sound_SignalSW;
 
             Sound_Keyin = Sound_Keyout = Sound_SignalSW = AtsSoundControlInstruction.Continue;
         }

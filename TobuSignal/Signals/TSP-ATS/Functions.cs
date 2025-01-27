@@ -30,6 +30,8 @@ namespace TobuSignal {
             InitializeStartTime = TimeSpan.Zero;
             LastBeaconPassTime = TimeSpan.Zero;
 
+            BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
+
             ATS_TobuAts = false;
             ATS_ATSEmergencyBrake = false;
             ATS_EmergencyOperation = false;

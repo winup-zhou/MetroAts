@@ -25,11 +25,13 @@ namespace TobuSignal {
         private LeverText leverText;
         private CorePlugin corePlugin;
 
-        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover, Sound_SignalSWPosNotCorrect;
+        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover;
 
         private static bool SignalEnable = false;
         private static bool Keyin = false;
         private static bool StandAloneMode = true;
+        private static bool isDoorOpen = false;
+        private static bool BrakeTriggered = false;
 
         public TobuSignal(PluginBuilder builder) : base(builder) {
             Config.Load();

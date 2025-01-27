@@ -22,13 +22,14 @@ namespace SeibuSignal {
         private const int buffer_size = 4096;
 
         //≈‰÷√œÓ
-        
+        public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "SeibuSignal.ini")).FullName;
             if (File.Exists(path)) {
                 try {
-                    
+                    //panel
+                    ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
                 } catch (Exception ex) {
                     throw ex;
                 }

@@ -23,15 +23,21 @@ namespace TobuSignal {
         private void Initialize(object sender, StartedEventArgs e) {
             TSP_ATS.ResetAll();
             T_DATC.ResetAll();
+            if (e.DefaultBrakePosition == BveTypes.ClassWrappers.BrakePosition.Emergency && !StandAloneMode) {
+                BrakeTriggered = false;
+                Keyin = false;
+                SignalEnable = false;
+            }
         }
 
         private void DoorOpened(object sender, EventArgs e) {
             if (TSP_ATS.ATSEnable) TSP_ATS.DoorOpened();
             if (T_DATC.ATCEnable) T_DATC.DoorOpened();
+            isDoorOpen = true;
         }
 
         private void DoorClosed(object sender, EventArgs e) {
-            //throw new NotImplementedException();
+            isDoorOpen = false;
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
@@ -48,8 +54,11 @@ namespace TobuSignal {
             if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == BveTypes.ClassWrappers.ReverserPosition.N) {
                 if (e.KeyName == AtsKeyName.I) {
                     Sound_Keyout = AtsSoundControlInstruction.Play;
+                    BrakeTriggered = false;
                     Keyin = false;
                     SignalEnable = false;
+                    T_DATC.ResetAll();
+                    TSP_ATS.ResetAll();
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;
