@@ -72,29 +72,8 @@ namespace SeibuSignal {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
+                UpdatePanelAndSound(panel, sound);
             } else {
-                for (var i = 329; i <= 334; ++i) panel[i] = 0;
-                panel[287] = 0;
-                panel[291] = 0;
-                panel[294] = 0;
-                panel[297] = 0;
-                panel[301] = 0;
-                panel[304] = 0;
-
-                panel[285] = 0;
-                panel[286] = 0;
-
-                panel[284] = 0;
-
-                panel[310] = 0;
-                panel[309] = 0;
-
-                panel[264] = 0;
-                panel[275] = 0;
-                panel[278] = 0;
-                panel[271] = 0;
-                panel[267] = 0;
-                panel[281] = 0;
                 if (StandAloneMode) {
                     if (!SignalEnable && Keyin)
                         SignalEnable = true;
@@ -119,6 +98,16 @@ namespace SeibuSignal {
                 sound[270] = (int)Sound_Keyin;
                 sound[271] = (int)Sound_Keyout;
             }
+
+            //sound reset
+            Sound_Keyin = Sound_Keyout = Sound_ResetSW = AtsSoundControlInstruction.Continue;
+            //handles.PowerNotch = 0;
+            //handles.BrakeNotch = 0;
+            //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;
+            //handles.ReverserPosition = ReverserPosition.N;
+        }
+
+        private static void UpdatePanelAndSound(IList<int> panel,IList<int> sound) {
             sound[273] = (int)Sound_ResetSW;
 
             //panel
@@ -156,13 +145,6 @@ namespace SeibuSignal {
             sound[261] = (int)ATC.ATC_EmergencyOperationAnnounce;
             sound[262] = (int)SeibuATS.ATS_StopAnnounce;
             sound[263] = (int)SeibuATS.ATS_EBAnnounce;
-
-            //sound reset
-            Sound_Keyin = Sound_Keyout = Sound_ResetSW = AtsSoundControlInstruction.Continue;
-            //handles.PowerNotch = 0;
-            //handles.BrakeNotch = 0;
-            //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;
-            //handles.ReverserPosition = ReverserPosition.N;
         }
     }
 }

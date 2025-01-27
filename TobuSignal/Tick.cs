@@ -62,7 +62,6 @@ namespace TobuSignal {
                         }
                     }
                 }
-
                 if (!StandAloneMode) {
                     if (corePlugin.KeyPos != MetroAts.KeyPosList.Tobu) {
                         BrakeTriggered = false;
@@ -78,10 +77,8 @@ namespace TobuSignal {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
+                UpdatePanelAndSound(panel, sound);
             } else {
-                for (var i = 284; i <= 328; ++i) panel[i] = 0;
-                panel[309] = 1;
-
                 if (!StandAloneMode) {
                     Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Tobu;
                     if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset) && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
@@ -102,6 +99,18 @@ namespace TobuSignal {
                 sound[270] = (int)Sound_Keyin;
                 sound[271] = (int)Sound_Keyout;
             }
+            
+
+            //sound reset
+            Sound_Keyin = Sound_Keyout = Sound_ResetSW = Sound_Switchover = AtsSoundControlInstruction.Continue;
+
+            //handles.PowerNotch = 0;
+            //handles.BrakeNotch = 0;
+            //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;
+            //handles.ReverserPosition = ReverserPosition.N;
+        }
+
+        private static void UpdatePanelAndSound(IList<int> panel,IList<int> sound) {
             sound[273] = (int)Sound_ResetSW;
 
             //panel
@@ -163,14 +172,6 @@ namespace TobuSignal {
             sound[267] = (int)T_DATC.ATC_StationStopAnnounce;
             sound[266] = (int)Sound_Switchover;
             sound[268] = (int)T_DATC.ATC_EmergencyOperationAnnounce;
-
-            //sound reset
-            Sound_Keyin = Sound_Keyout = Sound_ResetSW = Sound_Switchover = AtsSoundControlInstruction.Continue;
-
-            //handles.PowerNotch = 0;
-            //handles.BrakeNotch = 0;
-            //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;
-            //handles.ReverserPosition = ReverserPosition.N;
         }
     }
 }

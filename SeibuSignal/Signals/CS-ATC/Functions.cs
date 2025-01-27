@@ -82,7 +82,7 @@ namespace SeibuSignal {
             ATC_EmergencyOperation = false;
         }
 
-        public static void Disable_Noset_inDepot() {
+        private static void Disable_Noset_inDepot() {
             BrakeCommand = 0;
 
             ATC_Ding = AtsSoundControlInstruction.Stop;

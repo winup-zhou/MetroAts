@@ -25,7 +25,7 @@ namespace TobuSignal {
         private LeverText leverText;
         private CorePlugin corePlugin;
 
-        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover;
+        private static AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_Switchover;
 
         private static bool SignalEnable = false;
         private static bool Keyin = false;

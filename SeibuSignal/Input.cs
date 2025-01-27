@@ -22,12 +22,15 @@ namespace SeibuSignal {
         }
 
         private void Initialize(object sender, StartedEventArgs e) {
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
             SeibuATS.ResetAll();
             ATC.ResetAll();
             if(e.DefaultBrakePosition == BrakePosition.Emergency && !StandAloneMode) {
                 BrakeTriggered = false;
                 Keyin = false;
                 SignalEnable = false;
+                UpdatePanelAndSound(panel, sound);
             }
         }
 
@@ -45,6 +48,8 @@ namespace SeibuSignal {
         }
 
         private void KeyDown(object sender, AtsKeyEventArgs e) {
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
@@ -59,6 +64,7 @@ namespace SeibuSignal {
                     SignalEnable = false;
                     SeibuATS.ResetAll();
                     ATC.ResetAll();
+                    UpdatePanelAndSound(panel, sound);
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;

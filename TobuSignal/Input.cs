@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BveTypes.ClassWrappers;
+using System.Windows.Forms;
 
 
 namespace TobuSignal {
@@ -21,12 +23,15 @@ namespace TobuSignal {
         }
 
         private void Initialize(object sender, StartedEventArgs e) {
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
             TSP_ATS.ResetAll();
             T_DATC.ResetAll();
             if (e.DefaultBrakePosition == BveTypes.ClassWrappers.BrakePosition.Emergency && !StandAloneMode) {
                 BrakeTriggered = false;
                 Keyin = false;
                 SignalEnable = false;
+                UpdatePanelAndSound(panel, sound);
             }
         }
 
@@ -47,6 +52,8 @@ namespace TobuSignal {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
             if (e.KeyName == AtsKeyName.B1) {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
                 if (TSP_ATS.ATSEnable) TSP_ATS.ResetBrake(state, handles);
@@ -59,6 +66,7 @@ namespace TobuSignal {
                     SignalEnable = false;
                     T_DATC.ResetAll();
                     TSP_ATS.ResetAll();
+                    UpdatePanelAndSound(panel, sound);
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;

@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 
 namespace SeibuSignal {
     internal partial class ATC {
-        public static INative Native;
-
         //InternalValue -> ATC
         public static int[] ATCLimits = { -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
             -2, -2, -2, -1, -2, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };

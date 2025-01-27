@@ -23,6 +23,7 @@ namespace MetroSignal {
 
         //≈‰÷√œÓ
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
+        public static bool ORPUseNeedle = true;//1:pilotlamp 0:needle
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroSignal.ini")).FullName;
@@ -30,6 +31,7 @@ namespace MetroSignal {
                 try {
                     //panel
                     ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
+                    ReadConfig("panel", "orpuseneedle", ref ORPUseNeedle);
                 } catch (Exception ex) {
                     throw ex;
                 }
