@@ -32,13 +32,13 @@ Twitter: @wup99925510
 - [x] 旧CS-ATC
 - [x] 西武ATS
 #### メトロ·東葉
-- [ ] 新CS-ATC
-- [ ] WS-ATC
+- [x] 新CS-ATC
+- [x] WS-ATC
 - [ ] ~~CS-DATC~~ __暫定計画__
 - [ ] ~~ATP~~ __暫定計画__
 #### 東急
-- [ ] ATC-P
-- [ ] 東急ATS
+- [x] ATC-P
+- [x] 東急ATS
 #### 相鉄·JR
 - [ ] ATS-P
 - [ ] ATS-SN
