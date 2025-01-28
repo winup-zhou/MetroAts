@@ -90,41 +90,41 @@ namespace JR_SotetsuSignal {
             }
             sound[273] = (int)Sound_ResetSW;
 
-            //panel
-            panel[287] = Convert.ToInt32(ATC.ATC_01);
-            panel[291] = Convert.ToInt32(ATC.ATC_25);
-            panel[294] = Convert.ToInt32(ATC.ATC_40);
-            panel[297] = Convert.ToInt32(ATC.ATC_55);
-            panel[301] = Convert.ToInt32(ATC.ATC_75);
-            panel[304] = Convert.ToInt32(ATC.ATC_90);
+            ////panel
+            //panel[287] = Convert.ToInt32(ATC.ATC_01);
+            //panel[291] = Convert.ToInt32(ATC.ATC_25);
+            //panel[294] = Convert.ToInt32(ATC.ATC_40);
+            //panel[297] = Convert.ToInt32(ATC.ATC_55);
+            //panel[301] = Convert.ToInt32(ATC.ATC_75);
+            //panel[304] = Convert.ToInt32(ATC.ATC_90);
 
-            panel[285] = Convert.ToInt32(ATC.ATC_Stop);
-            panel[286] = Convert.ToInt32(ATC.ATC_Proceed);
+            //panel[285] = Convert.ToInt32(ATC.ATC_Stop);
+            //panel[286] = Convert.ToInt32(ATC.ATC_Proceed);
 
-            panel[284] = Convert.ToInt32(ATC.ATC_X);
+            //panel[284] = Convert.ToInt32(ATC.ATC_X);
 
-            panel[310] = ATC.ATCNeedle;
-            panel[309] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
+            //panel[310] = ATC.ATCNeedle;
+            //panel[309] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
 
-            panel[264] = Convert.ToInt32(ATC.ATC_ATC);
-            panel[275] = Convert.ToInt32(ATC.ATC_Depot);
-            panel[278] = Convert.ToInt32(ATC.ATC_Noset);
-            panel[271] = Convert.ToInt32(ATC.ATC_ServiceBrake);
-            panel[267] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
-            panel[281] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
+            //panel[264] = Convert.ToInt32(ATC.ATC_ATC);
+            //panel[275] = Convert.ToInt32(ATC.ATC_Depot);
+            //panel[278] = Convert.ToInt32(ATC.ATC_Noset);
+            //panel[271] = Convert.ToInt32(ATC.ATC_ServiceBrake);
+            //panel[267] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
+            //panel[281] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
 
-            panel[329] = Convert.ToInt32(SeibuATS.ATS_Power);
-            panel[330] = Convert.ToInt32(SeibuATS.ATS_EB);
-            panel[331] = Convert.ToInt32(SeibuATS.ATS_Stop);
-            panel[332] = Convert.ToInt32(SeibuATS.ATS_Confirm);
-            panel[333] = Convert.ToInt32(SeibuATS.ATS_Limit);
-            //panel[334] = Convert.ToInt32(SeibuATS.);
+            //panel[329] = Convert.ToInt32(SeibuATS.ATS_Power);
+            //panel[330] = Convert.ToInt32(SeibuATS.ATS_EB);
+            //panel[331] = Convert.ToInt32(SeibuATS.ATS_Stop);
+            //panel[332] = Convert.ToInt32(SeibuATS.ATS_Confirm);
+            //panel[333] = Convert.ToInt32(SeibuATS.ATS_Limit);
+            ////panel[334] = Convert.ToInt32(SeibuATS.);
 
-            sound[258] = (int)ATC.ATC_Ding;
-            if (ATC.ATCEnable) { sound[256] = (int)ATC.ATC_WarningBell; }
-            sound[261] = (int)ATC.ATC_EmergencyOperationAnnounce;
-            sound[262] = (int)SeibuATS.ATS_StopAnnounce;
-            sound[263] = (int)SeibuATS.ATS_EBAnnounce;
+            //sound[258] = (int)ATC.ATC_Ding;
+            //if (ATC.ATCEnable) { sound[256] = (int)ATC.ATC_WarningBell; }
+            //sound[261] = (int)ATC.ATC_EmergencyOperationAnnounce;
+            //sound[262] = (int)SeibuATS.ATS_StopAnnounce;
+            //sound[263] = (int)SeibuATS.ATS_EBAnnounce;
 
             //sound reset
             Sound_Keyin = Sound_Keyout = Sound_ResetSW = AtsSoundControlInstruction.Continue;
