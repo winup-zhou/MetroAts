@@ -45,7 +45,7 @@ namespace MetroSignal {
                         BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                     }
                 } else {
-                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 1000) {
+                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 3000) {
                         BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                     } else {
                         ATC_WSATC = true;

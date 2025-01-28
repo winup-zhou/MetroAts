@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace MetroSignal {
     internal partial class CS_ATC {
         public static void ResetAll() {
-            ORPPattern = new SpeedPattern();
+            ORPPattern = SpeedPattern.inf;
             BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
             ATCEnable = false;
             EBUntilStop = false;

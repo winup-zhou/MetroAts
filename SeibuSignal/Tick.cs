@@ -41,8 +41,12 @@ namespace SeibuSignal {
                     if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                     if (corePlugin.SignalSWPos == MetroAts.SignalSWList.SeibuATS) {
                         if (!SeibuATS.ATSEnable) SeibuATS.Init(state.Time);
+                        if (ATC.ATCEnable)
+                            ATC.ResetAll();
                     } else if (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC) {
                         if (!ATC.ATCEnable) ATC.Init(state.Time);
+                        if (SeibuATS.ATSEnable)
+                            SeibuATS.ResetAll();
                     }
 
                     if (ATC.ATCEnable) {

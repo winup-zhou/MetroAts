@@ -56,7 +56,7 @@ namespace SeibuSignal {
                         BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches + 1;
                     }
                 } else {
-                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 3000) {
+                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 5000) {
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = false;
                         if (!Config.ATCLimitUseNeedle) {

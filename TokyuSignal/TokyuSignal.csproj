@@ -46,7 +46,6 @@
     <Compile Include="Input.cs" />
     <Compile Include="Load.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Signals\ATC-P\ATC.cs" />
     <Compile Include="Signals\ATC-P\Functions.cs" />
     <Compile Include="Signals\ATC-P\Tick.cs" />
     <Compile Include="Signals\TokyuATS\Functions.cs" />
@@ -70,4 +69,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>COPY $(TargetPath) D:\Scenarios\vertah\tkk8590\BveExPlugins\$(TargetFileName)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

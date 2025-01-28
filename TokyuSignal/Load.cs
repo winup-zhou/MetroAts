@@ -16,6 +16,11 @@ namespace TokyuSignal {
         Continue = 2        // Continue
     }
 
+    public enum SignalSWListStandAlone {
+        Noset = 0,
+        ATC = 2,
+        TokyuATS = 8
+    }
     public partial class TokyuSignal : AssemblyPluginBase {
         private readonly INative Native;
         public static VehicleSpec vehicleSpec;
@@ -24,10 +29,11 @@ namespace TokyuSignal {
         private LeverText leverText;
         private CorePlugin corePlugin;
 
-        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW;
+        private static AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_SignalSW;
 
         private static bool SignalEnable = false;
         private static bool Keyin = false;
+        public static int NowSignalSW;
         private static bool StandAloneMode = true;
         private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
@@ -43,6 +49,7 @@ namespace TokyuSignal {
             Native.AtsKeys.AnyKeyPressed += KeyDown;
             Native.AtsKeys.AnyKeyReleased += KeyUp;
             Native.VehicleSpecLoaded += SetVehicleSpec;
+            Native.SignalUpdated += SetSignal;
 
             BveHacker.ScenarioCreated += OnScenarioCreated;
 

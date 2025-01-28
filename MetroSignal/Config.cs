@@ -41,7 +41,6 @@ namespace MetroSignal {
                     }
                     if (!SignalSWLists.Contains(SignalSWListStandAlone.Noset))
                         SignalSWLists.Add(SignalSWListStandAlone.Noset);
-                    SignalSWLists.Sort();
                 } catch (Exception ex) {
                     throw ex;
                 }

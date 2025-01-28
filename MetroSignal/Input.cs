@@ -18,7 +18,7 @@ namespace MetroSignal {
         private void BeaconPassed(object sender, BeaconPassedEventArgs e) {
             var state = Native.VehicleState;
             if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
-            CS_ATC.BeaconPassed(state, e);
+            if (CS_ATC.ATCEnable) CS_ATC.BeaconPassed(state, e);
         }
 
         private void Initialize(object sender, StartedEventArgs e) {

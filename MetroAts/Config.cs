@@ -40,7 +40,6 @@ namespace MetroAts {
                         SignalSWLists.Add((SignalSWList)Enum.Parse(typeof(SignalSWList), i, true));
                     }
                     if (!SignalSWLists.Contains(SignalSWList.Noset)&&!SignalSWLists.Contains(SignalSWList.JR)) SignalSWLists.Add(SignalSWList.Noset);
-                    SignalSWLists.Sort();
 
                     ReadConfig("signalsw", "isloop", ref SignalSW_loop);
                 } catch (Exception ex) {

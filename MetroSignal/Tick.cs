@@ -232,11 +232,12 @@ namespace MetroSignal {
             if ((CS_ATC.ATCEnable&&CS_ATC.ATC_Noset) || (WS_ATC.ATCEnable && WS_ATC.ATC_Noset)) panel[277] = Convert.ToInt32(CS_ATC.ATC_Noset || WS_ATC.ATC_Noset);
             panel[270] = Convert.ToInt32(CS_ATC.ATC_ServiceBrake || WS_ATC.ATC_ServiceBrake);
             panel[266] = Convert.ToInt32(CS_ATC.ATC_EmergencyBrake || WS_ATC.ATC_EmergencyBrake);
-            panel[281] = Convert.ToInt32(CS_ATC.ATC_EmergencyOperation);
+            panel[280] = Convert.ToInt32(CS_ATC.ATC_EmergencyOperation);
 
             panel[335] = Convert.ToInt32(WS_ATC.ATC_WSATC);
 
             sound[258] = (int)CS_ATC.ATC_Ding;
+            sound[259] = (int)CS_ATC.ATC_ORPBeep;
             if (CS_ATC.ATCEnable && CS_ATC.ATC_Noset) { sound[256] = (int)CS_ATC.ATC_WarningBell; }
             sound[261] = (int)CS_ATC.ATC_EmergencyOperationAnnounce;
         }

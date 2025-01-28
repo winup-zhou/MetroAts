@@ -24,13 +24,13 @@ namespace MetroAts {
 
     public enum SignalSWList {
         Noset = 0,
-        InDepot = 1,
-        ATC = 2,
-        SeibuATS = 3,
-        Tobu = 4,
-        Sotetsu = 5,
-        JR = 6,
-        TokyuATS = 7,
+        TokyuATS = 1,
+        InDepot= 2,
+        Sotetsu = 3,
+        ATC = 4,
+        SeibuATS = 5,
+        Tobu = 6,
+        JR = 7,
         WS_ATC = 8,
         ATP = 9
     }
@@ -56,7 +56,7 @@ namespace MetroAts {
         //Infomation that should be readable by sub-plugins
         public KeyPosList KeyPos {  get { return Config.KeyPosLists[NowKey]; } }
         public SignalSWList SignalSWPos {  get { return Config.SignalSWLists[NowSignalSW]; } }
-        public bool SubPluginEnabled { set; get; }
+        public bool SubPluginEnabled { set; get; } = false;
 
         public MetroAts(PluginBuilder services) : base(services) {
             Config.Load();

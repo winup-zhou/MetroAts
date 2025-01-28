@@ -23,6 +23,7 @@ namespace TokyuSignal {
 
         //≈‰÷√œÓ
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
+        public static List<SignalSWListStandAlone> SignalSWLists = new List<SignalSWListStandAlone>();
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "TokyuSignal.ini")).FullName;
@@ -30,6 +31,14 @@ namespace TokyuSignal {
                 try {
                     //panel
                     ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
+
+                    var SignalSWString = "";
+                    ReadConfig("signalsw", "positions", ref SignalSWString);
+                    foreach (var i in SignalSWString.Split(',')) {
+                        SignalSWLists.Add((SignalSWListStandAlone)Enum.Parse(typeof(SignalSWListStandAlone), i, true));
+                    }
+                    if (!SignalSWLists.Contains(SignalSWListStandAlone.Noset))
+                        SignalSWLists.Add(SignalSWListStandAlone.Noset);
                 } catch (Exception ex) {
                     throw ex;
                 }

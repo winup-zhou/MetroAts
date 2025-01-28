@@ -83,6 +83,7 @@ namespace TobuSignal {
         private void SetSignal(object sender, SignalUpdatedEventArgs e) {
             T_DATC.SignalUpdated();
         }
+
         private void OnScenarioCreated(ScenarioCreatedEventArgs e) {
             sectionManager = e.Scenario.SectionManager;
         }
