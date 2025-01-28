@@ -16,6 +16,14 @@ namespace MetroSignal {
         Continue = 2        // Continue
     }
 
+    public enum SignalSWListStandAlone {
+        Noset = 0,
+        InDepot = 1,
+        ATC = 2,
+        WS_ATC = 8,
+        ATP = 9
+    }
+
     public partial class MetroSignal : AssemblyPluginBase {
         private readonly INative Native;
         public static VehicleSpec vehicleSpec;
@@ -24,10 +32,11 @@ namespace MetroSignal {
         private LeverText leverText;
         private CorePlugin corePlugin;
 
-        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW;
+        private static AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_SignalSW;
 
         private static bool SignalEnable = false;
         private static bool Keyin = false;
+        public static int NowSignalSW;
         private static bool StandAloneMode = true;
         private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;

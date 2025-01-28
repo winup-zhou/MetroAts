@@ -26,12 +26,15 @@ namespace SeibuSignal {
             var sound = Native.AtsSoundArray;
             SeibuATS.ResetAll();
             ATC.ResetAll();
-            if(e.DefaultBrakePosition == BrakePosition.Emergency && !StandAloneMode) {
+            if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
+            panel[275] = 0;
+            panel[278] = 0;
+            if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
                 Keyin = false;
                 SignalEnable = false;
-                UpdatePanelAndSound(panel, sound);
             }
+            UpdatePanelAndSound(panel, sound);
         }
 
         private void DoorOpened(object sender, EventArgs e) {
@@ -64,6 +67,9 @@ namespace SeibuSignal {
                     SignalEnable = false;
                     SeibuATS.ResetAll();
                     ATC.ResetAll();
+                    if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
+                    panel[275] = 0;
+                    panel[278] = 0;
                     UpdatePanelAndSound(panel, sound);
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;

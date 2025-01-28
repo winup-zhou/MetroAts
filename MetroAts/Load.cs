@@ -55,7 +55,8 @@ namespace MetroAts {
 
         //Infomation that should be readable by sub-plugins
         public KeyPosList KeyPos {  get { return Config.KeyPosLists[NowKey]; } }
-        public SignalSWList SignalSWPos {  get { return Config.SignalSWLists[NowSignalSW]; } } 
+        public SignalSWList SignalSWPos {  get { return Config.SignalSWLists[NowSignalSW]; } }
+        public bool SubPluginEnabled { set; get; }
 
         public MetroAts(PluginBuilder services) : base(services) {
             Config.Load();

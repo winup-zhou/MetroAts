@@ -13,7 +13,6 @@ namespace SeibuSignal {
             ATCSpeed = 0;
             ATCEnable = false;
             InitializeStartTime = TimeSpan.Zero;
-            LastATCSpeed = 0;
             inDepot = false;
             BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches + 1;
 

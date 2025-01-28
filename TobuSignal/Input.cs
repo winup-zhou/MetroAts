@@ -27,10 +27,11 @@ namespace TobuSignal {
             var sound = Native.AtsSoundArray;
             TSP_ATS.ResetAll();
             T_DATC.ResetAll();
-            if (e.DefaultBrakePosition == BveTypes.ClassWrappers.BrakePosition.Emergency && !StandAloneMode) {
+            if (e.DefaultBrakePosition == BveTypes.ClassWrappers.BrakePosition.Emergency) {
                 BrakeTriggered = false;
                 Keyin = false;
                 SignalEnable = false;
+                sound[256] = (int)AtsSoundControlInstruction.Stop;
                 UpdatePanelAndSound(panel, sound);
             }
         }
@@ -66,6 +67,7 @@ namespace TobuSignal {
                     SignalEnable = false;
                     T_DATC.ResetAll();
                     TSP_ATS.ResetAll();
+                    sound[256] = (int)AtsSoundControlInstruction.Stop;
                     UpdatePanelAndSound(panel, sound);
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;

@@ -18,10 +18,13 @@ namespace SeibuSignal {
             var sound = Native.AtsSoundArray;
 
             int pointer = 0;
-            while (sectionManager.Sections[pointer].Location < state.Location)
+            while (sectionManager.Sections[pointer].Location < state.Location) {
                 pointer++;
-            if (pointer >= sectionManager.Sections.Count)
-                pointer = sectionManager.Sections.Count - 1;
+                if (pointer >= sectionManager.Sections.Count) {
+                    pointer = sectionManager.Sections.Count - 1;
+                    break;
+                }
+            }
 
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
@@ -35,29 +38,37 @@ namespace SeibuSignal {
                         SeibuATS.Init(state.Time);
                     }
                 } else {
+                    if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                     if (corePlugin.SignalSWPos == MetroAts.SignalSWList.SeibuATS) {
                         if (!SeibuATS.ATSEnable) SeibuATS.Init(state.Time);
-                        if (ATC.ATCEnable)
-                            ATC.ResetAll();
-                    } else if (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset) {
+                    } else if (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC) {
                         if (!ATC.ATCEnable) ATC.Init(state.Time);
-                        if (SeibuATS.ATSEnable)
-                            SeibuATS.ResetAll();
                     }
 
                     if (ATC.ATCEnable) {
                         ATC.Tick(state, handles, currentSection, corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset, corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot);
                         AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATC.BrakeCommand);
                         if (ATC.BrakeCommand > 0) BrakeTriggered = true;
-                    } else {
+                        if (SeibuATS.ATSEnable)
+                            SeibuATS.ResetAll();
+                    }
+                    if (SeibuATS.ATSEnable) {
                         SeibuATS.Tick(state, sectionManager);
                         AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, SeibuATS.BrakeCommand);
                         if (SeibuATS.BrakeCommand > 0) BrakeTriggered = true;
-                        if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49
-                            && (corePlugin.SignalSWPos != MetroAts.SignalSWList.ATC || corePlugin.SignalSWPos != MetroAts.SignalSWList.InDepot))
-                            sound[256] = (int)AtsSoundControlInstruction.PlayLooping;
-                        else sound[256] = (int)AtsSoundControlInstruction.Stop;
+                        if (ATC.ATCEnable)
+                            ATC.ResetAll();
+                    }
+                    if (!ATC.ATCEnable) panel[275] = corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot ? 1 : 0;
+                    panel[278] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset ? 1 : 0;
+                    if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49) {
+                        if (!ATC.ATCEnable && (corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset))
+                            ATC.Init(state.Time);
+                        sound[256] = sound[256] = ((corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot && currentSection.CurrentSignalIndex >= 38 && currentSection.CurrentSignalIndex <= 48)
+                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC) ? (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
+                    } else if (corePlugin.SignalSWPos != MetroAts.SignalSWList.ATC) {
+                        if (ATC.ATCEnable) ATC.ResetAll();
+                        sound[256] = (int)AtsSoundControlInstruction.Stop;
                     }
                 }
                 if (!StandAloneMode) {
@@ -66,6 +77,9 @@ namespace SeibuSignal {
                         SignalEnable = false;
                         SeibuATS.ResetAll();
                         ATC.ResetAll();
+                        if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
+                        panel[275] = 0;
+                        panel[278] = 0;
                     }
                 }
                 if (BrakeTriggered) {
@@ -79,6 +93,9 @@ namespace SeibuSignal {
                         SignalEnable = true;
                     AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                     AtsHandles.ReverserPosition = ReverserPosition.N;
+                    if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
+                    panel[275] = 0;
+                    panel[278] = 0;
                 } else {
                     Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Seibu;
                     if (!SignalEnable && Keyin && corePlugin.SignalSWPos == MetroAts.SignalSWList.SeibuATS)
@@ -88,7 +105,6 @@ namespace SeibuSignal {
                         && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                 }
-
             }
             if (StandAloneMode) {
                 var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
@@ -107,7 +123,7 @@ namespace SeibuSignal {
             //handles.ReverserPosition = ReverserPosition.N;
         }
 
-        private static void UpdatePanelAndSound(IList<int> panel,IList<int> sound) {
+        private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound) {
             sound[273] = (int)Sound_ResetSW;
 
             //panel
@@ -127,8 +143,8 @@ namespace SeibuSignal {
             panel[309] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
 
             panel[264] = Convert.ToInt32(ATC.ATC_ATC);
-            panel[275] = Convert.ToInt32(ATC.ATC_Depot);
-            panel[278] = Convert.ToInt32(ATC.ATC_Noset);
+            if (ATC.ATCEnable) panel[275] = Convert.ToInt32(ATC.ATC_Depot);
+            if (ATC.ATCEnable && ATC.ATC_Noset) panel[278] = Convert.ToInt32(ATC.ATC_Noset);
             panel[271] = Convert.ToInt32(ATC.ATC_ServiceBrake);
             panel[267] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
             panel[281] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
@@ -141,7 +157,7 @@ namespace SeibuSignal {
             //panel[334] = Convert.ToInt32(SeibuATS.);
 
             sound[258] = (int)ATC.ATC_Ding;
-            if (ATC.ATCEnable) { sound[256] = (int)ATC.ATC_WarningBell; }
+            if (ATC.ATCEnable && ATC.ATC_Noset) { sound[256] = (int)ATC.ATC_WarningBell; }
             sound[261] = (int)ATC.ATC_EmergencyOperationAnnounce;
             sound[262] = (int)SeibuATS.ATS_StopAnnounce;
             sound[263] = (int)SeibuATS.ATS_EBAnnounce;

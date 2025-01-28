@@ -62,16 +62,18 @@ namespace TobuSignal {
                         }
                     }
                 }
+                if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49)
+                    sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu ?
+                        (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
                 if (!StandAloneMode) {
+                    if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                     if (corePlugin.KeyPos != MetroAts.KeyPosList.Tobu) {
                         BrakeTriggered = false;
                         SignalEnable = false;
                         T_DATC.ResetAll();
                         TSP_ATS.ResetAll();
-                    }     
-                    if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49)
-                        sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset ?
-                            (int)AtsSoundControlInstruction.PlayLooping : (int)AtsSoundControlInstruction.Stop;
+                        sound[256] = (int)AtsSoundControlInstruction.Stop;
+                    }          
                 }
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;

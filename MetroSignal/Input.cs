@@ -18,15 +18,32 @@ namespace MetroSignal {
         private void BeaconPassed(object sender, BeaconPassedEventArgs e) {
             var state = Native.VehicleState;
             if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
+            CS_ATC.BeaconPassed(state, e);
         }
 
         private void Initialize(object sender, StartedEventArgs e) {
-
-            if(e.DefaultBrakePosition == BrakePosition.Emergency && !StandAloneMode) {
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
+            CS_ATC.ResetAll();
+            WS_ATC.ResetAll();
+            if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
+            panel[275] = 0;
+            panel[278] = 0;
+            if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
                 Keyin = false;
                 SignalEnable = false;
+                if (StandAloneMode) {
+                    for (int i = 0; i < Config.SignalSWLists.Count; ++i) {
+                        if (Config.SignalSWLists[i] == SignalSWListStandAlone.Noset) {
+                            NowSignalSW = i;
+                            break;
+                        }
+                    }
+                }
             }
+            UpdatePanelAndSound(panel, sound);
+
         }
 
         private void DoorOpened(object sender, EventArgs e) {
@@ -44,9 +61,11 @@ namespace MetroSignal {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
             if (e.KeyName == AtsKeyName.B1) {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
-                
+                WS_ATC.ResetBrake(state, handles);
             }
             if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
                 if (e.KeyName == AtsKeyName.I) {
@@ -54,10 +73,21 @@ namespace MetroSignal {
                     Keyin = false;
                     BrakeTriggered = false;
                     SignalEnable = false;
-
+                    CS_ATC.ResetAll();
+                    WS_ATC.ResetAll();
+                    if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
+                    panel[275] = 0;
+                    panel[278] = 0;
+                    UpdatePanelAndSound(panel, sound);
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;
+                } else if (e.KeyName == AtsKeyName.G && NowSignalSW > 0) {
+                    NowSignalSW--;
+                    Sound_SignalSW = AtsSoundControlInstruction.Play;
+                } else if (e.KeyName == AtsKeyName.H && NowSignalSW < Config.SignalSWLists.Count - 1) {
+                    NowSignalSW++;
+                    Sound_SignalSW = AtsSoundControlInstruction.Play;
                 }
             }
         }

@@ -24,6 +24,7 @@ namespace MetroSignal {
         //≈‰÷√œÓ
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
         public static bool ORPUseNeedle = true;//1:pilotlamp 0:needle
+        public static List<SignalSWListStandAlone> SignalSWLists = new List<SignalSWListStandAlone>();
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroSignal.ini")).FullName;
@@ -32,6 +33,15 @@ namespace MetroSignal {
                     //panel
                     ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
                     ReadConfig("panel", "orpuseneedle", ref ORPUseNeedle);
+
+                    var SignalSWString = "";
+                    ReadConfig("signalsw", "positions", ref SignalSWString);
+                    foreach (var i in SignalSWString.Split(',')) {
+                        SignalSWLists.Add((SignalSWListStandAlone)Enum.Parse(typeof(SignalSWListStandAlone), i, true));
+                    }
+                    if (!SignalSWLists.Contains(SignalSWListStandAlone.Noset))
+                        SignalSWLists.Add(SignalSWListStandAlone.Noset);
+                    SignalSWLists.Sort();
                 } catch (Exception ex) {
                     throw ex;
                 }
