@@ -29,8 +29,10 @@ jobs:
       - name: Collect artifact
         run: |
           mkdir plugins/
-          find . -type f -path '*/out/MetroAts.dll' | xargs mv --force --backup=numbered -t ./plugins/.
-          find . -type f -path '*/out/*.dll' -name '*Signal' | xargs mv --force --backup=numbered -t ./plugins/.
+          find . -type f -name 'MetroAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
+          find . -type f -name '*Signal.dll' | xargs mv --force --backup=numbered -t ./plugins/
+          find . -type f -name 'NotchOutput.dll' | xargs mv --force --backup=numbered -t ./plugins/
+          rm plugins/*~
         shell: bash
       - name: Check assembly version
         id: version
@@ -45,7 +47,7 @@ jobs:
           }
         shell: pwsh
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: plugins
           path: ./plugins/
