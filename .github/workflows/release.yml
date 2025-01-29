@@ -31,7 +31,6 @@ jobs:
           mkdir plugins/
           find . -type f -name 'MetroAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
           find . -type f -name '*Signal.dll' | xargs mv --force --backup=numbered -t ./plugins/
-          find . -type f -name 'NotchOutput.dll' | xargs mv --force --backup=numbered -t ./plugins/
           rm plugins/*~
         shell: bash
       - name: Check assembly version
