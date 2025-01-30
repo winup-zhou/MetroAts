@@ -25,6 +25,11 @@ namespace TokyuSignal {
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
         public static List<SignalSWListStandAlone> SignalSWLists = new List<SignalSWListStandAlone>();
 
+        public static int Panel_poweroutput = 1023;
+        public static int Panel_brakeoutput = 1023;
+        public static int Panel_keyoutput = 1023;
+        public static int Panel_SignalSWoutput = 1023;
+
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "TokyuSignal.ini")).FullName;
             if (File.Exists(path)) {
@@ -39,6 +44,11 @@ namespace TokyuSignal {
                     }
                     if (!SignalSWLists.Contains(SignalSWListStandAlone.Noset))
                         SignalSWLists.Add(SignalSWListStandAlone.Noset);
+
+                    ReadConfig("output", "power", ref Panel_poweroutput);
+                    ReadConfig("output", "brake", ref Panel_brakeoutput);
+                    ReadConfig("output", "key", ref Panel_keyoutput);
+                    ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
                 } catch (Exception ex) {
                     throw ex;
                 }

@@ -25,12 +25,20 @@ namespace JR_SotetsuSignal {
         public static bool SNEnable = true;
         public static bool PPowerAlwaysLight = false;
 
+        public static int Panel_poweroutput = 1023;
+        public static int Panel_brakeoutput = 1023;
+        public static int Panel_keyoutput = 1023;
+
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "JR_SotetsuSignal.ini")).FullName;
             if (File.Exists(path)) {
                 try {
                     ReadConfig("ats", "snenable", ref SNEnable);
                     ReadConfig("ats", "ppowerlampalwayslight", ref PPowerAlwaysLight);
+
+                    ReadConfig("output","power",ref Panel_poweroutput);
+                    ReadConfig("output","brake",ref Panel_brakeoutput);
+                    ReadConfig("output","key",ref Panel_keyoutput);
                 } catch (Exception ex) {
                     throw ex;
                 }

@@ -96,6 +96,8 @@ namespace SeibuSignal {
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
                 UpdatePanelAndSound(panel, sound);
+                panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
+                panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
             } else {
                 if (StandAloneMode) {
                     if (!SignalEnable && Keyin)
@@ -122,6 +124,7 @@ namespace SeibuSignal {
                 if (isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
                 sound[270] = (int)Sound_Keyin;
                 sound[271] = (int)Sound_Keyout;
+                panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
             }
 
             //sound reset

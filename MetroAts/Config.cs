@@ -22,6 +22,10 @@ namespace MetroAts {
         public static List<SignalSWList> SignalSWLists = new List<SignalSWList>();
         public static bool SignalSW_loop = false;
 
+        public static int Panel_brakeoutput = 1023;
+        public static int Panel_keyoutput = 1023;
+        public static int Panel_SignalSWoutput = 1023;
+
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroAtsConfig.ini")).FullName;
             if (File.Exists(path)) {
@@ -42,6 +46,10 @@ namespace MetroAts {
                     if (!SignalSWLists.Contains(SignalSWList.Noset)&&!SignalSWLists.Contains(SignalSWList.JR)) SignalSWLists.Add(SignalSWList.Noset);
 
                     ReadConfig("signalsw", "isloop", ref SignalSW_loop);
+
+                    ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
+                    ReadConfig("output", "brake", ref Panel_brakeoutput);
+                    ReadConfig("output", "key", ref Panel_keyoutput);
                 } catch (Exception ex) {
                     throw ex;
                 }

@@ -118,6 +118,8 @@ namespace TokyuSignal {
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
                 UpdatePanelAndSound(panel, sound);
+                panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
+                panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
             } else {
                 if (StandAloneMode) {
                     if (!SignalEnable && Keyin && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
@@ -161,6 +163,9 @@ namespace TokyuSignal {
                 sound[270] = (int)Sound_Keyin;
                 sound[271] = (int)Sound_Keyout;
                 sound[272] = (int)Sound_SignalSW;
+
+                panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
+                panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
             }
 
             //sound reset

@@ -26,6 +26,10 @@ namespace TobuSignal {
         public static bool EnableATC = true;
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
 
+        public static int Panel_poweroutput = 1023;
+        public static int Panel_brakeoutput = 1023;
+        public static int Panel_keyoutput = 1023;
+
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "TobuSignal.ini")).FullName;
             if (File.Exists(path)) {
@@ -36,6 +40,10 @@ namespace TobuSignal {
 
                     //panel
                     ReadConfig("panel","atclimituseneedle",ref ATCLimitUseNeedle);
+
+                    ReadConfig("output", "power", ref Panel_poweroutput);
+                    ReadConfig("output", "brake", ref Panel_brakeoutput);
+                    ReadConfig("output", "key", ref Panel_keyoutput);
                 } catch (Exception ex) {
                     throw ex;
                 }
