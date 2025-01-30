@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("TobuAts-EX")]
-[assembly: AssemblyDescription("有・副直通系統向けATC/Sプラグイン based on BveEx")]
+[assembly: AssemblyTitle("MetroAts")]
+[assembly: AssemblyDescription("MetroAts コアプラグイン")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Win_Update")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MetroAts")]
 [assembly: AssemblyCopyright("Copyright © Win_Update 2023")]
 [assembly: AssemblyTrademark("")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值
 //通过使用 "*"，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.4.*")]
+[assembly: AssemblyVersion("1.0.*")]
 //[assembly: AssemblyFileVersion("0.2.*")]

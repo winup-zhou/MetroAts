@@ -2,7 +2,7 @@ using System;
 
 
 
-namespace MetroAts {
+namespace TokyuSignal {
     public class SpeedPattern {
         public double TargetSpeed;
         public double Location;
@@ -28,14 +28,14 @@ namespace MetroAts {
                 if (dat > 0) {
                     return Math.Min(Math.Sqrt(dat) * 3600 / 1000, MaxSpeed);
                 } else {
-                    return offsetLimit;
+                    return Math.Min(offsetLimit, MaxSpeed);
                 }
             }
         }
 
         public override bool Equals(object obj) {
             return (obj is SpeedPattern) && (this.TargetSpeed == ((SpeedPattern)obj).TargetSpeed) &&
-                (this.Location == ((SpeedPattern)obj).Location) && (this.MaxSpeed == ((SpeedPattern)obj).MaxSpeed);
+                (this.Location == ((SpeedPattern)obj).Location);
         }
 
         public override int GetHashCode() {

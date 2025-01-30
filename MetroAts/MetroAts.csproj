@@ -47,10 +47,6 @@
     <Compile Include="Config.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Load.cs" />
-    <Compile Include="Signals\ATC.cs" />
-    <Compile Include="Signals\ATS-P_SN.cs" />
-    <Compile Include="Signals\SeibuATS.cs" />
-    <Compile Include="SpeedPattern.cs" />
     <Compile Include="Tick.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

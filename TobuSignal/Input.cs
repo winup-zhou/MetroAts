@@ -2,46 +2,90 @@
 using BveEx.PluginHost.Plugins;
 using BveEx.Extensions.Native.Input;
 using BveEx.PluginHost.Input;
+using BveEx.PluginHost;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BveTypes.ClassWrappers;
+using System.Windows.Forms;
+
 
 namespace TobuSignal {
     public partial class TobuSignal : AssemblyPluginBase {
 
         private void BeaconPassed(object sender, BeaconPassedEventArgs e) {
             var state = Native.VehicleState;
-            TSP_ATS.BeaconPassed(state, e);
+            if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
+            if (TSP_ATS.ATSEnable) TSP_ATS.BeaconPassed(state, e);
+            T_DATC.BeaconPassed(state, e);
         }
 
         private void Initialize(object sender, StartedEventArgs e) {
-            throw new NotImplementedException();
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
+            TSP_ATS.ResetAll();
+            T_DATC.ResetAll();
+            if (e.DefaultBrakePosition == BveTypes.ClassWrappers.BrakePosition.Emergency) {
+                BrakeTriggered = false;
+                Keyin = false;
+                SignalEnable = false;
+                sound[256] = (int)AtsSoundControlInstruction.Stop;
+                UpdatePanelAndSound(panel, sound);
+            }
         }
 
         private void DoorOpened(object sender, EventArgs e) {
-            TSP_ATS.DoorOpened();
+            if (TSP_ATS.ATSEnable) TSP_ATS.DoorOpened();
+            if (T_DATC.ATCEnable) T_DATC.DoorOpened();
+            isDoorOpen = true;
         }
 
         private void DoorClosed(object sender, EventArgs e) {
-            throw new NotImplementedException();
+            isDoorOpen = false;
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
-            var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.AtsHandles;
+            var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
             if (e.KeyName == AtsKeyName.B1) {
-                TSP_ATS.ResetBrake(state, handles);
+                Sound_ResetSW = AtsSoundControlInstruction.Play;
+                if (TSP_ATS.ATSEnable) TSP_ATS.ResetBrake(state, handles);
+            }
+            if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == BveTypes.ClassWrappers.ReverserPosition.N) {
+                if (e.KeyName == AtsKeyName.I) {
+                    Sound_Keyout = AtsSoundControlInstruction.Play;
+                    BrakeTriggered = false;
+                    Keyin = false;
+                    SignalEnable = false;
+                    T_DATC.ResetAll();
+                    TSP_ATS.ResetAll();
+                    sound[256] = (int)AtsSoundControlInstruction.Stop;
+                    UpdatePanelAndSound(panel, sound);
+                } else if (e.KeyName == AtsKeyName.J) {
+                    Sound_Keyin = AtsSoundControlInstruction.Play;
+                    Keyin = true;
+                }
             }
         }
 
         private void SetVehicleSpec(object sender, EventArgs e) {
             vehicleSpec = Native.VehicleSpec;
+        }
+
+        private void SetSignal(object sender, SignalUpdatedEventArgs e) {
+            T_DATC.SignalUpdated();
+        }
+
+        private void OnScenarioCreated(ScenarioCreatedEventArgs e) {
+            sectionManager = e.Scenario.SectionManager;
         }
     }
 }

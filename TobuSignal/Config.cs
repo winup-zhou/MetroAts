@@ -22,13 +22,28 @@ namespace TobuSignal {
         private const int buffer_size = 4096;
 
         //≈‰÷√œÓ
-        public static double TobuMaxSpeed = 100;
+        public static double MaxSpeed = 100;
+        public static bool EnableATC = true;
+        public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
+
+        public static int Panel_poweroutput = 1023;
+        public static int Panel_brakeoutput = 1023;
+        public static int Panel_keyoutput = 1023;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "TobuSignal.ini")).FullName;
             if (File.Exists(path)) {
                 try {
+                    //train
+                    ReadConfig("train", "maxspeed", ref MaxSpeed);
+                    ReadConfig("train", "enableatc", ref EnableATC);
 
+                    //panel
+                    ReadConfig("panel","atclimituseneedle",ref ATCLimitUseNeedle);
+
+                    ReadConfig("output", "power", ref Panel_poweroutput);
+                    ReadConfig("output", "brake", ref Panel_brakeoutput);
+                    ReadConfig("output", "key", ref Panel_keyoutput);
                 } catch (Exception ex) {
                     throw ex;
                 }

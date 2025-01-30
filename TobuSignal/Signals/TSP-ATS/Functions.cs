@@ -8,9 +8,9 @@ using BveTypes.ClassWrappers;
 
 namespace TobuSignal {
     internal partial class TSP_ATS {
-        public static void Init(double Time) {
+        public static void Init(TimeSpan time) {
             ATSEnable = true;
-            InitializeStartTime = Time;
+            InitializeStartTime = time;
         }
 
         public static void SwitchFromATC() {
@@ -18,16 +18,19 @@ namespace TobuSignal {
         }
 
         public static void ResetAll() {
-            ATSPattern = new SpeedPattern();
-            MPPPattern = new SpeedPattern();
-            SignalPattern = new SpeedPattern();
-            LastBeaconPassTime = 0;
-            ConfirmOperation = false;
+            ATSPattern = SpeedPattern.inf;
+            MPPPattern = SpeedPattern.inf;
+            SignalPattern = SpeedPattern.inf;
+            LastBeaconPassTime = TimeSpan.Zero;
+            NeedConfirmOperation = false;
             MPPEndLocation = 0;
             isDoorOpened = false;
             BrakeCommand = 0;
             EBType = EBTypes.Normal;
-            InitializeStartTime = 0;
+            InitializeStartTime = TimeSpan.Zero;
+            LastBeaconPassTime = TimeSpan.Zero;
+
+            BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 
             ATS_TobuAts = false;
             ATS_ATSEmergencyBrake = false;
@@ -40,13 +43,17 @@ namespace TobuSignal {
         }
 
         public static void ResetBrake(VehicleState state, HandleSet handles) {
-            if (state.Speed == 0 && handles.BrakeNotch == TobuSignal.vehicleSpec.BrakeNotches + 1)
+            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch == TobuSignal.vehicleSpec.BrakeNotches + 1)
                 if (EBType == EBTypes.CannotReleaseUntilStop) EBType = EBTypes.Normal;
+            if (NeedConfirmOperation) {
+                NeedConfirmOperation = false;
+                ATS_Confirm = true;
+            }
         }
 
         public static void Disable() {
             ATSEnable = false;
-            BrakeCommand = 0;
+            BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
             ATS_TobuAts = false;
             ATS_ATSEmergencyBrake = false;
             ATS_EmergencyOperation = false;
@@ -65,20 +72,24 @@ namespace TobuSignal {
                     if (e.SignalIndex == 0) {
                         SignalPattern = new SpeedPattern(15, state.Location + e.Distance);
                         EBType = EBTypes.CannotReleaseUntilStop;
-                    } else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.TobuMaxSpeed, state.Location);
+                        NeedConfirmOperation = true;
+                    } else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.MaxSpeed, state.Location);
+                    if (ATS_Confirm) ATS_Confirm = false;
                     break;
                 case 1:
                     if (e.SignalIndex == 0) SignalPattern = new SpeedPattern(15, state.Location + 180);
                     else if (e.SignalIndex < 4 && e.SignalIndex > 0) SignalPattern = new SpeedPattern(60, state.Location + e.Distance);
-                    else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.TobuMaxSpeed, state.Location);
+                    else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.MaxSpeed, state.Location);
+                    if (ATS_Confirm) ATS_Confirm = false;
                     break;
                 case 2:
                     if (e.SignalIndex < 4) SignalPattern = new SpeedPattern(60, state.Location + 180);
-                    else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.TobuMaxSpeed, state.Location);
+                    else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.MaxSpeed, state.Location);
+                    if (ATS_Confirm) ATS_Confirm = false;
                     break;
                 case 3:
-                    if (state.Time.TotalMilliseconds - LastBeaconPassTime < 1000) EBType = EBTypes.CannotReleaseUntilStop;
-                    LastBeaconPassTime = state.Time.TotalMilliseconds;
+                    if (state.Time.TotalMilliseconds - LastBeaconPassTime.TotalMilliseconds < 1000) EBType = EBTypes.CannotReleaseUntilStop;
+                    LastBeaconPassTime = state.Time;
                     break;
                 case 5:
                     if (MPPPattern == SpeedPattern.inf)
@@ -98,7 +109,8 @@ namespace TobuSignal {
                     break;
                 case 15:
                     if (e.SignalIndex == 0) SignalPattern = new SpeedPattern(15, state.Location + e.Distance);
-                    else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.TobuMaxSpeed, state.Location);
+                    else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.MaxSpeed, state.Location);
+                    if (ATS_Confirm) ATS_Confirm = false;
                     break;
             }
         }

@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 namespace TobuSignal {
     internal partial class TSP_ATS {
         //InternalValue -> ATS
-        private static SpeedPattern ATSPattern = new SpeedPattern(), MPPPattern = new SpeedPattern(), SignalPattern = new SpeedPattern();
-        private static double LastBeaconPassTime = 0, MPPEndLocation = 0, InitializeStartTime = 0;
-        private static bool ConfirmOperation = false, isDoorOpened = false;
+        private static SpeedPattern ATSPattern = SpeedPattern.inf, MPPPattern = SpeedPattern.inf, SignalPattern = SpeedPattern.inf;
+        private static double MPPEndLocation = 0;
+        private static TimeSpan LastBeaconPassTime = TimeSpan.Zero, InitializeStartTime = TimeSpan.Zero;
+        private static bool NeedConfirmOperation = false, isDoorOpened = false;
         private enum EBTypes {
             Normal = 0,
             CannotReleaseUntilStop,
@@ -27,7 +28,8 @@ namespace TobuSignal {
         public static bool ATS_TobuAts, ATS_ATSEmergencyBrake, ATS_EmergencyOperation, ATS_Confirm, ATS_60, ATS_15;
         public static void Tick(VehicleState state) {
             if (ATSEnable) {
-                if (state.Time.TotalMilliseconds - InitializeStartTime < 3000) {
+                ATS_TobuAts = true;
+                if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 3000) {
                     ATS_ATSEmergencyBrake = true;
                     BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
                 } else {
@@ -36,18 +38,16 @@ namespace TobuSignal {
                         isDoorOpened = false;
                     }
 
-                    ATS_TobuAts = true;
-
                     ATSPattern = SignalPattern.AtLocation(state.Location, -3.5) < MPPPattern.AtLocation(state.Location, -3.5) ? SignalPattern : MPPPattern;
 
                     if (SignalPattern.AtLocation(state.Location, -3.5) < MPPPattern.AtLocation(state.Location, -3.5)) {
-                        if (state.Speed > ATSPattern.AtLocation(state.Location, -3.5)) EBType = 2;
+                        if (Math.Abs(state.Speed) > ATSPattern.AtLocation(state.Location, -3.5)) EBType = EBTypes.CanReleaseWithoutstop;
                     } else {
-                        if (state.Speed > ATSPattern.AtLocation(state.Location, -3.5)) EBType = 1;
+                        if (Math.Abs(state.Speed) > ATSPattern.AtLocation(state.Location, -3.5)) EBType = EBTypes.CannotReleaseUntilStop;
                     }
 
                     if (EBType == EBTypes.CanReleaseWithoutstop) {
-                        if (state.Speed < ATSPattern.TargetSpeed) EBType = EBTypes.Normal;
+                        if (Math.Abs(state.Speed) < ATSPattern.TargetSpeed) EBType = EBTypes.Normal;
                     }
 
                     ATS_60 = ATSPattern.TargetSpeed == 60;
@@ -59,17 +59,7 @@ namespace TobuSignal {
 
                 }
             } else {
-                ATS_TobuAts = false;
-
-                BrakeCommand = 0;
-
-                ATS_ATSEmergencyBrake = false;
-                ATS_EmergencyOperation = false;
-                ATS_Confirm = false;
-                ATS_60 = false;
-                ATS_15 = false;
-
-                ATSEnable = false;
+                Disable();
             }
         }
     }

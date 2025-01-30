@@ -27,7 +27,7 @@ If applicable, add screenshots to help explain your problem.
  - OS: [e.g. Windows 10]
  - Plugin version [e.g. 0.1.x]
  - BVE TrainSim version [e.g. 6.0.x]
- - AtsEX version [e.g. 1.0-rc3]
+ - BveEX version [e.g. 2.0]
 
 **Additional context**
 Add any other context about the problem here.
