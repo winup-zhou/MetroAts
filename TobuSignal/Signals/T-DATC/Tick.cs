@@ -155,7 +155,7 @@ namespace TobuSignal {
 
                         //パターン接近
                         var lastATC_PatternApproach = ATC_PatternApproach;
-                        ATC_PatternApproach = ATCPatternSpeed - state.Speed < 5 && ATCPatternSpeed > 0;
+                        ATC_PatternApproach = ATCPatternSpeed - Math.Abs(state.Speed) < 5 && ATCPatternSpeed > 0;
                         if (!lastATC_PatternApproach && ATC_PatternApproach)
                             ATC_PatternApproachBeep = AtsSoundControlInstruction.Play;
 
@@ -244,11 +244,11 @@ namespace TobuSignal {
                             TrackPosDisplayEndLocation = 0;
                         }
 
-                        if (state.Speed > StationPattern.AtLocation(state.Location, StationPatternDec))
+                        if (Math.Abs(state.Speed) > StationPattern.AtLocation(state.Location, StationPatternDec))
                             EBUntilStop = true;
 
-                        if (state.Speed > ATCPatternSpeed) {
-                            if (state.Speed >= ATCPatternSpeed + 1.5) {
+                        if (Math.Abs(state.Speed) > ATCPatternSpeed) {
+                            if (Math.Abs(state.Speed) >= ATCPatternSpeed + 1.5) {
                                 if (!ServiceBrake) ServiceBrake = true;
                                 if (BrakeStartTime == TimeSpan.Zero) BrakeStartTime = state.Time;
                             } else {
@@ -268,7 +268,7 @@ namespace TobuSignal {
                             else BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches;
                         } else if (EBUntilStop) {
                             BrakeCommand = Math.Max(BrakeCommand, TobuSignal.vehicleSpec.BrakeNotches + 1);
-                            if (state.Speed == 0 && handles.BrakeNotch >= TobuSignal.vehicleSpec.BrakeNotches) EBUntilStop = false;
+                            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= TobuSignal.vehicleSpec.BrakeNotches) EBUntilStop = false;
                         }
                     }
                 }

@@ -45,7 +45,7 @@ namespace MetroAts {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
-            if (state.Speed == 0 && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
+            if (Math.Abs(state.Speed) == 0 && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                 if (e.KeyName == AtsKeyName.I) {
                     if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey > 0) {
                         NowKey--;

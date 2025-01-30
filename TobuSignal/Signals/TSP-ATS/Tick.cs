@@ -41,13 +41,13 @@ namespace TobuSignal {
                     ATSPattern = SignalPattern.AtLocation(state.Location, -3.5) < MPPPattern.AtLocation(state.Location, -3.5) ? SignalPattern : MPPPattern;
 
                     if (SignalPattern.AtLocation(state.Location, -3.5) < MPPPattern.AtLocation(state.Location, -3.5)) {
-                        if (state.Speed > ATSPattern.AtLocation(state.Location, -3.5)) EBType = EBTypes.CanReleaseWithoutstop;
+                        if (Math.Abs(state.Speed) > ATSPattern.AtLocation(state.Location, -3.5)) EBType = EBTypes.CanReleaseWithoutstop;
                     } else {
-                        if (state.Speed > ATSPattern.AtLocation(state.Location, -3.5)) EBType = EBTypes.CannotReleaseUntilStop;
+                        if (Math.Abs(state.Speed) > ATSPattern.AtLocation(state.Location, -3.5)) EBType = EBTypes.CannotReleaseUntilStop;
                     }
 
                     if (EBType == EBTypes.CanReleaseWithoutstop) {
-                        if (state.Speed < ATSPattern.TargetSpeed) EBType = EBTypes.Normal;
+                        if (Math.Abs(state.Speed) < ATSPattern.TargetSpeed) EBType = EBTypes.Normal;
                     }
 
                     ATS_60 = ATSPattern.TargetSpeed == 60;

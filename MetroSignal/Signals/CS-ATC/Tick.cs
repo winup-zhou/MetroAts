@@ -61,7 +61,7 @@ namespace MetroSignal {
                         BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                     }
                 } else {
-                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 5000) {
+                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 3000) {
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = ATC_P = false;
                         if (!Config.ATCLimitUseNeedle) {
@@ -108,7 +108,7 @@ namespace MetroSignal {
                             }
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
                             if (!Config.ORPUseNeedle) {
-                                if (ORPSpeed - state.Speed < 5 || ORPSpeed == 7.5) ATC_ORPBeep = AtsSoundControlInstruction.PlayLooping;
+                                if (ORPSpeed - Math.Abs(state.Speed) < 5 || ORPSpeed == 7.5) ATC_ORPBeep = AtsSoundControlInstruction.PlayLooping;
                                 else ATC_ORPBeep = AtsSoundControlInstruction.Stop;
                             }
                         } else {
@@ -132,11 +132,11 @@ namespace MetroSignal {
                         SignalAnn = ATCSpeed > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex]) && !inDepot;
                         ATC_SignalAnn = SignalAnn;
 
-                        if (state.Speed > ORPPattern.AtLocation(state.Location, ORPPatternDec))
+                        if (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec))
                             EBUntilStop = true;
 
-                        if (state.Speed > ATCSpeed + 1 && ATCSpeed != -1) {
-                            if (state.Speed >= ATCSpeed + 3) {
+                        if (Math.Abs(state.Speed) > ATCSpeed + 1 && ATCSpeed != -1) {
+                            if (Math.Abs(state.Speed) >= ATCSpeed + 3) {
                                 if (!ServiceBrake) ServiceBrake = true;
                                 if (BrakeStartTime == TimeSpan.Zero) BrakeStartTime = state.Time;
                             } else {
@@ -150,17 +150,17 @@ namespace MetroSignal {
                         }
 
                         if (ServiceBrake) {
-                            if (state.Time.TotalMilliseconds - BrakeStartTime.TotalMilliseconds < 2000)
+                            if (state.Time.TotalMilliseconds - BrakeStartTime.TotalMilliseconds < 1500)
                                 BrakeCommand = (int)Math.Ceiling(MetroSignal.vehicleSpec.BrakeNotches * 0.5);
                             else BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches;
                         }
 
                         if (EBUntilStop) {
                             BrakeCommand = Math.Max(BrakeCommand, MetroSignal.vehicleSpec.BrakeNotches + 1);
-                            if (state.Speed == 0 && handles.BrakeNotch >= MetroSignal.vehicleSpec.BrakeNotches) EBUntilStop = false;
+                            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= MetroSignal.vehicleSpec.BrakeNotches) EBUntilStop = false;
                         }
 
-                        if (ORPPattern != SpeedPattern.inf && (state.Speed > ORPPattern.AtLocation(state.Location, ORPPatternDec) || state.Speed < 5 || ORPPattern.AtLocation(state.Location, ORPPatternDec) < 7.5)) {
+                        if (ORPPattern != SpeedPattern.inf && (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec) || Math.Abs(state.Speed) < 5 || ORPPattern.AtLocation(state.Location, ORPPatternDec) < 7.5)) {
                             ORPPattern = new SpeedPattern(7.5, state.Location, 7.5);
                         }
 

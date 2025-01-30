@@ -107,7 +107,7 @@ namespace TokyuSignal {
                             }
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
 
-                            if (ORPSpeed - state.Speed < 5 || ORPSpeed == 7.5) ATC_ORPBeep = AtsSoundControlInstruction.PlayLooping;
+                            if (ORPSpeed - Math.Abs(state.Speed) < 5 || ORPSpeed == 7.5) ATC_ORPBeep = AtsSoundControlInstruction.PlayLooping;
                             else ATC_ORPBeep = AtsSoundControlInstruction.Stop;
                         } else {
                             ORPPattern = SpeedPattern.inf;
@@ -131,11 +131,11 @@ namespace TokyuSignal {
                         if (lastAnn != SignalAnn) ATC_SignalAnnBeep = AtsSoundControlInstruction.Play;
                         ATC_SignalAnn = SignalAnn ? (state.Time.TotalMilliseconds % 2000 < 1000) : false;
 
-                        if (state.Speed > ORPPattern.AtLocation(state.Location, ORPPatternDec) || state.Speed > StationPattern.AtLocation(state.Location, StationPatternDec))
+                        if (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec) || Math.Abs(state.Speed) > StationPattern.AtLocation(state.Location, StationPatternDec))
                             EBUntilStop = true;
 
-                        if (state.Speed > ATCSpeed + 1 && ATCSpeed != -1) {
-                            if (state.Speed >= ATCSpeed + 3) {
+                        if (Math.Abs(state.Speed) > ATCSpeed + 1 && ATCSpeed != -1) {
+                            if (Math.Abs(state.Speed) >= ATCSpeed + 3) {
                                 if (!ServiceBrake) ServiceBrake = true;
                                 if (BrakeStartTime == TimeSpan.Zero) BrakeStartTime = state.Time;
                             } else {
@@ -149,18 +149,18 @@ namespace TokyuSignal {
                         }
 
                         if (ServiceBrake) {
-                            if (state.Time.TotalMilliseconds - BrakeStartTime.TotalMilliseconds < 2000)
+                            if (state.Time.TotalMilliseconds - BrakeStartTime.TotalMilliseconds < 1500)
                                 BrakeCommand = (int)Math.Ceiling(TokyuSignal.vehicleSpec.BrakeNotches * 0.5);
                             else BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches;
                         }
 
                         if (EBUntilStop) {
                             BrakeCommand = Math.Max(BrakeCommand, TokyuSignal.vehicleSpec.BrakeNotches + 1);
-                            if (state.Speed == 0 && handles.BrakeNotch >= 4) EBUntilStop = false;
+                            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= 4) EBUntilStop = false;
                         }
 
-                        if (ORPPattern != SpeedPattern.inf && (state.Speed > ORPPattern.AtLocation(state.Location, ORPPatternDec) ||
-                            state.Speed < 5 || ORPPattern.AtLocation(state.Location, ORPPatternDec) < 7.5)) {
+                        if (ORPPattern != SpeedPattern.inf && (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec) ||
+                            Math.Abs(state.Speed) < 5 || ORPPattern.AtLocation(state.Location, ORPPatternDec) < 7.5)) {
                             ORPPattern = new SpeedPattern(7.5, state.Location, 7.5);
                         }
 

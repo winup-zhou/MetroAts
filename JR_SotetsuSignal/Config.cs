@@ -22,14 +22,15 @@ namespace JR_SotetsuSignal {
         private const int buffer_size = 4096;
 
         //≈‰÷√œÓ
-        public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
+        public static bool SNEnable = true;
+        public static bool PPowerAlwaysLight = false;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "JR_SotetsuSignal.ini")).FullName;
             if (File.Exists(path)) {
                 try {
-                    //panel
-                    ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
+                    ReadConfig("ats", "snenable", ref SNEnable);
+                    ReadConfig("ats", "ppowerlampalwayslight", ref PPowerAlwaysLight);
                 } catch (Exception ex) {
                     throw ex;
                 }

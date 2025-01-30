@@ -83,7 +83,7 @@ namespace SeibuSignal {
         }
 
         public static void ConfirmEB(VehicleState state, HandleSet handles) {
-            if (state.Speed == 0 && handles.BrakeNotch > 4 && EBType == EBTypes.CannotReleaseUntilStop) {
+            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch > 4 && EBType == EBTypes.CannotReleaseUntilStop) {
                 EBType = EBTypes.Normal;
                 if (NeedConfirm) {
                     NeedConfirm = false;

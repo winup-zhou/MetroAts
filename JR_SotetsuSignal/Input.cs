@@ -17,19 +17,35 @@ namespace JR_SotetsuSignal {
         private void BeaconPassed(object sender, BeaconPassedEventArgs e) {
             var state = Native.VehicleState;
             if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
+            if (e.Type == 25) {
+                if (e.Optional == 0) {
+                    if (ATS_P.ATSEnable) ATS_P.SwitchToSN();
+                    if (!ATS_SN.ATSEnable) ATS_SN.Init(state.Time);
+                }
+            }
+            if (ATS_P.ATSEnable) ATS_P.BeaconPassed(state, e);
+            if (ATS_SN.ATSEnable) ATS_SN.BeaconPassed(state, e);
         }
 
         private void Initialize(object sender, StartedEventArgs e) {
-
-            if(e.DefaultBrakePosition == BrakePosition.Emergency && !StandAloneMode) {
+            var panel = Native.AtsPanelArray;
+            var sound = Native.AtsSoundArray;
+            ATS_P.ResetAll();
+            ATS_SN.ResetAll();
+            if (e.DefaultBrakePosition == BrakePosition.Emergency && !StandAloneMode) {
                 BrakeTriggered = false;
                 Keyin = false;
                 SignalEnable = false;
+                sound[256] = (int)AtsSoundControlInstruction.Stop;
             }
+            UpdatePanelAndSound(panel, sound);
         }
 
         private void DoorOpened(object sender, EventArgs e) {
             isDoorOpen = true;
+            var state = Native.VehicleState;
+            if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
+            if (ATS_P.ATSEnable) ATS_P.DoorOpened(state);
         }
 
         private void DoorClosed(object sender, EventArgs e) {
@@ -43,9 +59,17 @@ namespace JR_SotetsuSignal {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
+            var sound = Native.AtsSoundArray;
             if (e.KeyName == AtsKeyName.B1) {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
-                
+                if (ATS_P.ATSEnable && state.Speed == 0) ATS_P.ResetBrake(handles);
+                if (ATS_SN.ATSEnable) ATS_SN.ResetBrake(handles);
+            } else if (e.KeyName == AtsKeyName.A1) {
+                if (ATS_SN.ATSEnable) ATS_SN.ResetChime();
+            } else if (e.KeyName == AtsKeyName.S) {
+                if (ATS_SN.ATSEnable && handles.BrakeNotch >= vehicleSpec.AtsNotch) ATS_SN.ResetWarn();
+            } else if (e.KeyName == AtsKeyName.B2) {
+                if (ATS_P.ATSEnable && state.Speed == 0) ATS_P.BrakeOverride(state);
             }
             if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
                 if (e.KeyName == AtsKeyName.I) {
@@ -53,6 +77,7 @@ namespace JR_SotetsuSignal {
                     Keyin = false;
                     BrakeTriggered = false;
                     SignalEnable = false;
+                    sound[256] = (int)AtsSoundControlInstruction.Stop;
 
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;

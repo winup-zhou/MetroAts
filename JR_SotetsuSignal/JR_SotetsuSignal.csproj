@@ -7,8 +7,8 @@
     <ProjectGuid>{5291C113-A4FF-46B8-ACB6-9B55E3516630}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SotetsuSignal</RootNamespace>
-    <AssemblyName>SotetsuSignal</AssemblyName>
+    <RootNamespace>JR_SotetsuSignal</RootNamespace>
+    <AssemblyName>JR_SotetsuSignal</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>false</Deterministic>
@@ -46,7 +46,6 @@
     <Compile Include="Input.cs" />
     <Compile Include="Load.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Signals\ATS-P\ATS-P_SN.cs" />
     <Compile Include="Signals\ATS-P\Functions.cs" />
     <Compile Include="Signals\ATS-P\Tick.cs" />
     <Compile Include="Signals\ATS-SN\Functions.cs" />
@@ -70,4 +69,8 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>COPY $(TargetPath) D:\Scenarios\vertah\trta05_v40\BveExPlugins\$(TargetFileName)
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

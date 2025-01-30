@@ -56,7 +56,7 @@ namespace SeibuSignal {
                         BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches + 1;
                     }
                 } else {
-                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 5000) {
+                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 3000) {
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = false;
                         if (!Config.ATCLimitUseNeedle) {
@@ -66,7 +66,6 @@ namespace SeibuSignal {
                             ATCNeedle_Disappear = true;
                         }
                         BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches + 1;
-                        ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
                     } else {
                         ATC_ATC = true;
                         BrakeCommand = 0;
@@ -107,7 +106,7 @@ namespace SeibuSignal {
                             ATC_Depot = false;
                         }
 
-                        if (state.Speed > ATCSpeed + 1 && ATCSpeed != -1) {
+                        if (Math.Abs(state.Speed) > ATCSpeed + 1 && ATCSpeed != -1) {
                             BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches;
                         }
 

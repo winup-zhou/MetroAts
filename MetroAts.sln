@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetroSignal", "MetroSignal\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokyuSignal", "TokyuSignal\TokyuSignal.csproj", "{9E77383D-B232-47B9-B47A-57EDD799EE76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotchOutput", "NotchOutput\NotchOutput.csproj", "{5FF23062-E21D-4276-8C3E-75327F9E91C5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,10 +45,6 @@ Global
 		{9E77383D-B232-47B9-B47A-57EDD799EE76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E77383D-B232-47B9-B47A-57EDD799EE76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E77383D-B232-47B9-B47A-57EDD799EE76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5FF23062-E21D-4276-8C3E-75327F9E91C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5FF23062-E21D-4276-8C3E-75327F9E91C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5FF23062-E21D-4276-8C3E-75327F9E91C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5FF23062-E21D-4276-8C3E-75327F9E91C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

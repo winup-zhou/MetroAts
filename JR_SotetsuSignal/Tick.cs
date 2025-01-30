@@ -18,64 +18,74 @@ namespace JR_SotetsuSignal {
             var sound = Native.AtsSoundArray;
 
             int pointer = 0;
-            while (sectionManager.Sections[pointer].Location < state.Location)
+            while (sectionManager.Sections[pointer].Location < state.Location) {
                 pointer++;
-            if (pointer >= sectionManager.Sections.Count)
-                pointer = sectionManager.Sections.Count - 1;
-
+                if (pointer >= sectionManager.Sections.Count) {
+                    pointer = sectionManager.Sections.Count - 1;
+                    break;
+                }
+            }
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
             if (SignalEnable) {
                 if (StandAloneMode) {
-                
+                    if (!ATS_P.ATSEnable) ATS_P.Init(state.Time);
+                    if (!ATS_SN.ATSEnable && Config.SNEnable) ATS_SN.Init(state.Time);
+                    if (ATS_P.P_PEnable) ATS_SN.ResetAll();
+                    if (ATS_P.ATSEnable) {
+                        ATS_P.Tick(state);
+                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_P.BrakeCommand);
+                        if (ATS_P.BrakeCommand > 0) BrakeTriggered = true;
+                    }
+                    if (ATS_SN.ATSEnable) {
+                        ATS_SN.Tick(state);
+                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_SN.BrakeCommand);
+                        if (ATS_SN.BrakeCommand > 0) BrakeTriggered = true;
+                    }
                 } else {
-                
+                    if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
+                    if (!ATS_P.ATSEnable) ATS_P.Init(state.Time);
+                    if (!ATS_SN.ATSEnable && Config.SNEnable) ATS_SN.Init(state.Time);
+                    if (ATS_P.P_PEnable) ATS_SN.ResetAll();
+                    if (ATS_P.ATSEnable) {
+                        ATS_P.Tick(state);
+                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_P.BrakeCommand);
+                        if (ATS_P.BrakeCommand > 0) BrakeTriggered = true;
+                    }
+                    if (ATS_SN.ATSEnable) {
+                        ATS_SN.Tick(state);
+                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_SN.BrakeCommand);
+                        if (ATS_SN.BrakeCommand > 0) BrakeTriggered = true;
+                    }
+                }
+                if ((currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49)
+                    || (currentSection.CurrentSignalIndex >= 50 && currentSection.CurrentSignalIndex <= 54)) {
+                    sound[256] = (int)AtsSoundControlInstruction.PlayLooping;
                 }
                 if (!StandAloneMode) {
-                    if (corePlugin.KeyPos != MetroAts.KeyPosList.Seibu) {
+                    if (!(corePlugin.KeyPos == MetroAts.KeyPosList.JR || corePlugin.KeyPos == MetroAts.KeyPosList.Sotetsu)
+                        || (corePlugin.SignalSWPos != MetroAts.SignalSWList.JR && corePlugin.SignalSWPos != MetroAts.SignalSWList.Sotetsu)) {
                         BrakeTriggered = false;
                         SignalEnable = false;
+                        ATS_P.ResetAll();
+                        ATS_SN.ResetAll();
+                        sound[256] = (int)AtsSoundControlInstruction.Stop;
                     }
                 }
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
+                UpdatePanelAndSound(panel, sound);
             } else {
-                for (var i = 329; i <= 334; ++i) panel[i] = 0;
-                panel[287] = 0;
-                panel[291] = 0;
-                panel[294] = 0;
-                panel[297] = 0;
-                panel[301] = 0;
-                panel[304] = 0;
-
-                panel[285] = 0;
-                panel[286] = 0;
-
-                panel[284] = 0;
-
-                panel[310] = 0;
-                panel[309] = 0;
-
-                panel[264] = 0;
-                panel[275] = 0;
-                panel[278] = 0;
-                panel[271] = 0;
-                panel[267] = 0;
-                panel[281] = 0;
                 if (StandAloneMode) {
                     if (!SignalEnable && Keyin)
                         SignalEnable = true;
                     AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                     AtsHandles.ReverserPosition = ReverserPosition.N;
                 } else {
-                    Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Seibu;
-                    if (!SignalEnable && Keyin && corePlugin.SignalSWPos == MetroAts.SignalSWList.SeibuATS)
-                        SignalEnable = true;
-                    else if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset)
-                        && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                    Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.JR || corePlugin.KeyPos == MetroAts.KeyPosList.Sotetsu;
+                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.JR || corePlugin.SignalSWPos == MetroAts.SignalSWList.Sotetsu))
                         SignalEnable = true;
                 }
 
@@ -88,50 +98,28 @@ namespace JR_SotetsuSignal {
                 sound[270] = (int)Sound_Keyin;
                 sound[271] = (int)Sound_Keyout;
             }
-            sound[273] = (int)Sound_ResetSW;
-
-            ////panel
-            //panel[287] = Convert.ToInt32(ATC.ATC_01);
-            //panel[291] = Convert.ToInt32(ATC.ATC_25);
-            //panel[294] = Convert.ToInt32(ATC.ATC_40);
-            //panel[297] = Convert.ToInt32(ATC.ATC_55);
-            //panel[301] = Convert.ToInt32(ATC.ATC_75);
-            //panel[304] = Convert.ToInt32(ATC.ATC_90);
-
-            //panel[285] = Convert.ToInt32(ATC.ATC_Stop);
-            //panel[286] = Convert.ToInt32(ATC.ATC_Proceed);
-
-            //panel[284] = Convert.ToInt32(ATC.ATC_X);
-
-            //panel[310] = ATC.ATCNeedle;
-            //panel[309] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
-
-            //panel[264] = Convert.ToInt32(ATC.ATC_ATC);
-            //panel[275] = Convert.ToInt32(ATC.ATC_Depot);
-            //panel[278] = Convert.ToInt32(ATC.ATC_Noset);
-            //panel[271] = Convert.ToInt32(ATC.ATC_ServiceBrake);
-            //panel[267] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
-            //panel[281] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
-
-            //panel[329] = Convert.ToInt32(SeibuATS.ATS_Power);
-            //panel[330] = Convert.ToInt32(SeibuATS.ATS_EB);
-            //panel[331] = Convert.ToInt32(SeibuATS.ATS_Stop);
-            //panel[332] = Convert.ToInt32(SeibuATS.ATS_Confirm);
-            //panel[333] = Convert.ToInt32(SeibuATS.ATS_Limit);
-            ////panel[334] = Convert.ToInt32(SeibuATS.);
-
-            //sound[258] = (int)ATC.ATC_Ding;
-            //if (ATC.ATCEnable) { sound[256] = (int)ATC.ATC_WarningBell; }
-            //sound[261] = (int)ATC.ATC_EmergencyOperationAnnounce;
-            //sound[262] = (int)SeibuATS.ATS_StopAnnounce;
-            //sound[263] = (int)SeibuATS.ATS_EBAnnounce;
 
             //sound reset
             Sound_Keyin = Sound_Keyout = Sound_ResetSW = AtsSoundControlInstruction.Continue;
-            //handles.PowerNotch = 0;
-            //handles.BrakeNotch = 0;
-            //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;
-            //handles.ReverserPosition = ReverserPosition.N;
+        }
+
+        private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound) {
+            sound[273] = (int)Sound_ResetSW;
+
+            //panel
+            panel[256] = Convert.ToInt32(ATS_P.P_Power || Config.PPowerAlwaysLight);
+            panel[257] = Convert.ToInt32(ATS_P.P_PatternApproach);
+            panel[258] = Convert.ToInt32(ATS_P.P_BrakeActioned);
+            panel[259] = Convert.ToInt32(ATS_P.P_EBActioned);
+            panel[260] = Convert.ToInt32(ATS_P.P_BrakeOverride);
+            panel[261] = Convert.ToInt32(ATS_P.P_PEnable);
+            panel[262] = Convert.ToInt32(ATS_P.P_Fail);
+            panel[336] = Convert.ToInt32(ATS_SN.SN_Power);
+            panel[337] = Convert.ToInt32(ATS_SN.SN_Action);
+
+            sound[258] = (int)ATS_P.P_Ding;
+            sound[257] = (int)ATS_SN.SN_Chime;
+            if(ATS_SN.ATSEnable)sound[256] = (int)ATS_SN.SN_WarningBell;
         }
     }
 }

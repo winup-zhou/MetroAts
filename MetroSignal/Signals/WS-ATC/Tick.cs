@@ -17,17 +17,17 @@ namespace MetroSignal {
 
         private static int IndexToSpeed(int index) {
             if (index == 50) {
-                return 0;
+                return -1;
             } else if (index == 51) {
                 return 25;
-            } else if (index == 51) {
+            } else if (index == 52) {
                 return 40;
             } else if (index == 53) {
                 return 65;
             } else if (index == 54) {
                 return (int)Config.LessInf;
             } else {
-                return 0;
+                return -1;
             }
         }
 
@@ -49,10 +49,11 @@ namespace MetroSignal {
                         BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                     } else {
                         ATC_WSATC = true;
-                        if (state.Speed > IndexToSpeed(CurrentSection.CurrentSignalIndex) && IndexToSpeed(CurrentSection.CurrentSignalIndex) == 0)
+                        if (Math.Abs(state.Speed) > IndexToSpeed(CurrentSection.CurrentSignalIndex) && IndexToSpeed(CurrentSection.CurrentSignalIndex) == -1)
                             NeedConfirm = true;
-                        if (state.Speed > IndexToSpeed(CurrentSection.CurrentSignalIndex) || NeedConfirm)
+                        if (Math.Abs(state.Speed) > IndexToSpeed(CurrentSection.CurrentSignalIndex) || NeedConfirm)
                             BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches;
+                        else BrakeCommand = 0;
                     }
                 }
             } else {

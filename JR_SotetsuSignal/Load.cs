@@ -24,7 +24,7 @@ namespace JR_SotetsuSignal {
         private LeverText leverText;
         private CorePlugin corePlugin;
 
-        private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW;
+        private static AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW;
 
         private static bool SignalEnable = false;
         private static bool Keyin = false;

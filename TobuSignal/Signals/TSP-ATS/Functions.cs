@@ -43,7 +43,7 @@ namespace TobuSignal {
         }
 
         public static void ResetBrake(VehicleState state, HandleSet handles) {
-            if (state.Speed == 0 && handles.BrakeNotch == TobuSignal.vehicleSpec.BrakeNotches + 1)
+            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch == TobuSignal.vehicleSpec.BrakeNotches + 1)
                 if (EBType == EBTypes.CannotReleaseUntilStop) EBType = EBTypes.Normal;
             if (NeedConfirmOperation) {
                 NeedConfirmOperation = false;

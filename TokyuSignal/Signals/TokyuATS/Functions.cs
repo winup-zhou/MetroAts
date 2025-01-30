@@ -73,7 +73,7 @@ namespace TokyuSignal {
         }
 
         public static void ResetBrake(VehicleState state, HandleSet handles) {
-            if (state.Speed == 0 && handles.BrakeNotch == TokyuSignal.vehicleSpec.BrakeNotches + 1) {
+            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch == TokyuSignal.vehicleSpec.BrakeNotches + 1) {
                 if(EB)EB = false;
             }
         }

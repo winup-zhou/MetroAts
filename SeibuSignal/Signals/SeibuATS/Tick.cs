@@ -146,7 +146,7 @@ namespace SeibuSignal {
 
                     var PatternSpeed = Math.Min(Math.Min(B1Speed, B2Speed),
                         Math.Min(StopPattern.AtLocation(state.Location, -4.0), LimitPattern.AtLocation(state.Location, -4.0)));
-                    if (state.Speed > PatternSpeed) {
+                    if (Math.Abs(state.Speed) > PatternSpeed) {
                         if (StopPattern.AtLocation(state.Location, -4.0) < LimitPattern.AtLocation(state.Location, -4.6)
                             && StopPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
                             EBType = EBTypes.CannotReleaseUntilStop;

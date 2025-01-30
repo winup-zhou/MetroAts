@@ -26,7 +26,7 @@ namespace MetroSignal {
         }
 
         public static void ResetBrake(VehicleState state,HandleSet handles) {
-            if(state.Speed == 0 && handles.BrakeNotch >= 4) {
+            if(Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= 4) {
                 if(NeedConfirm)NeedConfirm = false;
             }
         }
