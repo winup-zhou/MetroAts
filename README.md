@@ -40,8 +40,8 @@ Twitter: @wup99925510
 - [x] ATC-P
 - [x] 東急ATS
 #### 相鉄·JR
-- [ ] ATS-P
-- [ ] ATS-SN
+- [x] ATS-P
+- [x] ATS-SN
 ### その他
 - [ ] メトロ総合プラグインとの互換性
 - [ ] ATO/TASCプラグインとの互換性
