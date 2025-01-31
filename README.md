@@ -1,6 +1,8 @@
 # MetroAts 地下鉄系ATC/Sプラグイン  
+使用方法についてはWikiを参照されたい。
+[Wiki Page](https://github.com/winup-zhou/MetroAts/wiki)
 
-## Latest Build
+## Latest Develop Build
 [![MSBuild](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml/badge.svg)](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml)
 
 ## License

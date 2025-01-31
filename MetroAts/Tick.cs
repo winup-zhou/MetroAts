@@ -98,8 +98,10 @@ namespace MetroAts {
             if(isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
             SubPluginEnabled = false;
 
-            panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
-            panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+            if (!SubPluginEnabled) {
+                panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
+                panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+            }
             panel[Config.Panel_keyoutput] = (int)Config.KeyPosLists[NowKey];
             panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
 
