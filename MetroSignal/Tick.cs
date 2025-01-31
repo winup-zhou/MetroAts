@@ -119,8 +119,8 @@ namespace MetroSignal {
                         WS_ATC.ResetAll();
                         CS_ATC.ResetAll();
                         if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-                        panel[275] = 0;
-                        panel[278] = 0;
+                        panel[274] = 0;
+                        panel[277] = 0;
                     }
                 }
                 if (BrakeTriggered) {

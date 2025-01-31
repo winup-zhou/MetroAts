@@ -85,7 +85,7 @@ namespace TobuSignal {
             } else {
                 if (!StandAloneMode) {
                     Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Tobu;
-                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset) && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu) && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                 } else {
                     if (!SignalEnable && Keyin && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)

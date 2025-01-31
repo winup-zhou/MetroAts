@@ -36,6 +36,7 @@ namespace JR_SotetsuSignal {
                     P_Fail = true;
                     P_PEnable = false;
                     BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
+                    P_Ding = AtsSoundControlInstruction.Play;
                 } else {
                     BrakeCommand = 0;
                     P_Fail = false;
