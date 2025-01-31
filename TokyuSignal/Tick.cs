@@ -230,6 +230,8 @@ namespace TokyuSignal {
 
             sound[258] = (int)ATC.ATC_Ding;
             sound[259] = (int)ATC.ATC_ORPBeep;
+            if (ATC.ATC_SignalAnnBeep == AtsSoundControlInstruction.Play)
+                sound[260] = (int)AtsSoundControlInstruction.Stop;
             sound[260] = (int)ATC.ATC_SignalAnnBeep;
             sound[269] = (int)TokyuATS.ATS_WarnBell;
             if (TokyuATS.ATSEnable) {
