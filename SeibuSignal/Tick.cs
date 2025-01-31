@@ -49,19 +49,19 @@ namespace SeibuSignal {
                             SeibuATS.ResetAll();
                     }
 
+                    if (SeibuATS.ATSEnable) {
+                        SeibuATS.Tick(state, sectionManager);
+                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, SeibuATS.BrakeCommand);
+                        if (SeibuATS.BrakeCommand > 0) BrakeTriggered = true;
+                        if (ATC.ATCEnable && !(currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49))
+                            ATC.ResetAll();
+                    }
                     if (ATC.ATCEnable) {
                         ATC.Tick(state, handles, currentSection, corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset, corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot);
                         AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATC.BrakeCommand);
                         if (ATC.BrakeCommand > 0) BrakeTriggered = true;
                         if (SeibuATS.ATSEnable)
                             SeibuATS.ResetAll();
-                    }
-                    if (SeibuATS.ATSEnable) {
-                        SeibuATS.Tick(state, sectionManager);
-                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, SeibuATS.BrakeCommand);
-                        if (SeibuATS.BrakeCommand > 0) BrakeTriggered = true;
-                        if (ATC.ATCEnable)
-                            ATC.ResetAll();
                     }
                     if (!ATC.ATCEnable) panel[275] = corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot ? 1 : 0;
                     panel[278] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset ? 1 : 0;
@@ -81,7 +81,10 @@ namespace SeibuSignal {
                     }
                 }
                 if (!StandAloneMode) {
-                    if (corePlugin.KeyPos != MetroAts.KeyPosList.Seibu) {
+                    if (corePlugin.KeyPos != MetroAts.KeyPosList.Seibu || (corePlugin.SignalSWPos != MetroAts.SignalSWList.InDepot
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.Noset
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.ATC
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.SeibuATS)) {
                         BrakeTriggered = false;
                         SignalEnable = false;
                         SeibuATS.ResetAll();

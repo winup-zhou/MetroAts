@@ -67,7 +67,7 @@ namespace TobuSignal {
                         (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
                 if (!StandAloneMode) {
                     if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
-                    if (corePlugin.KeyPos != MetroAts.KeyPosList.Tobu) {
+                    if (corePlugin.KeyPos != MetroAts.KeyPosList.Tobu || corePlugin.SignalSWPos != MetroAts.SignalSWList.Tobu) {
                         BrakeTriggered = false;
                         SignalEnable = false;
                         T_DATC.ResetAll();

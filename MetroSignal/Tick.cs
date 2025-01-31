@@ -113,7 +113,13 @@ namespace MetroSignal {
                     }
                 }
                 if (!StandAloneMode) {
-                    if (!(corePlugin.KeyPos == MetroAts.KeyPosList.Metro || corePlugin.KeyPos == MetroAts.KeyPosList.ToyoKosoku)) {
+                    if (!(corePlugin.KeyPos == MetroAts.KeyPosList.Metro || corePlugin.KeyPos == MetroAts.KeyPosList.ToyoKosoku) ||
+                        (corePlugin.SignalSWPos != MetroAts.SignalSWList.InDepot
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.Noset
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.ATC
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.ATP
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.WS_ATC
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.JR)) {
                         BrakeTriggered = false;
                         SignalEnable = false;
                         WS_ATC.ResetAll();

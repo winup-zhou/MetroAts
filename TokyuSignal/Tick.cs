@@ -103,7 +103,10 @@ namespace TokyuSignal {
                     }
                 }
                 if (!StandAloneMode) {
-                    if (!(corePlugin.KeyPos == MetroAts.KeyPosList.Tokyu)) {
+                    if (!(corePlugin.KeyPos == MetroAts.KeyPosList.Tokyu) ||
+                        (corePlugin.SignalSWPos != MetroAts.SignalSWList.Noset
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.ATC
+                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.TokyuATS)) {
                         BrakeTriggered = false;
                         SignalEnable = false;
                         ATC.ResetAll();
