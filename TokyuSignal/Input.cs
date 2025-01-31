@@ -101,7 +101,8 @@ namespace TokyuSignal {
 
         private void SetSignal(object sender, SignalUpdatedEventArgs e) {
             var state = Native.VehicleState;
-            TokyuATS.SignalUpdated(state, e);
+            if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
+            if (TokyuATS.ATSEnable) TokyuATS.SignalUpdated(state, e);
         }
 
         private void OnScenarioCreated(ScenarioCreatedEventArgs e) {
