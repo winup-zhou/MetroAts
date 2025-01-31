@@ -59,7 +59,7 @@ namespace TokyuSignal {
                         BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches + 1;
                     }
                 } else {
-                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 5000) {
+                    if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 3000) {
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = ATC_P = false;
                         if (!Config.ATCLimitUseNeedle) {
