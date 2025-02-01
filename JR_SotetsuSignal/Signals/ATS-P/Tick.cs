@@ -10,7 +10,7 @@ namespace JR_SotetsuSignal {
         const double SignalDec = -2.445;
         private static double P_MaxSpeed = Config.LessInf, StationPatternEndLocation = Config.LessInf;
         private static TimeSpan InitStartTime = TimeSpan.Zero, P_OverrideStartTime = TimeSpan.Zero;
-        private static bool EBBeaconPassed = false, BrakeUntilStop = false, BrakeCanRelease = false;
+        private static bool EBBeaconPassed = false, RollbackDetect = false, BrakeUntilStop = false, BrakeCanRelease = false;
         private static bool lastP_PEnable = false, lastP_BrakeOverride = false;
         private static SpeedPattern P_SignalPattern = SpeedPattern.inf,
             P_StationStopPattern = SpeedPattern.inf,
@@ -71,12 +71,15 @@ namespace JR_SotetsuSignal {
                             BrakeUntilStop = true;
                         } else if (Math.Abs(state.Speed) > CalculatePattern2(state.Location)) {
                             BrakeCanRelease = true;
+                        }else if(state.Speed < -5) {
+                            RollbackDetect = true;
+                            BrakeUntilStop = true;
                         }
 
                         if (state.Time.TotalMilliseconds - P_OverrideStartTime.TotalMilliseconds > 60000) {
                             if (BrakeUntilStop) {
                                 P_BrakeActioned = true;
-                                if (EBBeaconPassed) {
+                                if (EBBeaconPassed || RollbackDetect) {
                                     P_EBActioned = true;
                                     BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
                                 } else {
