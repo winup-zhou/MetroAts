@@ -18,8 +18,8 @@ namespace TokyuSignal {
 
     public enum SignalSWListStandAlone {
         Noset = 0,
-        ATC = 2,
-        TokyuATS = 8
+        ATC = 4,
+        TokyuATS = 1
     }
     public partial class TokyuSignal : AssemblyPluginBase {
         private readonly INative Native;

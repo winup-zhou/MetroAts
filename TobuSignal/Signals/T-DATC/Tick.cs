@@ -32,7 +32,7 @@ namespace TobuSignal {
 
         //panel -> ATC
         public static bool ATC_X, ATC_01, ATC_10, ATC_15, ATC_20, ATC_25, ATC_30, ATC_35, ATC_40, ATC_45, ATC_50, ATC_55, ATC_60, ATC_65, ATC_70,
-            ATC_75, ATC_80, ATC_85, ATC_90, ATC_95, ATC_100, ATC_110,
+            ATC_75, ATC_80, ATC_85, ATC_90, ATC_95, ATC_100, ATC_105, ATC_110,
             ATC_Stop, ATC_Proceed, ATC_P, ATC_TobuATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_PatternApproach, ATCNeedle_Disappear, ATC_StationStop;
         public static int ORPNeedle, ATCNeedle, ATC_EndPointDistance, ATC_SwitcherPosition;
 
@@ -221,6 +221,7 @@ namespace TobuSignal {
                             ATC_90 = ATCTargetSpeed == 90;
                             ATC_95 = ATCTargetSpeed == 95;
                             ATC_100 = ATCTargetSpeed == 100;
+                            ATC_100 = ATCTargetSpeed == 105;
                             ATC_110 = ATCTargetSpeed == 110;
                         } else {
                             ATCNeedle = ATCTargetSpeed;

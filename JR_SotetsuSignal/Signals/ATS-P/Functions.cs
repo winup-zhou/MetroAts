@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace JR_SotetsuSignal {
     internal partial class ATS_P {
         public static void ResetAll() {
+            RollbackDetect = false;
             BrakeUntilStop = false;
             BrakeCanRelease = false;
             BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
@@ -131,6 +132,11 @@ namespace JR_SotetsuSignal {
                     EBBeaconPassed = false;
                     BrakeUntilStop = false;
                     P_SignalPattern.TargetSpeed = 15;
+                }
+            } else if (RollbackDetect) {
+                if (handles.BrakeNotch == JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1) {
+                    RollbackDetect = false;
+                    BrakeUntilStop = false;
                 }
             } else if (handles.BrakeNotch == JR_SotetsuSignal.vehicleSpec.BrakeNotches) {
                 BrakeUntilStop = false;

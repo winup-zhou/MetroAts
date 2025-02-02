@@ -81,13 +81,14 @@ namespace JR_SotetsuSignal {
                 panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
             } else {
                 if (StandAloneMode) {
-                    if (!SignalEnable && Keyin)
+                    if (!SignalEnable && Keyin && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                     AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                     AtsHandles.ReverserPosition = ReverserPosition.N;
                 } else {
                     Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.JR || corePlugin.KeyPos == MetroAts.KeyPosList.Sotetsu;
-                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.JR || corePlugin.SignalSWPos == MetroAts.SignalSWList.Sotetsu))
+                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.JR || corePlugin.SignalSWPos == MetroAts.SignalSWList.Sotetsu)
+                        && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                 }
 
@@ -117,8 +118,8 @@ namespace JR_SotetsuSignal {
             panel[260] = Convert.ToInt32(ATS_P.P_BrakeOverride);
             panel[261] = Convert.ToInt32(ATS_P.P_PEnable);
             panel[262] = Convert.ToInt32(ATS_P.P_Fail);
-            panel[336] = Convert.ToInt32(ATS_SN.SN_Power);
-            panel[337] = Convert.ToInt32(ATS_SN.SN_Action);
+            panel[341] = Convert.ToInt32(ATS_SN.SN_Power);
+            panel[342] = Convert.ToInt32(ATS_SN.SN_Action);
 
             sound[258] = (int)ATS_P.P_Ding;
             sound[257] = (int)ATS_SN.SN_Chime;

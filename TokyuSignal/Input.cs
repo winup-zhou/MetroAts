@@ -49,6 +49,7 @@ namespace TokyuSignal {
 
         private void DoorOpened(object sender, EventArgs e) {
             isDoorOpen = true;
+            if (ATC.ATCEnable) ATC.DoorOpened();
         }
 
         private void DoorClosed(object sender, EventArgs e) {

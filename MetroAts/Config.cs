@@ -39,6 +39,13 @@ namespace MetroAts {
                     if (!KeyPosLists.Contains(KeyPosList.None)) KeyPosLists.Add(KeyPosList.None);
                     KeyPosLists.Sort();
 
+                    for (int i = 0; i < KeyPosLists.Count; ++i) {
+                        if (KeyPosLists[i] == KeyPosList.None) {
+                            MetroAts.NowKey = i;
+                            break;
+                        }
+                    }
+
                     var SignalSWString = "";
                     ReadConfig("signalsw", "positions", ref SignalSWString);
                     foreach (var i in SignalSWString.Split(',')) {

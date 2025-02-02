@@ -12,14 +12,14 @@ using System.Windows.Forms;
 
 namespace MetroAts {
     public enum KeyPosList {
-        Tokyu = -1,
-        None = 0,
-        Metro = 1,
-        Tobu = 2,
-        Seibu = 3,
-        Sotetsu = 4,
-        JR = 5,
-        ToyoKosoku = 6
+        Tokyu = 0,
+        None = 1,
+        Metro = 2,
+        Tobu = 3,
+        Seibu = 4,
+        Sotetsu = 5,
+        JR = 6,
+        ToyoKosoku = 7
     }
 
     public enum SignalSWList {

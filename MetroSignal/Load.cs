@@ -18,8 +18,8 @@ namespace MetroSignal {
 
     public enum SignalSWListStandAlone {
         Noset = 0,
-        InDepot = 1,
-        ATC = 2,
+        InDepot = 2,
+        ATC = 4,
         WS_ATC = 8,
         ATP = 9
     }

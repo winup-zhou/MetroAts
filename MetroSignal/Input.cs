@@ -27,8 +27,8 @@ namespace MetroSignal {
             CS_ATC.ResetAll();
             WS_ATC.ResetAll();
             if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-            panel[275] = 0;
-            panel[278] = 0;
+            panel[274] = 0;
+            panel[277] = 0;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
                 Keyin = false;
@@ -76,8 +76,8 @@ namespace MetroSignal {
                     CS_ATC.ResetAll();
                     WS_ATC.ResetAll();
                     if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    panel[275] = 0;
-                    panel[278] = 0;
+                    panel[274] = 0;
+                    panel[277] = 0;
                     UpdatePanelAndSound(panel, sound);
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;

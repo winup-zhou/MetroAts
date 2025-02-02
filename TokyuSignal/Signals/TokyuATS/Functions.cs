@@ -13,10 +13,10 @@ namespace TokyuSignal {
             BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches + 1;
             ATSEnable = false;
             InitializeStartTime = TimeSpan.Zero;
-            LoopRPassTime = TimeSpan.Zero; 
+            LoopRPassTime = TimeSpan.Zero;
             LoopYYPassTime = TimeSpan.Zero;
-            LoopYPassTime = TimeSpan.Zero; 
-            LoopYGPassTime = TimeSpan.Zero; 
+            LoopYPassTime = TimeSpan.Zero;
+            LoopYGPassTime = TimeSpan.Zero;
             LoopLimitPassTime = TimeSpan.Zero;
             WarnStartTime = TimeSpan.Zero;
 
@@ -25,7 +25,7 @@ namespace TokyuSignal {
 
             ATS_EBBell = AtsSoundControlInstruction.Stop;
             ATS_WarnBell = AtsSoundControlInstruction.Stop;
-            ATS_TokyuATS = false; 
+            ATS_TokyuATS = false;
             ATS_EB = false;
             ATS_WarnNormal = false;
             ATS_WarnTriggered = false;
@@ -73,13 +73,13 @@ namespace TokyuSignal {
         }
 
         public static void ResetBrake(VehicleState state, HandleSet handles) {
-            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch == TokyuSignal.vehicleSpec.BrakeNotches + 1) {
-                if(EB)EB = false;
+            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= 4) {
+                if (EB) EB = false;
             }
         }
 
         public static void ResetWarn() {
-            if (Warn) { 
+            if (Warn) {
                 Warn = false;
                 WarnStartTime = TimeSpan.Zero;
             }

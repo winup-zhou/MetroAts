@@ -24,6 +24,7 @@ namespace TobuSignal {
             LastBeaconPassTime = TimeSpan.Zero;
             NeedConfirmOperation = false;
             MPPEndLocation = 0;
+            StopAnnounce = 0;
             isDoorOpened = false;
             BrakeCommand = 0;
             EBType = EBTypes.Normal;
@@ -36,6 +37,7 @@ namespace TobuSignal {
             ATS_ATSEmergencyBrake = false;
             ATS_EmergencyOperation = false;
             ATS_Confirm = false;
+            ATS_StopAnnounce = false;
             ATS_60 = false;
             ATS_15 = false;
 
@@ -57,6 +59,7 @@ namespace TobuSignal {
             ATS_TobuAts = false;
             ATS_ATSEmergencyBrake = false;
             ATS_EmergencyOperation = false;
+            ATS_StopAnnounce = false;
             ATS_Confirm = false;
             ATS_60 = false;
             ATS_15 = false;
@@ -64,6 +67,7 @@ namespace TobuSignal {
 
         public static void DoorOpened() {
             isDoorOpened = true;
+            StopAnnounce = 0;
         }
 
         public static void BeaconPassed(VehicleState state, BeaconPassedEventArgs e) {
@@ -92,12 +96,8 @@ namespace TobuSignal {
                     LastBeaconPassTime = state.Time;
                     break;
                 case 5:
-                    if (MPPPattern == SpeedPattern.inf)
-                        MPPPattern = new SpeedPattern(60, state.Location + 400);
-                    else if (MPPPattern.TargetSpeed == 60) {
-                        MPPPattern = new SpeedPattern(15, state.Location + 100);
-                        MPPEndLocation = state.Location + 105;
-                    }
+                    if (StopAnnounce == 0) StopAnnounce = 1;
+                    if (StopAnnounce == 1) StopAnnounce = 2;
                     break;
                 case 9:
                     if (MPPPattern == SpeedPattern.inf)
