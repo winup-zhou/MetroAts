@@ -138,7 +138,7 @@ namespace MetroSignal {
                 panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
             } else {
                 if (StandAloneMode) {
-                    if (!SignalEnable && Keyin && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                    if (!SignalEnable && Keyin && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                     AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                     AtsHandles.ReverserPosition = ReverserPosition.N;
@@ -154,7 +154,7 @@ namespace MetroSignal {
                         || corePlugin.SignalSWPos == MetroAts.SignalSWList.JR
                         || corePlugin.SignalSWPos == MetroAts.SignalSWList.WS_ATC
                         || corePlugin.SignalSWPos == MetroAts.SignalSWList.ATP)
-                        && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                        && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                 }
                 
@@ -225,18 +225,19 @@ namespace MetroSignal {
             panel[304] = Convert.ToInt32(CS_ATC.ATC_90);
             panel[305] = Convert.ToInt32(CS_ATC.ATC_95);
             panel[306] = Convert.ToInt32(CS_ATC.ATC_100);
-            panel[307] = Convert.ToInt32(CS_ATC.ATC_110);
+            panel[307] = Convert.ToInt32(CS_ATC.ATC_105);
+            panel[308] = Convert.ToInt32(CS_ATC.ATC_110);
 
             panel[285] = Convert.ToInt32(CS_ATC.ATC_Stop);
             panel[286] = Convert.ToInt32(CS_ATC.ATC_Proceed);
 
-            panel[312] = Convert.ToInt32(CS_ATC.ATC_P);
-            panel[311] = Convert.ToInt32(CS_ATC.ATC_SignalAnn);
+            panel[313] = Convert.ToInt32(CS_ATC.ATC_P);
+            panel[312] = Convert.ToInt32(CS_ATC.ATC_SignalAnn);
             panel[284] = Convert.ToInt32(CS_ATC.ATC_X);
 
-            panel[313] = CS_ATC.ORPNeedle;
-            panel[310] = CS_ATC.ATCNeedle;
-            panel[309] = Convert.ToInt32(CS_ATC.ATCNeedle_Disappear);
+            panel[314] = CS_ATC.ORPNeedle;
+            panel[311] = CS_ATC.ATCNeedle;
+            panel[310] = Convert.ToInt32(CS_ATC.ATCNeedle_Disappear);
 
             panel[263] = Convert.ToInt32(CS_ATC.ATC_ATC);
             if (CS_ATC.ATCEnable) panel[274] = Convert.ToInt32(CS_ATC.ATC_Depot);
@@ -245,7 +246,7 @@ namespace MetroSignal {
             panel[266] = Convert.ToInt32(CS_ATC.ATC_EmergencyBrake || WS_ATC.ATC_EmergencyBrake);
             panel[280] = Convert.ToInt32(CS_ATC.ATC_EmergencyOperation);
 
-            panel[335] = Convert.ToInt32(WS_ATC.ATC_WSATC);
+            panel[340] = Convert.ToInt32(WS_ATC.ATC_WSATC);
 
             sound[258] = (int)CS_ATC.ATC_Ding;
             sound[259] = (int)CS_ATC.ATC_ORPBeep;

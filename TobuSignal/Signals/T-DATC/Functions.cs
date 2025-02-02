@@ -55,6 +55,7 @@ namespace TobuSignal {
             ATC_90 = false;
             ATC_95 = false;
             ATC_100 = false;
+            ATC_105 = false;
             ATC_110 = false;
 
             ATC_Stop = false;
@@ -157,6 +158,7 @@ namespace TobuSignal {
             ATC_90 = false;
             ATC_95 = false;
             ATC_100 = false;
+            ATC_105 = false;
             ATC_110 = false;
 
             ATC_Stop = false;

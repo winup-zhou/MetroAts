@@ -116,7 +116,7 @@ namespace SeibuSignal {
                         SignalEnable = true;
                     else if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC
                         || corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset)
-                        && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                        && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                 }
             }
@@ -154,8 +154,8 @@ namespace SeibuSignal {
 
             panel[284] = Convert.ToInt32(ATC.ATC_X);
 
-            panel[310] = ATC.ATCNeedle;
-            panel[309] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
+            panel[311] = ATC.ATCNeedle;
+            panel[310] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
 
             panel[264] = Convert.ToInt32(ATC.ATC_ATC);
             if (ATC.ATCEnable) panel[275] = Convert.ToInt32(ATC.ATC_Depot);
@@ -164,12 +164,12 @@ namespace SeibuSignal {
             panel[267] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
             panel[281] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
 
-            panel[329] = Convert.ToInt32(SeibuATS.ATS_Power);
-            panel[330] = Convert.ToInt32(SeibuATS.ATS_EB);
-            panel[331] = Convert.ToInt32(SeibuATS.ATS_Stop);
-            panel[332] = Convert.ToInt32(SeibuATS.ATS_Confirm);
-            panel[333] = Convert.ToInt32(SeibuATS.ATS_Limit);
-            //panel[334] = Convert.ToInt32(SeibuATS.);
+            panel[334] = Convert.ToInt32(SeibuATS.ATS_Power);
+            panel[335] = Convert.ToInt32(SeibuATS.ATS_EB);
+            panel[336] = Convert.ToInt32(SeibuATS.ATS_Stop);
+            panel[337] = Convert.ToInt32(SeibuATS.ATS_Confirm);
+            panel[338] = Convert.ToInt32(SeibuATS.ATS_Limit);
+            //panel[339] = Convert.ToInt32(SeibuATS.);
 
             sound[258] = (int)ATC.ATC_Ding;
             if (ATC.ATCEnable && ATC.ATC_Noset) { sound[256] = (int)ATC.ATC_WarningBell; }

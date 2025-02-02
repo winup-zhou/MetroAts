@@ -13,6 +13,8 @@ namespace TobuSignal {
         private static double MPPEndLocation = 0;
         private static TimeSpan LastBeaconPassTime = TimeSpan.Zero, InitializeStartTime = TimeSpan.Zero;
         private static bool NeedConfirmOperation = false, isDoorOpened = false;
+        private static int StopAnnounce = 0;
+
         private enum EBTypes {
             Normal = 0,
             CannotReleaseUntilStop,
@@ -25,7 +27,7 @@ namespace TobuSignal {
         public static bool ATSEnable = false;
 
         //panel -> ATS
-        public static bool ATS_TobuAts, ATS_ATSEmergencyBrake, ATS_EmergencyOperation, ATS_Confirm, ATS_60, ATS_15;
+        public static bool ATS_TobuAts, ATS_ATSEmergencyBrake, ATS_EmergencyOperation, ATS_Confirm, ATS_60, ATS_15, ATS_StopAnnounce;
         public static void Tick(VehicleState state) {
             if (ATSEnable) {
                 ATS_TobuAts = true;
@@ -48,6 +50,14 @@ namespace TobuSignal {
 
                     if (EBType == EBTypes.CanReleaseWithoutstop) {
                         if (Math.Abs(state.Speed) < ATSPattern.TargetSpeed) EBType = EBTypes.Normal;
+                    }
+
+                    if (StopAnnounce == 1) {
+                        ATS_StopAnnounce = true;
+                    } else if (StopAnnounce == 2) {
+                        ATS_StopAnnounce = state.Time.TotalMilliseconds % 2000 < 1000;
+                    }else {
+                        ATS_StopAnnounce = false;
                     }
 
                     ATS_60 = ATSPattern.TargetSpeed == 60;

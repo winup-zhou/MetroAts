@@ -125,7 +125,7 @@ namespace TokyuSignal {
                 panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
             } else {
                 if (StandAloneMode) {
-                    if (!SignalEnable && Keyin && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                    if (!SignalEnable && Keyin && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                     AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                     AtsHandles.ReverserPosition = ReverserPosition.N;
@@ -138,7 +138,7 @@ namespace TokyuSignal {
                         (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC
                         || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset
                         || corePlugin.SignalSWPos == MetroAts.SignalSWList.TokyuATS)
-                        && handles.ReverserPosition != ReverserPosition.N && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                        && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
                         SignalEnable = true;
                 }
 
@@ -203,17 +203,18 @@ namespace TokyuSignal {
             panel[304] = Convert.ToInt32(ATC.ATC_90);
             panel[305] = Convert.ToInt32(ATC.ATC_95);
             panel[306] = Convert.ToInt32(ATC.ATC_100);
-            panel[307] = Convert.ToInt32(ATC.ATC_110);
+            panel[307] = Convert.ToInt32(ATC.ATC_105);
+            panel[308] = Convert.ToInt32(ATC.ATC_110);
 
             panel[285] = Convert.ToInt32(ATC.ATC_Stop);
             panel[286] = Convert.ToInt32(ATC.ATC_Proceed);
 
-            panel[312] = Convert.ToInt32(ATC.ATC_P);
-            panel[311] = Convert.ToInt32(ATC.ATC_SignalAnn);
+            panel[313] = Convert.ToInt32(ATC.ATC_P);
+            panel[312] = Convert.ToInt32(ATC.ATC_SignalAnn);
             panel[284] = Convert.ToInt32(ATC.ATC_X);
 
-            panel[310] = ATC.ATCNeedle;
-            panel[309] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
+            panel[311] = ATC.ATCNeedle;
+            panel[310] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
 
             panel[265] = Convert.ToInt32(ATC.ATC_ATC);
             if (ATC.ATCEnable) panel[276] = Convert.ToInt32(ATC.ATC_Depot);
@@ -223,10 +224,10 @@ namespace TokyuSignal {
             panel[282] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
             panel[342] = Convert.ToInt32(ATC.ATC_StationStop);
 
-            panel[338] = Convert.ToInt32(TokyuATS.ATS_TokyuATS);
-            panel[339] = Convert.ToInt32(TokyuATS.ATS_EB);
-            panel[340] = Convert.ToInt32(TokyuATS.ATS_WarnNormal);
-            panel[341] = Convert.ToInt32(TokyuATS.ATS_WarnTriggered);
+            panel[343] = Convert.ToInt32(TokyuATS.ATS_TokyuATS);
+            panel[344] = Convert.ToInt32(TokyuATS.ATS_EB);
+            panel[345] = Convert.ToInt32(TokyuATS.ATS_WarnNormal);
+            panel[346] = Convert.ToInt32(TokyuATS.ATS_WarnTriggered);
 
             sound[258] = (int)ATC.ATC_Ding;
             sound[259] = (int)ATC.ATC_ORPBeep;

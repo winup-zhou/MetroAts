@@ -25,6 +25,7 @@ namespace TobuSignal {
         public static double MaxSpeed = 100;
         public static bool EnableATC = true;
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
+        public static bool SeparateATCGRlamp = false;//1:pilotlamp 0:needle
 
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
@@ -39,7 +40,8 @@ namespace TobuSignal {
                     ReadConfig("train", "enableatc", ref EnableATC);
 
                     //panel
-                    ReadConfig("panel","atclimituseneedle",ref ATCLimitUseNeedle);
+                    ReadConfig("panel", "atclimituseneedle",ref ATCLimitUseNeedle);
+                    ReadConfig("panel", "separateatcgrlamp", ref SeparateATCGRlamp);
 
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);

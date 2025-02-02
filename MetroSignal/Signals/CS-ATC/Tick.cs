@@ -23,7 +23,7 @@ namespace MetroSignal {
 
         //panel -> ATC
         public static bool ATC_X, ATC_01, ATC_10, ATC_15, ATC_20, ATC_25, ATC_30, ATC_35, ATC_40, ATC_45,
-            ATC_50, ATC_55, ATC_60, ATC_65, ATC_70, ATC_75, ATC_80, ATC_85, ATC_90, ATC_95, ATC_100, ATC_110, ATC_Stop, ATC_Proceed,
+            ATC_50, ATC_55, ATC_60, ATC_65, ATC_70, ATC_75, ATC_80, ATC_85, ATC_90, ATC_95, ATC_100, ATC_105, ATC_110, ATC_Stop, ATC_Proceed,
             ATC_P, ATC_ATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation,
             ATC_SignalAnn, ATC_Noset, ATC_TempLimit, ATCNeedle_Disappear;
         public static int ORPNeedle, ATCNeedle;
@@ -199,6 +199,7 @@ namespace MetroSignal {
                                 ATC_90 = ATCSpeed == 90;
                                 ATC_95 = ATCSpeed == 95;
                                 ATC_100 = ATCSpeed == 100;
+                                ATC_105 = ATCSpeed == 105;
                                 ATC_110 = ATCSpeed == 110;
                             } else {
                                 ATCNeedle = ATCSpeed;
@@ -229,6 +230,7 @@ namespace MetroSignal {
                             ATC_90 = false;
                             ATC_95 = false;
                             ATC_100 = false;
+                            ATC_105 = false;
                             ATC_110 = false;
 
                             ATCNeedle = 0;
