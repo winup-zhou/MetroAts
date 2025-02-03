@@ -134,7 +134,7 @@ namespace TokyuSignal {
                         if (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec) || Math.Abs(state.Speed) > StationPattern.AtLocation(state.Location, StationPatternDec))
                             EBUntilStop = true;
 
-                        if (Math.Abs(state.Speed) > ATCSpeed + 1 && ATCSpeed != -1) {
+                        if (Math.Abs(state.Speed) > ATCSpeed + 2 && ATCSpeed != -1) {
                             if (Math.Abs(state.Speed) >= ATCSpeed + 3) {
                                 if (!ServiceBrake) ServiceBrake = true;
                                 if (BrakeStartTime == TimeSpan.Zero) BrakeStartTime = state.Time;
