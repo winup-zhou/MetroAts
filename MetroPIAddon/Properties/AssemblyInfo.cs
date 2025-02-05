@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("MetroPIAddon")]
-[assembly: AssemblyDescription("MetroAts メトロ統合プラグイン機能追加プラグイン")]
+[assembly: AssemblyDescription("MetroPIAddon メトロ総合プラグイン機能追加プラグイン")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MetroPIAddon")]
