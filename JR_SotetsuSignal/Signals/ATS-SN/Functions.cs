@@ -57,8 +57,13 @@ namespace JR_SotetsuSignal {
             if (handles.BrakeNotch == JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1) EB = false;
         }
 
-        public static void ResetWarn() {
-            if (Warn) Warn = false;
+        public static void ConfirmButtonUp() {
+            ConfirmButtonPressed = false;
+        }
+
+        public static void ResetWarn(HandleSet handles) {
+            ConfirmButtonPressed = true;
+            if (Warn && handles.BrakeNotch >= JR_SotetsuSignal.vehicleSpec.AtsNotch) Warn = false;
         }
 
         public static void ResetChime() {

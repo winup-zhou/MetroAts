@@ -18,8 +18,17 @@ namespace MetroPIAddon {
             var state = Native.VehicleState;
             var panel = Native.AtsPanelArray;
             var sound = Native.AtsSoundArray;
-
-           
+            if (isStopAnnounce) {
+                if (StopAnnounce == AtsSoundControlInstruction.Stop) {
+                    StopAnnounce = AtsSoundControlInstruction.PlayLooping;
+                }
+                if (handles.BrakeNotch > 0 && StopAnnounce != AtsSoundControlInstruction.Stop) {
+                    StopAnnounce = AtsSoundControlInstruction.Stop;
+                    StopAnnounce_Confirmed = AtsSoundControlInstruction.PlayLooping;
+                }
+            } else {
+                StopAnnounce = StopAnnounce_Confirmed = AtsSoundControlInstruction.Stop;
+            }
         }
     }
 }

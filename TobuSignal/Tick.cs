@@ -62,7 +62,7 @@ namespace TobuSignal {
                         }
                     }
                 }
-                if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49)
+                if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49 && !StandAloneMode)
                     sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu ?
                         (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
                 if (!StandAloneMode) {

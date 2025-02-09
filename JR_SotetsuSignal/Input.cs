@@ -53,7 +53,9 @@ namespace JR_SotetsuSignal {
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
-            //throw new NotImplementedException();
+            if (e.KeyName == AtsKeyName.S) {
+                if (ATS_SN.ATSEnable) ATS_SN.ConfirmButtonUp();
+            }
         }
 
         private void KeyDown(object sender, AtsKeyEventArgs e) {
@@ -67,7 +69,7 @@ namespace JR_SotetsuSignal {
             } else if (e.KeyName == AtsKeyName.A1) {
                 if (ATS_SN.ATSEnable) ATS_SN.ResetChime();
             } else if (e.KeyName == AtsKeyName.S) {
-                if (ATS_SN.ATSEnable && handles.BrakeNotch >= vehicleSpec.AtsNotch) ATS_SN.ResetWarn();
+                if (ATS_SN.ATSEnable) ATS_SN.ResetWarn(handles);
             } else if (e.KeyName == AtsKeyName.B2) {
                 if (ATS_P.ATSEnable && state.Speed == 0) ATS_P.BrakeOverride(state);
             }

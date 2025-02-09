@@ -17,7 +17,7 @@ namespace MetroPIAddon {
         public static string PluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string path;
         private const int buffer_size = 4096;
-
+        public static KeyPosList StandAloneKey = KeyPosList.None;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroPIAddon.ini")).FullName;
@@ -80,6 +80,17 @@ namespace MetroPIAddon {
             var Readsize = GetPrivateProfileString(Section, Key, "", RetVal, buffer_size, path);
             if (Readsize > 0 && Readsize < buffer_size - 1) {
                 Value = (Keys)Enum.Parse(typeof(Keys), RetVal.ToString(), false);
+            } else {
+                Value = OriginalVal;
+            }
+        }
+
+        private static void ReadConfig(string Section, string Key, ref KeyPosList Value) {
+            var OriginalVal = Value;
+            var RetVal = new StringBuilder(buffer_size);
+            var Readsize = GetPrivateProfileString(Section, Key, "", RetVal, buffer_size, path);
+            if (Readsize > 0 && Readsize < buffer_size - 1) {
+                Value = (KeyPosList)Enum.Parse(typeof(KeyPosList), RetVal.ToString(), true);
             } else {
                 Value = OriginalVal;
             }

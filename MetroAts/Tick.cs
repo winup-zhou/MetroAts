@@ -47,6 +47,9 @@ namespace MetroAts {
                 case KeyPosList.Sotetsu:
                     KeyText = "相　鉄";
                     break;
+                case KeyPosList.Odakyu:
+                    KeyText = "小田急";
+                    break;
                 default:
                     KeyText = "無　効";
                     break;
@@ -82,6 +85,9 @@ namespace MetroAts {
                     break;
                 case SignalSWList.ATP:
                     SignalSWText = "ATP";
+                    break;
+                case SignalSWList.Odakyu:
+                    KeyText = "小田急";
                     break;
                 default:
                     SignalSWText = "無効";

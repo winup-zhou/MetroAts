@@ -19,7 +19,8 @@ namespace MetroAts {
         Seibu = 4,
         Sotetsu = 5,
         JR = 6,
-        ToyoKosoku = 7
+        ToyoKosoku = 7,
+        Odakyu = 8
     }
 
     public enum SignalSWList {
@@ -32,7 +33,8 @@ namespace MetroAts {
         Tobu = 6,
         JR = 7,
         WS_ATC = 8,
-        ATP = 9
+        ATP = 9,
+        Odakyu = 10
     }
 
     public enum AtsSoundControlInstruction {
