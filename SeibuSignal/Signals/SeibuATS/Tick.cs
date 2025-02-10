@@ -150,8 +150,9 @@ namespace SeibuSignal {
                         if (StopPattern.AtLocation(state.Location, -4.0) < LimitPattern.AtLocation(state.Location, -4.6)
                             && StopPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
                             EBType = EBTypes.CannotReleaseUntilStop;
+                            StopPattern.TargetSpeed = 15;
                         } else if (LimitPattern.AtLocation(state.Location, -4.0) < StopPattern.AtLocation(state.Location, -4.0)
-                            && LimitPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
+                    && LimitPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
                             EBType = EBTypes.CanReleaseWithoutstop;
                         } else {
                             if (B1Pattern.TargetSpeed == 0) {

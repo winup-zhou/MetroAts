@@ -1,5 +1,6 @@
-﻿using BveEx.PluginHost.Plugins;
+﻿using BveEx.Extensions.Native;
 using BveEx.PluginHost;
+using BveEx.PluginHost.Plugins;
 using BveTypes.ClassWrappers;
 using System;
 using System.Collections.Generic;
@@ -7,9 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
-using BveEx.Extensions.Native;
 using System.Windows.Forms;
 using CorePlugin = MetroAts.MetroAts;
+using BveTypes.ClassWrappers.Extensions;
+using BveEx.Extensions.ConductorPatch;
 
 namespace MetroPIAddon {
     public enum KeyPosList {
@@ -35,19 +37,28 @@ namespace MetroPIAddon {
     public partial class MetroPIAddon : AssemblyPluginBase {
         private readonly INative Native;
         private static VehicleSpec vehicleSpec;
+        private static Vehicle vehicle;
         private static bool isDoorOpen = false;
         private static bool StandAloneMode = false;
+        private static bool Keyin = false;
         private static CorePlugin corePlugin;
 
+        private static WrappedSortedList<string, Sound> MapSoundList;
+        private static StationList MapStationList;
+        private static DoorState lastLeftDoorState, lastRightDoorState;
+        private static int lastBrakeNotch;
+
+        private static bool Snowbrake = false, InstrumentLight = false;
         private static bool isStopAnnounce;
         private static AtsSoundControlInstruction StopAnnounce, StopAnnounce_Confirmed, Tobu_DoorClosed, Door_poon,
-            Conductor_buzzer1, Conductor_buzzer2, Conductor_buzzer3, Driver_buzzer, Lamp_SW_on, Lamp_SW_off, SnowBrake_on, Snow_brake_off;
-        private static Sound FD_on, FD_off;
+            Conductorbuzzer_Tokyu, Conductorbuzzer_Tobu, Conductorbuzzer_Odakyu, Conductorbuzzer_Test, Conductorbuzzer_Depart, Driver_buzzer, Lamp_SW_on, Lamp_SW_off, SnowBrake_on, SnowBrake_off;
+        private static Sound FDOpenSound, FDCloseSound;
+        private static int FDOpenSoundIndex, FDCloseSoundIndex;
 
         private static int CurrentSta, NextSta, Destination, TrainNumber, TrainType, TrainRunningNumber;
-        private static double StopLocation;
-        private static TimeSpan DoorOpenTime, Conductorbuzzertime_global, Conductorbuzzertime_station;
-        private static int doorSide, FDmode;
+        private static TimeSpan DoorOpenTime = TimeSpan.Zero, DoorClosedTime = TimeSpan.Zero, Conductorbuzzertime_global = TimeSpan.Zero, Conductorbuzzertime_station = TimeSpan.Zero;
+        private static int FDmode;
+        private static bool NeedConductorBuzzer;
 
         public MetroPIAddon(PluginBuilder services) : base(services) {
             Config.Load();

@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System;
 using System.Linq;
+using MetroAts;
 
 namespace MetroPIAddon {
     public static class Config {
@@ -18,12 +19,46 @@ namespace MetroPIAddon {
         public static string path;
         private const int buffer_size = 4096;
         public static KeyPosList StandAloneKey = KeyPosList.None;
+        public static List<string> FDOpenSounds = new List<string>(), FDCloseSounds = new List<string>();
+        public static bool FDenable = false, FDsinglelamp = false;
+        public static double Delay_FDclosed = 1.0;
+        public static int CurrentPanelIndex = 1023;
+        public static double MaxCurrentSpeed = 20.0;
+        public static bool Current_abs = false;
+        public static Keys DriverBuzzerKey = Keys.None;
+        public static Keys SnowBrakeKey = Keys.None;
+        public static Keys InstrumentLightKey = Keys.None;
+        public static double SnowBrakePressure = 0.0;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroPIAddon.ini")).FullName;
             if (File.Exists(path)) {
                 try {
+                    ReadConfig("standalonemode", "keyposition", ref StandAloneKey);
 
+                    ReadConfig("PlatformDoor", "enable", ref FDenable);
+                    ReadConfig("PlatformDoor", "singlelamp", ref FDsinglelamp);
+                    ReadConfig("PlatformDoor", "ClosedDelay", ref Delay_FDclosed);
+                    var opensoundStr = "";
+                    ReadConfig("PlatformDoor", "Opensounds", ref opensoundStr);
+                    foreach (var i in opensoundStr.ToString().Split(',')) {
+                        FDOpenSounds.Add(i.Trim().ToLower());
+                    }
+                    var closesoundStr = "";
+                    ReadConfig("PlatformDoor", "Closesounds", ref closesoundStr);
+                    foreach (var i in closesoundStr.ToString().Split(',')) {
+                        FDCloseSounds.Add(i.Trim().ToLower());
+                    }
+
+                    ReadConfig("Current", "panel", ref CurrentPanelIndex);
+                    ReadConfig("Current", "maxcurrentspeed", ref MaxCurrentSpeed);
+                    ReadConfig("Current", "abs", ref Current_abs);
+
+                    ReadConfig("Inputs", "driverbuzzer", ref DriverBuzzerKey);
+                    ReadConfig("Inputs", "snowbrake", ref SnowBrakeKey);
+                    ReadConfig("Inputs", "InstrumentLightKey", ref InstrumentLightKey);
+
+                    ReadConfig("snowbrake", "pressure", ref SnowBrakePressure);
                 } catch (Exception ex) {
                     throw ex;
                 }

@@ -63,4 +63,9 @@
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>COPY $(TargetPath) D:\Scenarios\vertah\tm10000\BveExPlugins\$(TargetFileName)
+COPY $(TargetPath) D:\Scenarios\vertah\trta05_v40\BveExPlugins\$(TargetFileName)
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>
