@@ -50,6 +50,8 @@
     <Compile Include="Signals\ATS-P\Tick.cs" />
     <Compile Include="Signals\ATS-SN\Functions.cs" />
     <Compile Include="Signals\ATS-SN\Tick.cs" />
+    <Compile Include="Signals\CS-ATC\Functions.cs" />
+    <Compile Include="Signals\CS-ATC\Tick.cs" />
     <Compile Include="SpeedPattern.cs" />
     <Compile Include="Tick.cs" />
   </ItemGroup>
