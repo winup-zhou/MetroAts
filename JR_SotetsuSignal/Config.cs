@@ -25,6 +25,9 @@ namespace JR_SotetsuSignal {
         public static bool SNEnable = true;
         public static bool PPowerAlwaysLight = false;
 
+        public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
+        public static bool ORPUseNeedle = true;//1:pilotlamp 0:needle
+
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
         public static int Panel_keyoutput = 1023;
@@ -33,6 +36,9 @@ namespace JR_SotetsuSignal {
             path = new FileInfo(Path.Combine(PluginDir, "JR_SotetsuSignal.ini")).FullName;
             if (File.Exists(path)) {
                 try {
+                    ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
+                    ReadConfig("panel", "orpuseneedle", ref ORPUseNeedle);
+
                     ReadConfig("ats", "snenable", ref SNEnable);
                     ReadConfig("ats", "ppowerlampalwayslight", ref PPowerAlwaysLight);
 
