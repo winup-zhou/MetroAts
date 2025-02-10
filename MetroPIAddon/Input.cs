@@ -17,7 +17,6 @@ namespace MetroPIAddon {
 
         private void Initialize(object sender, StartedEventArgs e) {
             var panel = Native.AtsPanelArray;
-            var state = Native.VehicleState;
             isStopAnnounce = false;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 Keyin = false;
@@ -141,6 +140,7 @@ namespace MetroPIAddon {
                         if (e.Optional != 99) Conductorbuzzertime_station = new TimeSpan(0, 0, e.Optional);
                         else Conductorbuzzertime_station = TimeSpan.MinValue;
                     } else {
+                        Conductorbuzzertime_station = TimeSpan.MinValue;
                         if (e.Optional != 199) Conductorbuzzertime_global = new TimeSpan(0, 0, e.Optional);
                         else Conductorbuzzertime_global = TimeSpan.Zero;
                     }
