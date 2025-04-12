@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace JR_SotetsuSignal {
-    internal partial class CS_ATC {
+    internal partial class ATC {
         public static void ResetAll() {
             ORPPattern = SpeedPattern.inf;
             BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
