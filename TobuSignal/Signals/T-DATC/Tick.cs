@@ -11,7 +11,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 namespace TobuSignal {
     internal partial class T_DATC {
         //InternalValue -> ATC
-        public static double[] ATCLimits = { -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
+        public static double[] ATCLimits = { -2, 60, 60, 60, 60, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
             -2, 35, -2, -1, 35, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
         private static SpeedPattern ATCPattern = SpeedPattern.inf, StationPattern = SpeedPattern.inf, LimitPattern = SpeedPattern.inf;
         private static int TrackPos = 0, ValidSections = 0;

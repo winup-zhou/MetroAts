@@ -26,10 +26,11 @@ namespace MetroSignal {
             InitializeStartTime = time;
         }
 
-        public static void ResetBrake(VehicleState state,HandleSet handles) {
-            if(Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= 4) {
-                if(NeedConfirm)NeedConfirm = false;
-                if(!Confirmed) Confirmed = true;
+        public static void ResetBrake(VehicleState state, HandleSet handles) {
+            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= 4) {
+                if (NeedConfirm) NeedConfirm = false;
+                if (!Confirmed) Confirmed = true;
+                if (EB) EB = false;
             }
         }
 

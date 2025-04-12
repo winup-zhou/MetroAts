@@ -46,6 +46,7 @@ namespace MetroPIAddon {
 
         private void DoorClosed(object sender, EventArgs e) {
             var state = Native.VehicleState;
+            if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
             isDoorOpen = false;
             Door_poon = AtsSoundControlInstruction.Stop;
             DoorClosedTime = state.Time;

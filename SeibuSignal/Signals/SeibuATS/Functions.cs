@@ -88,7 +88,7 @@ namespace SeibuSignal {
                 if (NeedConfirm) {
                     NeedConfirm = false;
                     ATS_Confirm = true;
-                }
+                } else StopPattern.TargetSpeed = 20;
             }
         }
 
