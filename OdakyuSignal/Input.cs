@@ -18,14 +18,11 @@ namespace OdakyuSignal {
         private void BeaconPassed(object sender, BeaconPassedEventArgs e) {
             var state = Native.VehicleState;
             if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
-            SeibuATS.BeaconPassed(state, e);
         }
 
         private void Initialize(object sender, StartedEventArgs e) {
             var panel = Native.AtsPanelArray;
             var sound = Native.AtsSoundArray;
-            SeibuATS.ResetAll();
-            ATC.ResetAll();
             if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
             panel[275] = 0;
             panel[278] = 0;
@@ -38,7 +35,7 @@ namespace OdakyuSignal {
         }
 
         private void DoorOpened(object sender, EventArgs e) {
-            if(SeibuATS.ATSEnable)SeibuATS.DoorOpened();
+
             isDoorOpen = true;
         }
 
@@ -57,7 +54,6 @@ namespace OdakyuSignal {
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
-                SeibuATS.ConfirmEB(state, handles);
             }
             if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
                 if (e.KeyName == AtsKeyName.I) {
@@ -65,8 +61,7 @@ namespace OdakyuSignal {
                     Keyin = false;
                     BrakeTriggered = false;
                     SignalEnable = false;
-                    SeibuATS.ResetAll();
-                    ATC.ResetAll();
+
                     if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
                     panel[275] = 0;
                     panel[278] = 0;
