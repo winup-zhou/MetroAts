@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace OdakyuSignal {
     internal partial class OM_ATS {
+        private static TimeSpan InitStartTime = TimeSpan.Zero;
         private static bool SpeedCaution = false;
         private static double EBTriggerSpeed = Config.LessInf;
 
