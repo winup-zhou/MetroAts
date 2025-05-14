@@ -135,8 +135,8 @@ namespace MetroSignal {
                         if (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec))
                             EBUntilStop = true;
 
-                        if (Math.Abs(state.Speed) > ATCSpeed + 1 && ATCSpeed != -1) {
-                            if (Math.Abs(state.Speed) >= ATCSpeed + 3) {
+                        if (Math.Abs(state.Speed) > ATCSpeed + 2.5 && ATCSpeed != -1) {
+                            if (Math.Abs(state.Speed) >= ATCSpeed + 5) {
                                 if (!ServiceBrake) ServiceBrake = true;
                                 if (BrakeStartTime == TimeSpan.Zero) BrakeStartTime = state.Time;
                             } else {

@@ -79,7 +79,7 @@ namespace SeibuSignal {
                         if (B1MonitorSection.CurrentSignalIndex == 0) { //fR
                             B1Pattern.Location = B1MonitorSection.Location - 10;
                             B1Pattern.TargetSpeed = 0;
-                            B1Pattern.MaxSpeed = PreviousSection.CurrentSignalIndex == 1 ? 30 : 65;
+                            B1Pattern.MaxSpeed = CurrentSection.CurrentSignalIndex == 1 ? 30 : 65;
                             B1Speed = B1Pattern.AtLocation(state.Location, -2.93);
                         } else if (B1MonitorSection.CurrentSignalIndex == 1 ||
                         (B1MonitorSection.CurrentSignalIndex >= 9 && B1MonitorSection.CurrentSignalIndex < 49 && B1MonitorSection.CurrentSignalIndex != 34)) {//fYY
@@ -150,8 +150,9 @@ namespace SeibuSignal {
                         if (StopPattern.AtLocation(state.Location, -4.0) < LimitPattern.AtLocation(state.Location, -4.6)
                             && StopPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
                             EBType = EBTypes.CannotReleaseUntilStop;
+                            StopPattern.TargetSpeed = 15;
                         } else if (LimitPattern.AtLocation(state.Location, -4.0) < StopPattern.AtLocation(state.Location, -4.0)
-                            && LimitPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
+                    && LimitPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
                             EBType = EBTypes.CanReleaseWithoutstop;
                         } else {
                             if (B1Pattern.TargetSpeed == 0) {

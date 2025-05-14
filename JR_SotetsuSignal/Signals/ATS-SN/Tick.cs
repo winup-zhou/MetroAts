@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace JR_SotetsuSignal {
     internal partial class ATS_SN {
         private static TimeSpan InitStartTime = TimeSpan.Zero, WarnStartTime = TimeSpan.Zero;
-        private static bool EB = false, Warn = false;
+        private static bool EB = false, Warn = false, ConfirmButtonPressed = false;
         public static bool ATSEnable = false;
         public static int BrakeCommand = 0;
 
@@ -32,7 +32,7 @@ namespace JR_SotetsuSignal {
                         SN_Power = false;
                         SN_Action = state.Time.TotalMilliseconds % 750 < 375;
                     } else {
-                        SN_Power = true;
+                        SN_Power = !ConfirmButtonPressed;
                         SN_Action = false;
                     }
                     SN_WarningBell = EB || Warn ? AtsSoundControlInstruction.PlayLooping : AtsSoundControlInstruction.Stop;

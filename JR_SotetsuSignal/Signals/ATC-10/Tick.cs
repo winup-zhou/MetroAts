@@ -6,12 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TokyuSignal {
+namespace JR_SotetsuSignal {
     internal partial class ATC {
         public static int[] ATCLimits = { -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
             -2, -2, -2, -1, -2, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
 
-        private static SpeedPattern ORPPattern = SpeedPattern.inf, StationPattern = SpeedPattern.inf;
+        private static SpeedPattern ORPPattern = SpeedPattern.inf;
         private static int LastATCSpeed = 0, ATCSpeed = 0;
         private static bool EBUntilStop = false, ServiceBrake = false, SignalAnn = false, inDepot = false;
         private const double ORPPatternDec = -2.3; //*10
@@ -24,22 +24,24 @@ namespace TokyuSignal {
         //panel -> ATC
         public static bool ATC_X, ATC_01, ATC_10, ATC_15, ATC_20, ATC_25, ATC_30, ATC_35, ATC_40, ATC_45,
             ATC_50, ATC_55, ATC_60, ATC_65, ATC_70, ATC_75, ATC_80, ATC_85, ATC_90, ATC_95, ATC_100, ATC_105, ATC_110, ATC_Stop, ATC_Proceed,
-            ATC_P, ATC_ATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_StationStop,
+            ATC_P, ATC_ATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation,
             ATC_SignalAnn, ATC_Noset, ATC_TempLimit, ATCNeedle_Disappear;
-        public static int ATCNeedle;
-        public static AtsSoundControlInstruction ATC_Ding, ATC_ORPBeep, ATC_SignalAnnBeep, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
+        public static int ORPNeedle, ATCNeedle;
+        public static AtsSoundControlInstruction ATC_Ding, ATC_ORPBeep, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
 
-        public static void Tick(VehicleState state, Section CurrentSection, Section NextSection, HandleSet handles, bool Noset) {
+        public static void Tick(VehicleState state, Section CurrentSection, Section NextSection, HandleSet handles, bool Noset, bool InDepot) {
             if (ATCEnable) {
-                ATC_SignalAnnBeep = ATC_Ding = AtsSoundControlInstruction.Continue;
+                ATC_Ding = AtsSoundControlInstruction.Continue;
                 ATC_ServiceBrake = BrakeCommand > 0;
-                ATC_EmergencyBrake = BrakeCommand == TokyuSignal.vehicleSpec.BrakeNotches + 1;
+                ATC_EmergencyBrake = BrakeCommand == JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
 
                 if (CurrentSection.CurrentSignalIndex < 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
                     ATC_ORPBeep = AtsSoundControlInstruction.Stop;
-                    if (Noset) {
+                    if (InDepot) {
+                        ATC_Depot = true;
+                        Disable_Noset_inDepot();
+                    } else if (Noset) {
                         ATC_Noset = true;
-                        ATC_Depot = false;
                         Disable_Noset_inDepot();
                     } else {
                         ATC_Noset = false;
@@ -56,7 +58,7 @@ namespace TokyuSignal {
                             ATCNeedle = 0;
                             ATCNeedle_Disappear = true;
                         }
-                        BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches + 1;
+                        BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
                     }
                 } else {
                     if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 3000) {
@@ -71,8 +73,7 @@ namespace TokyuSignal {
                             ATCNeedle = 0;
                             ATCNeedle_Disappear = true;
                         }
-                        BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches + 1;
-                        ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
+                        BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
                     } else {
                         ATC_ATC = true;
                         BrakeCommand = 0;
@@ -106,9 +107,10 @@ namespace TokyuSignal {
                                 LastATCSpeed = ATCSpeed;
                             }
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
-
-                            if (ORPSpeed - Math.Abs(state.Speed) < 5 || ORPSpeed == 7.5) ATC_ORPBeep = AtsSoundControlInstruction.PlayLooping;
-                            else ATC_ORPBeep = AtsSoundControlInstruction.Stop;
+                            if (!Config.ORPUseNeedle) {
+                                if (ORPSpeed - Math.Abs(state.Speed) < 5 || ORPSpeed == 7.5) ATC_ORPBeep = AtsSoundControlInstruction.PlayLooping;
+                                else ATC_ORPBeep = AtsSoundControlInstruction.Stop;
+                            }
                         } else {
                             ORPPattern = SpeedPattern.inf;
                             if (ATC_ORPBeep == AtsSoundControlInstruction.PlayLooping)
@@ -118,20 +120,19 @@ namespace TokyuSignal {
                         ATCSpeed = ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? -1 : ATCLimits[CurrentSection.CurrentSignalIndex];
 
                         if (ATCLimits[CurrentSection.CurrentSignalIndex] == 0 && ATCSpeed != -1) {
-                            BrakeCommand = (int)Math.Ceiling(TokyuSignal.vehicleSpec.BrakeNotches * 0.5);
+                            BrakeCommand = (int)Math.Ceiling(JR_SotetsuSignal.vehicleSpec.BrakeNotches * 0.5);
                             ATCSpeed = 0;
                         }
 
                         if (lastATCSpeed != ATCSpeed && !inDepot) ATC_Ding = AtsSoundControlInstruction.Play;
+
                         ATC_Depot = inDepot;
-                        ATC_StationStop = StationPattern != SpeedPattern.inf;
 
                         var lastAnn = SignalAnn;
                         SignalAnn = ATCSpeed > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex]) && !inDepot;
-                        if (lastAnn != SignalAnn) ATC_SignalAnnBeep = AtsSoundControlInstruction.Play;
-                        ATC_SignalAnn = SignalAnn ? (state.Time.TotalMilliseconds % 2000 < 1000) : false;
+                        ATC_SignalAnn = SignalAnn;
 
-                        if (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec) || Math.Abs(state.Speed) > StationPattern.AtLocation(state.Location, StationPatternDec))
+                        if (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec))
                             EBUntilStop = true;
 
                         if (Math.Abs(state.Speed) > ATCSpeed + 2.5 && ATCSpeed != -1) {
@@ -141,7 +142,7 @@ namespace TokyuSignal {
                             } else {
                                 ServiceBrake = false;
                                 BrakeStartTime = TimeSpan.Zero;
-                                BrakeCommand = (int)Math.Ceiling(TokyuSignal.vehicleSpec.BrakeNotches * 0.5);
+                                BrakeCommand = (int)Math.Ceiling(JR_SotetsuSignal.vehicleSpec.BrakeNotches * 0.5);
                             }
                         } else {
                             ServiceBrake = false;
@@ -150,23 +151,30 @@ namespace TokyuSignal {
 
                         if (ServiceBrake) {
                             if (state.Time.TotalMilliseconds - BrakeStartTime.TotalMilliseconds < 1500)
-                                BrakeCommand = (int)Math.Ceiling(TokyuSignal.vehicleSpec.BrakeNotches * 0.5);
-                            else BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches;
+                                BrakeCommand = (int)Math.Ceiling(JR_SotetsuSignal.vehicleSpec.BrakeNotches * 0.5);
+                            else BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches;
                         }
 
                         if (EBUntilStop) {
-                            BrakeCommand = Math.Max(BrakeCommand, TokyuSignal.vehicleSpec.BrakeNotches + 1);
-                            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= 4) EBUntilStop = false;
+                            BrakeCommand = Math.Max(BrakeCommand, JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1);
+                            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= JR_SotetsuSignal.vehicleSpec.BrakeNotches) EBUntilStop = false;
                         }
 
-                        if (ORPPattern != SpeedPattern.inf && (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec) ||
-                            Math.Abs(state.Speed) < 5 || ORPPattern.AtLocation(state.Location, ORPPatternDec) < 7.5)) {
+                        if (ORPPattern != SpeedPattern.inf && (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec) || Math.Abs(state.Speed) < 5 || ORPPattern.AtLocation(state.Location, ORPPatternDec) < 7.5)) {
                             ORPPattern = new SpeedPattern(7.5, state.Location, 7.5);
                         }
 
-                        if (ORPPattern != SpeedPattern.inf)
-                            ATC_P = state.Time.TotalMilliseconds % 1000 < 500;
-
+                        if (ORPPattern != SpeedPattern.inf) {
+                            if (!Config.ORPUseNeedle) {
+                                ATC_P = state.Time.TotalMilliseconds % 1000 < 500;
+                            } else {
+                                ATC_P = true;
+                                ORPNeedle = (int)ORPSpeed * 10;
+                            }
+                        } else {
+                            ORPNeedle = (int)ORPSpeed * 10;
+                            ATC_P = false;
+                        }
 
                         //ATC速度指示
                         if (!inDepot) {
@@ -195,7 +203,7 @@ namespace TokyuSignal {
                                 ATC_110 = ATCSpeed == 110;
                             } else {
                                 ATCNeedle = ATCSpeed;
-                                ATCNeedle_Disappear = (ATCSpeed != -1);
+                                ATCNeedle_Disappear = (ATCSpeed != -1 || ORPNeedle > 0);
                             }
 
                             //進行・停止

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MetroSignal {
     internal partial class WS_ATC {
-        private static bool NeedConfirm = false;
+        private static bool NeedConfirm = false, Confirmed = false, EB = false;
         private static TimeSpan InitializeStartTime = TimeSpan.Zero;
 
         public static int BrakeCommand = 0;
@@ -26,9 +26,8 @@ namespace MetroSignal {
                 return 65;
             } else if (index == 54) {
                 return (int)Config.LessInf;
-            } else {
+            } else
                 return -1;
-            }
         }
 
         public static void Tick(VehicleState state, Section CurrentSection, bool Noset) {
@@ -49,10 +48,14 @@ namespace MetroSignal {
                         BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                     } else {
                         ATC_WSATC = true;
-                        if (Math.Abs(state.Speed) > IndexToSpeed(CurrentSection.CurrentSignalIndex) && IndexToSpeed(CurrentSection.CurrentSignalIndex) == -1)
-                            NeedConfirm = true;
-                        if (Math.Abs(state.Speed) > IndexToSpeed(CurrentSection.CurrentSignalIndex) || NeedConfirm)
+                        if (IndexToSpeed(CurrentSection.CurrentSignalIndex) == -1) {
+                            if (!Confirmed) NeedConfirm = true;
+                            else if (Math.Abs(state.Speed) > 15) EB = true;
+                        } else Confirmed = false;
+
+                        if (Math.Abs(state.Speed) > IndexToSpeed(CurrentSection.CurrentSignalIndex) + 2.5 || (IndexToSpeed(CurrentSection.CurrentSignalIndex) == -1 && !Confirmed))
                             BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches;
+                        else if (EB && Confirmed) BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                         else BrakeCommand = 0;
                     }
                 }

@@ -81,14 +81,13 @@ namespace JR_SotetsuSignal {
                 panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
             } else {
                 if (StandAloneMode) {
-                    if (!SignalEnable && Keyin && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                    if (!SignalEnable && Keyin)
                         SignalEnable = true;
                     AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                     AtsHandles.ReverserPosition = ReverserPosition.N;
                 } else {
                     Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.JR || corePlugin.KeyPos == MetroAts.KeyPosList.Sotetsu;
-                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.JR || corePlugin.SignalSWPos == MetroAts.SignalSWList.Sotetsu)
-                        && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
+                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.JR || corePlugin.SignalSWPos == MetroAts.SignalSWList.Sotetsu))
                         SignalEnable = true;
                 }
 

@@ -106,7 +106,7 @@ namespace SeibuSignal {
                             ATC_Depot = false;
                         }
 
-                        if (Math.Abs(state.Speed) > ATCSpeed + 1 && ATCSpeed != -1) {
+                        if (Math.Abs(state.Speed) > ATCSpeed + 2.5 && ATCSpeed != -1) {
                             BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches;
                         }
 

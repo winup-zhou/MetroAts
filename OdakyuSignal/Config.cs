@@ -10,7 +10,7 @@ using System.Text;
 using System.Diagnostics;
 using BveEx.PluginHost;
 
-namespace JR_SotetsuSignal {
+namespace OdakyuSignal {
 
     public static class Config {
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
@@ -22,33 +22,26 @@ namespace JR_SotetsuSignal {
         private const int buffer_size = 4096;
 
         //配置项
-        public static bool SNEnable = true;
-        public static bool PPowerAlwaysLight = false;
-
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
-        public static bool ORPUseNeedle = true;//1:pilotlamp 0:needle
 
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
         public static int Panel_keyoutput = 1023;
 
         public static void Load() {
-            path = new FileInfo(Path.Combine(PluginDir, "JR_SotetsuSignal.ini")).FullName;
+            path = new FileInfo(Path.Combine(PluginDir, "OdakyuSignal.ini")).FullName;
             if (File.Exists(path)) {
                 try {
+                    //panel
                     ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
-                    ReadConfig("panel", "orpuseneedle", ref ORPUseNeedle);
 
-                    ReadConfig("ats", "snenable", ref SNEnable);
-                    ReadConfig("ats", "ppowerlampalwayslight", ref PPowerAlwaysLight);
-
-                    ReadConfig("output","power",ref Panel_poweroutput);
-                    ReadConfig("output","brake",ref Panel_brakeoutput);
-                    ReadConfig("output","key",ref Panel_keyoutput);
+                    ReadConfig("output", "power", ref Panel_poweroutput);
+                    ReadConfig("output", "brake", ref Panel_brakeoutput);
+                    ReadConfig("output", "key", ref Panel_keyoutput);
                 } catch (Exception ex) {
                     throw ex;
                 }
-            } else throw new BveFileLoadException("Unable to find configuration file: JR_SotetsuSignal.ini","JR_SotetsuSignal");
+            } else throw new BveFileLoadException("Unable to find configuration file: OdakyuSignal.ini","OdakyuSignal");
         }
 
         //读取配置相关函数
