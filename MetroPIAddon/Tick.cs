@@ -42,165 +42,166 @@ namespace MetroPIAddon {
             }
             var currentStation = MapStationList[MapStationList.Count - 1].Location - 25 < state.Location ? MapStationList[MapStationList.Count - 1] as Station :
                 MapStationList[pointer > 0 ? pointer - 1 : 0] as Station;
-            if (Config.FDenable) {
-                if (FDmode == 0) {
-                    panel[155] = 0;
-                    panel[181] = panel[182] = 0;
-                    panel[193] = 0;
-                } else if (FDmode == 1) {
-                    panel[155] = 1;
-                    var leftDoorState = vehicle.Doors.GetSide(DoorSide.Left).CarDoors[0].State;
-                    var rightDoorState = vehicle.Doors.GetSide(DoorSide.Right).CarDoors[0].State;
-                    var doorCloseTimes = TimeSpan.FromMilliseconds(vehicle.Doors.StandardCloseTime) + TimeSpan.FromSeconds(Config.Delay_FDclosed);
-                    if (state.Location > currentStation.MinStopPosition && state.Location < currentStation.MaxStopPosition) {
-                        if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) {
-                            if (Config.FDsinglelamp) {
-                                panel[181] = panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
-                            } else {
-                                if (currentStation.DoorSide == DoorSide.Left) {
-                                    panel[181] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
-                                    panel[182] = 1;
-                                } else if (currentStation.DoorSide == DoorSide.Right) {
-                                    panel[181] = 1;
-                                    panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
-                                } else {
-                                    panel[181] = panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
-                                }
-                            }
-                        } else if (isDoorOpen) {
-                            if (Config.FDsinglelamp) {
-                                panel[181] = panel[182] = 0;
-                            } else {
-                                if (currentStation.DoorSide == DoorSide.Left) {
-                                    panel[181] = 0;
-                                    panel[182] = 1;
-                                } else if (currentStation.DoorSide == DoorSide.Right) {
-                                    panel[181] = 1;
-                                    panel[182] = 0;
-                                } else {
-                                    panel[181] = panel[182] = 0;
-                                }
-                            }
-                        }
-                        if (lastLeftDoorState == DoorState.Close && leftDoorState == DoorState.Open) {
-                            FDOpenSound.Play(1, 1, 100);
-                            FDOpenTime = state.Time + TimeSpan.FromSeconds(3);
-                        } else if (lastLeftDoorState == DoorState.Open && leftDoorState == DoorState.Close) {
-                            FDCloseSound.Play(1, 1, 100);
-                            FDCloseTime = state.Time + doorCloseTimes;
-                        }
-                        if (lastRightDoorState == DoorState.Close && rightDoorState == DoorState.Open) {
-                            FDOpenSound.Play(1, 1, 100);
-                            FDOpenTime = state.Time + TimeSpan.FromSeconds(3);
-                        } else if (lastRightDoorState == DoorState.Open && rightDoorState == DoorState.Close) {
-                            FDCloseSound.Play(1, 1, 100);
-                            FDCloseTime = state.Time + doorCloseTimes;
-                        }
-                        if (StandAloneMode) {
-                            if (Keyin) {
-                                if (FDCloseTime != TimeSpan.Zero) {
-                                    if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
-                                        panel[193] = 7;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
-                                        panel[193] = 8;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 4 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 3) {
-                                        panel[193] = 9;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 3 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 2) {
-                                        panel[193] = 10;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 2 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6)) {
-                                        panel[193] = 11;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
-                                        panel[193] = 12;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < 0) {
-                                        panel[193] = 2;
-                                        FDCloseTime = TimeSpan.Zero;
-                                    }
-                                } else if (FDOpenTime != TimeSpan.Zero) {
-                                    if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 2) {
-                                        panel[193] = 2;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1.5) {
-                                        panel[193] = 3;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1) {
-                                        panel[193] = 4;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0.5) {
-                                        panel[193] = 5;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
-                                        panel[193] = 6;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0) {
-                                        panel[193] = 7;
-                                        FDOpenTime = TimeSpan.Zero;
-                                    }
-                                } else if (FDOpenTime == TimeSpan.Zero && FDCloseTime == TimeSpan.Zero) {
-                                    if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) panel[193] = 2;
-                                    else if (isDoorOpen) panel[193] = 7;
-                                }
-                            } else panel[193] = 0;
+
+            if (FDmode == 0) {
+                panel[155] = 0;
+                panel[181] = panel[182] = 0;
+                panel[193] = 0;
+            } else if (FDmode == 1) {
+                panel[155] = 1;
+                var leftDoorState = vehicle.Doors.GetSide(DoorSide.Left).CarDoors[0].State;
+                var rightDoorState = vehicle.Doors.GetSide(DoorSide.Right).CarDoors[0].State;
+                var doorCloseTimes = TimeSpan.FromMilliseconds(vehicle.Doors.StandardCloseTime) + TimeSpan.FromSeconds(Config.Delay_FDclosed);
+                if (state.Location > currentStation.MinStopPosition && state.Location < currentStation.MaxStopPosition) {
+                    if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) {
+                        if (Config.FDsinglelamp) {
+                            panel[181] = panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
                         } else {
-                            if (corePlugin.KeyPos != MetroAts.KeyPosList.None) {
-                                if (FDCloseTime != TimeSpan.Zero) {
-                                    if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
-                                        panel[193] = 7;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
-                                        panel[193] = 8;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 4 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 3) {
-                                        panel[193] = 9;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 3 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 2) {
-                                        panel[193] = 10;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 2 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6)) {
-                                        panel[193] = 11;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
-                                        panel[193] = 12;
-                                    } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < 0) {
-                                        panel[193] = 2;
-                                        FDCloseTime = TimeSpan.Zero;
-                                    }
-                                } else if (FDOpenTime != TimeSpan.Zero) {
-                                    if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 2) {
-                                        panel[193] = 2;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1.5) {
-                                        panel[193] = 3;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1) {
-                                        panel[193] = 4;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0.5) {
-                                        panel[193] = 5;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
-                                        panel[193] = 6;
-                                    } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0) {
-                                        panel[193] = 7;
-                                        FDOpenTime = TimeSpan.Zero;
-                                    }
-                                } else if (FDOpenTime == TimeSpan.Zero && FDCloseTime == TimeSpan.Zero) {
-                                    if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) panel[193] = 2;
-                                    else if (isDoorOpen) panel[193] = 7;
-                                }
-                            } else panel[193] = 0;
-                        }
-
-                    } else {
-                        panel[181] = panel[182] = 1;
-                        if (StandAloneMode && Keyin) {
-                            if (Math.Abs(state.Location - currentStation.Location) < 10) {
-                                panel[193] = 1;
+                            if (currentStation.DoorSide == DoorSide.Left) {
+                                panel[181] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
+                                panel[182] = 1;
+                            } else if (currentStation.DoorSide == DoorSide.Right) {
+                                panel[181] = 1;
+                                panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
                             } else {
-                                panel[193] = 0;
-                            }
-                        } else if (corePlugin.KeyPos != MetroAts.KeyPosList.None) {
-                            if (Math.Abs(state.Location - currentStation.Location) < 10) {
-                                panel[193] = 1;
-                            } else {
-                                panel[193] = 0;
+                                panel[181] = panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
                             }
                         }
-
+                    } else if (isDoorOpen) {
+                        if (Config.FDsinglelamp) {
+                            panel[181] = panel[182] = 0;
+                        } else {
+                            if (currentStation.DoorSide == DoorSide.Left) {
+                                panel[181] = 0;
+                                panel[182] = 1;
+                            } else if (currentStation.DoorSide == DoorSide.Right) {
+                                panel[181] = 1;
+                                panel[182] = 0;
+                            } else {
+                                panel[181] = panel[182] = 0;
+                            }
+                        }
                     }
-                    lastLeftDoorState = leftDoorState;
-                    lastRightDoorState = rightDoorState;
-                } else if (FDmode == 2) {
-                    panel[155] = 2;
-                    panel[181] = panel[182] = 0;
-                    panel[193] = 0;
+
+                    if (lastLeftDoorState == DoorState.Close && leftDoorState == DoorState.Open) {
+                        if (Config.FDsoundenable) FDOpenSound.Play(1, 1, 100);
+                        FDOpenTime = state.Time + TimeSpan.FromSeconds(3);
+                    } else if (lastLeftDoorState == DoorState.Open && leftDoorState == DoorState.Close) {
+                        if (Config.FDsoundenable) FDCloseSound.Play(1, 1, 100);
+                        FDCloseTime = state.Time + doorCloseTimes;
+                    }
+                    if (lastRightDoorState == DoorState.Close && rightDoorState == DoorState.Open) {
+                        if (Config.FDsoundenable) FDOpenSound.Play(1, 1, 100);
+                        FDOpenTime = state.Time + TimeSpan.FromSeconds(3);
+                    } else if (lastRightDoorState == DoorState.Open && rightDoorState == DoorState.Close) {
+                        if (Config.FDsoundenable) FDCloseSound.Play(1, 1, 100);
+                        FDCloseTime = state.Time + doorCloseTimes;
+                    }
+                    if (StandAloneMode) {
+                        if (Keyin) {
+                            if (FDCloseTime != TimeSpan.Zero) {
+                                if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
+                                    panel[193] = 7;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
+                                    panel[193] = 8;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 4 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 3) {
+                                    panel[193] = 9;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 3 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 2) {
+                                    panel[193] = 10;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 2 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6)) {
+                                    panel[193] = 11;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
+                                    panel[193] = 12;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < 0) {
+                                    panel[193] = 2;
+                                    FDCloseTime = TimeSpan.Zero;
+                                }
+                            } else if (FDOpenTime != TimeSpan.Zero) {
+                                if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 2) {
+                                    panel[193] = 2;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1.5) {
+                                    panel[193] = 3;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1) {
+                                    panel[193] = 4;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0.5) {
+                                    panel[193] = 5;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
+                                    panel[193] = 6;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0) {
+                                    panel[193] = 7;
+                                    FDOpenTime = TimeSpan.Zero;
+                                }
+                            } else if (FDOpenTime == TimeSpan.Zero && FDCloseTime == TimeSpan.Zero) {
+                                if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) panel[193] = 2;
+                                else if (isDoorOpen) panel[193] = 7;
+                            }
+                        } else panel[193] = 0;
+                    } else {
+                        if (corePlugin.KeyPos != MetroAts.KeyPosList.None) {
+                            if (FDCloseTime != TimeSpan.Zero) {
+                                if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
+                                    panel[193] = 7;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
+                                    panel[193] = 8;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 4 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 3) {
+                                    panel[193] = 9;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 3 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 2) {
+                                    panel[193] = 10;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 2 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6)) {
+                                    panel[193] = 11;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
+                                    panel[193] = 12;
+                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < 0) {
+                                    panel[193] = 2;
+                                    FDCloseTime = TimeSpan.Zero;
+                                }
+                            } else if (FDOpenTime != TimeSpan.Zero) {
+                                if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 2) {
+                                    panel[193] = 2;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1.5) {
+                                    panel[193] = 3;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1) {
+                                    panel[193] = 4;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0.5) {
+                                    panel[193] = 5;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
+                                    panel[193] = 6;
+                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0) {
+                                    panel[193] = 7;
+                                    FDOpenTime = TimeSpan.Zero;
+                                }
+                            } else if (FDOpenTime == TimeSpan.Zero && FDCloseTime == TimeSpan.Zero) {
+                                if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) panel[193] = 2;
+                                else if (isDoorOpen) panel[193] = 7;
+                            }
+                        } else panel[193] = 0;
+                    }
+
+                } else {
+                    panel[181] = panel[182] = 1;
+                    if (StandAloneMode && Keyin) {
+                        if (Math.Abs(state.Location - currentStation.Location) < 10) {
+                            panel[193] = 1;
+                        } else {
+                            panel[193] = 0;
+                        }
+                    } else if (corePlugin.KeyPos != MetroAts.KeyPosList.None) {
+                        if (Math.Abs(state.Location - currentStation.Location) < 10) {
+                            panel[193] = 1;
+                        } else {
+                            panel[193] = 0;
+                        }
+                    }
+
                 }
+                lastLeftDoorState = leftDoorState;
+                lastRightDoorState = rightDoorState;
+            } else if (FDmode == 2) {
+                panel[155] = 2;
+                panel[181] = panel[182] = 0;
+                panel[193] = 0;
             }
+
 
 
             if (isDoorOpen) {

@@ -20,7 +20,7 @@ namespace MetroPIAddon {
         private const int buffer_size = 4096;
         public static KeyPosList StandAloneKey = KeyPosList.None;
         public static List<string> FDOpenSounds = new List<string>(), FDCloseSounds = new List<string>();
-        public static bool FDenable = false, FDsinglelamp = false;
+        public static bool FDsoundenable = false, FDsinglelamp = false;
         public static double Delay_FDclosed = 1.0;
         public static int CurrentPanelIndex = 1023;
         public static double MaxCurrentSpeed = 20.0;
@@ -36,7 +36,7 @@ namespace MetroPIAddon {
                 try {
                     ReadConfig("standalonemode", "keyposition", ref StandAloneKey);
 
-                    ReadConfig("PlatformDoor", "enable", ref FDenable);
+                    ReadConfig("PlatformDoor", "soundenable", ref FDsoundenable);
                     ReadConfig("PlatformDoor", "singlelamp", ref FDsinglelamp);
                     ReadConfig("PlatformDoor", "ClosedDelay", ref Delay_FDclosed);
                     var opensoundStr = "";
