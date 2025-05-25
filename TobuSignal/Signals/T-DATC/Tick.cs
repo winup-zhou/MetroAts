@@ -48,21 +48,23 @@ namespace TobuSignal {
                         break;
                     }
                 }
-
-                while (sectionManager.Sections[sectionManager.StopSignalSectionIndexes[pointer_]].Location < state.Location) {
-                    pointer_++;
-                    if (pointer_ >= sectionManager.StopSignalSectionIndexes.Count) {
-                        pointer_ = sectionManager.StopSignalSectionIndexes.Count - 1;
-                        break;
+                if (sectionManager.StopSignalSectionIndexes.Count > 0) {
+                    while (sectionManager.Sections[sectionManager.StopSignalSectionIndexes[pointer_]].Location < state.Location) {
+                        pointer_++;
+                        if (pointer_ >= sectionManager.StopSignalSectionIndexes.Count) {
+                            pointer_ = sectionManager.StopSignalSectionIndexes.Count - 1;
+                            break;
+                        }
                     }
                 }
 
-
+                Section stopSignalSection = sectionManager.Sections[0] as Section;
                 LastCurrentSection = currentSection;
                 currentSection = sectionManager.Sections[pointer > 0 ? pointer - 1 : 0] as Section;
                 var NextSection = sectionManager.Sections[pointer] as Section;
                 var PreviousSection = sectionManager.Sections[pointer > 1 ? pointer - 2 : 0] as Section;
-                var stopSignalSection = sectionManager.Sections[sectionManager.StopSignalSectionIndexes[pointer_]] as Section;
+                if (sectionManager.StopSignalSectionIndexes.Count > 0)
+                    stopSignalSection = sectionManager.Sections[sectionManager.StopSignalSectionIndexes[pointer_]] as Section;
 
                 ATC_TobuATC = true;
 
@@ -118,19 +120,21 @@ namespace TobuSignal {
                         if (LastCurrentSection.Location != currentSection.Location) --ValidSections;
 
                         //開通情報
-                        if (sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 && stopSignalSection.CurrentSignalIndex > 8
+                        if (sectionManager.StopSignalSectionIndexes.Count > 0) {
+                            if (sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 && stopSignalSection.CurrentSignalIndex > 8
                             && stopSignalSection.CurrentSignalIndex < 34 && ValidSections > 0) {
-                            var pretrainLocation = stopSignalSection.Location - state.Location;
-                            if (pretrainLocation < 200) ATC_EndPointDistance = 0;
-                            else if (pretrainLocation >= 200 && pretrainLocation < 400) ATC_EndPointDistance = 1;
-                            else if (pretrainLocation >= 400 && pretrainLocation < 600) ATC_EndPointDistance = 2;
-                            else if (pretrainLocation >= 600 && pretrainLocation < 800) ATC_EndPointDistance = 3;
-                            else if (pretrainLocation >= 800 && pretrainLocation < 1000) ATC_EndPointDistance = 4;
-                            else if (pretrainLocation >= 1000 && pretrainLocation < 1200) ATC_EndPointDistance = 5;
-                            else if (pretrainLocation >= 1200 && pretrainLocation < 1400) ATC_EndPointDistance = 6;
-                            else if (pretrainLocation > 1400 && pretrainLocation < 1600) ATC_EndPointDistance = 7;
-                            else if (pretrainLocation > 1600) ATC_EndPointDistance = 0;
-                        } else ATC_EndPointDistance = 0;
+                                var pretrainLocation = stopSignalSection.Location - state.Location;
+                                if (pretrainLocation < 200) ATC_EndPointDistance = 0;
+                                else if (pretrainLocation >= 200 && pretrainLocation < 400) ATC_EndPointDistance = 1;
+                                else if (pretrainLocation >= 400 && pretrainLocation < 600) ATC_EndPointDistance = 2;
+                                else if (pretrainLocation >= 600 && pretrainLocation < 800) ATC_EndPointDistance = 3;
+                                else if (pretrainLocation >= 800 && pretrainLocation < 1000) ATC_EndPointDistance = 4;
+                                else if (pretrainLocation >= 1000 && pretrainLocation < 1200) ATC_EndPointDistance = 5;
+                                else if (pretrainLocation >= 1200 && pretrainLocation < 1400) ATC_EndPointDistance = 6;
+                                else if (pretrainLocation > 1400 && pretrainLocation < 1600) ATC_EndPointDistance = 7;
+                                else if (pretrainLocation > 1600) ATC_EndPointDistance = 0;
+                            } else ATC_EndPointDistance = 0;
+                        }
 
                         if (ValidSections < 3 && ValidSections > 0) {
                             ATCPattern = new SpeedPattern(Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)),
