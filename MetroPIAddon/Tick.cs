@@ -225,6 +225,9 @@ namespace MetroPIAddon {
                     panel[154] = D(TrainRunningNumber, 0);
                     panel[172] = Destination;
                     UpdateRequested = false;
+                    lastTrainType = TrainType;
+                } else if(UpdateRequested) {
+                    panel[152] = lastTrainType;
                 }
             } else {
                 if (state.Time > DoorClosedTime + new TimeSpan(0, 0, 5) && DoorClosedTime != TimeSpan.Zero) {

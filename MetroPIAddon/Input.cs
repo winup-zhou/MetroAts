@@ -135,6 +135,7 @@ namespace MetroPIAddon {
                 case 50://種別/行先/運番表示
                     TrainRunningNumber = e.Optional % 100;
                     Destination = (e.Optional / 100) % 100;
+                    lastTrainType = TrainType;
                     TrainType = e.Optional / 10000;
                     UpdateRequested = true;
                     break;
