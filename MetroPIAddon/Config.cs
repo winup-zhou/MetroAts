@@ -29,6 +29,7 @@ namespace MetroPIAddon {
         public static Keys SnowBrakeKey = Keys.None;
         public static Keys InstrumentLightKey = Keys.None;
         public static double SnowBrakePressure = 0.0;
+        public static int MaxTrainTypeCount = 19;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroPIAddon.ini")).FullName;
@@ -59,6 +60,8 @@ namespace MetroPIAddon {
                     ReadConfig("Inputs", "InstrumentLightKey", ref InstrumentLightKey);
 
                     ReadConfig("snowbrake", "pressure", ref SnowBrakePressure);
+
+                    ReadConfig("traininfo", "typecounts", ref MaxTrainTypeCount);
                 } catch (Exception ex) {
                     throw ex;
                 }
