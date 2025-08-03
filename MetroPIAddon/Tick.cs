@@ -83,20 +83,25 @@ namespace MetroPIAddon {
                         }
                     }
 
-                    if (lastLeftDoorState == DoorState.Close && leftDoorState == DoorState.Open) {
-                        if (Config.FDsoundenable) FDOpenSound.Play(1, 1, 100);
-                        FDOpenTime = state.Time + TimeSpan.FromSeconds(3);
-                    } else if (lastLeftDoorState == DoorState.Open && leftDoorState == DoorState.Close) {
-                        if (Config.FDsoundenable) FDCloseSound.Play(1, 1, 100);
-                        FDCloseTime = state.Time + doorCloseTimes;
+                    try {
+                        if (lastLeftDoorState == DoorState.Close && leftDoorState == DoorState.Open) {
+                            if (Config.FDsoundenable) FDOpenSound.Play(1, 1, 100);
+                            FDOpenTime = state.Time + TimeSpan.FromSeconds(3);
+                        } else if (lastLeftDoorState == DoorState.Open && leftDoorState == DoorState.Close) {
+                            if (Config.FDsoundenable) FDCloseSound.Play(1, 1, 100);
+                            FDCloseTime = state.Time + doorCloseTimes;
+                        }
+                        if (lastRightDoorState == DoorState.Close && rightDoorState == DoorState.Open) {
+                            if (Config.FDsoundenable) FDOpenSound.Play(1, 1, 100);
+                            FDOpenTime = state.Time + TimeSpan.FromSeconds(3);
+                        } else if (lastRightDoorState == DoorState.Open && rightDoorState == DoorState.Close) {
+                            if (Config.FDsoundenable) FDCloseSound.Play(1, 1, 100);
+                            FDCloseTime = state.Time + doorCloseTimes;
+                        }
+                    } catch {
+                        Config.FDsoundenable = false;
                     }
-                    if (lastRightDoorState == DoorState.Close && rightDoorState == DoorState.Open) {
-                        if (Config.FDsoundenable) FDOpenSound.Play(1, 1, 100);
-                        FDOpenTime = state.Time + TimeSpan.FromSeconds(3);
-                    } else if (lastRightDoorState == DoorState.Open && rightDoorState == DoorState.Close) {
-                        if (Config.FDsoundenable) FDCloseSound.Play(1, 1, 100);
-                        FDCloseTime = state.Time + doorCloseTimes;
-                    }
+                    
                     if (StandAloneMode) {
                         if (Keyin) {
                             if (FDCloseTime != TimeSpan.Zero) {
