@@ -31,6 +31,7 @@ namespace MetroPIAddon {
                 panel[153] = D(TrainRunningNumber, 1);
                 panel[154] = D(TrainRunningNumber, 0);
                 panel[172] = Destination;
+                UpdateRequested = false;
             }
         }
 
@@ -135,6 +136,7 @@ namespace MetroPIAddon {
                     TrainRunningNumber = e.Optional % 100;
                     Destination = (e.Optional / 100) % 100;
                     TrainType = e.Optional / 10000;
+                    UpdateRequested = true;
                     break;
                 case 33://車掌電鈴遅延
                     if (e.Optional < 100) {

@@ -15,6 +15,7 @@ namespace MetroAts {
     public partial class MetroAts : AssemblyPluginBase {
 
         private void Initialize(object sender, StartedEventArgs e) {
+            var panel = Native.AtsPanelArray;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
                     if (Config.KeyPosLists[i] == KeyPosList.None) {
@@ -29,6 +30,18 @@ namespace MetroAts {
                     }
                 }
             }
+            switch (Config.KeyPosLists[NowKey]) {
+                case KeyPosList.None: panel[Config.Panel_keyoutput] = 0; break;
+                case KeyPosList.Metro: panel[Config.Panel_keyoutput] = 1; break;
+                case KeyPosList.Tobu: panel[Config.Panel_keyoutput] = 2; break;
+                case KeyPosList.Tokyu: panel[Config.Panel_keyoutput] = 3; break;
+                case KeyPosList.Seibu: panel[Config.Panel_keyoutput] = 4; break;
+                case KeyPosList.Sotetsu: panel[Config.Panel_keyoutput] = 5; break;
+                case KeyPosList.JR: panel[Config.Panel_keyoutput] = 6; break;
+                case KeyPosList.Odakyu: panel[Config.Panel_keyoutput] = 7; break;
+                case KeyPosList.ToyoKosoku: panel[Config.Panel_keyoutput] = 8; break;
+            }
+            panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
         }
         private void DoorOpened(object sender, EventArgs e) {
             isDoorOpen = true;

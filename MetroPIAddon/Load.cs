@@ -60,6 +60,7 @@ namespace MetroPIAddon {
             FDOpenTime = TimeSpan.Zero, FDCloseTime = TimeSpan.Zero;
         private static int FDmode;
         private static bool NeedConductorBuzzer;
+        private static bool UpdateRequested = false;
 
         public MetroPIAddon(PluginBuilder services) : base(services) {
             Config.Load();
