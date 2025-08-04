@@ -224,9 +224,11 @@ namespace MetroPIAddon {
                     panel[153] = D(TrainRunningNumber, 1);
                     panel[154] = D(TrainRunningNumber, 0);
                     panel[172] = Destination;
-                    UpdateRequested = false;
-                    lastTrainType = TrainType;
-                } else if(UpdateRequested) {
+                    if (UpdateRequested) {
+                        UpdateRequested = false;
+                        lastTrainType = TrainType;
+                    }
+                } else {
                     panel[151] = panel[152] = lastTrainType;
                 }
             } else {
@@ -236,17 +238,10 @@ namespace MetroPIAddon {
                     panel[169] = NextSta;
                     DoorClosedTime = TimeSpan.Zero;
                 }
-                if (!UpdateRequested) {
-                    panel[62] = D(TrainNumber / 100, 3);
-                    panel[63] = D(TrainNumber / 100, 2);
-                    panel[64] = D(TrainNumber / 100, 1);
-                    panel[65] = D(TrainNumber / 100, 0);
-                    panel[68] = TrainNumber % 100;
+                if (UpdateRequested) 
+                    panel[151] = panel[152] = lastTrainType;
+                else
                     panel[151] = panel[152] = TrainType;
-                    panel[153] = D(TrainRunningNumber, 1);
-                    panel[154] = D(TrainRunningNumber, 0);
-                    panel[172] = Destination;
-                }
             }
 
             if (Snowbrake && state.BcPressure < Config.SnowBrakePressure) {
