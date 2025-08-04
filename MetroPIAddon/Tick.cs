@@ -220,14 +220,14 @@ namespace MetroPIAddon {
                     panel[64] = D(TrainNumber / 100, 1);
                     panel[65] = D(TrainNumber / 100, 0);
                     panel[68] = TrainNumber % 100;
-                    panel[152] = TrainType;
+                    panel[151] = panel[152] = TrainType;
                     panel[153] = D(TrainRunningNumber, 1);
                     panel[154] = D(TrainRunningNumber, 0);
                     panel[172] = Destination;
                     UpdateRequested = false;
                     lastTrainType = TrainType;
                 } else if(UpdateRequested) {
-                    panel[152] = lastTrainType;
+                    panel[151] = panel[152] = lastTrainType;
                 }
             } else {
                 if (state.Time > DoorClosedTime + new TimeSpan(0, 0, 5) && DoorClosedTime != TimeSpan.Zero) {
@@ -242,7 +242,7 @@ namespace MetroPIAddon {
                     panel[64] = D(TrainNumber / 100, 1);
                     panel[65] = D(TrainNumber / 100, 0);
                     panel[68] = TrainNumber % 100;
-                    panel[152] = TrainType;
+                    panel[151] = panel[152] = TrainType;
                     panel[153] = D(TrainRunningNumber, 1);
                     panel[154] = D(TrainRunningNumber, 0);
                     panel[172] = Destination;
