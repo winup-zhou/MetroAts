@@ -105,6 +105,7 @@ namespace MetroPIAddon {
                     if (StandAloneMode) {
                         if (Keyin) {
                             if (FDCloseTime != TimeSpan.Zero) {
+                                FDOpenTime = TimeSpan.Zero;
                                 if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
                                     panel[193] = 7;
                                 } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
@@ -122,6 +123,7 @@ namespace MetroPIAddon {
                                     FDCloseTime = TimeSpan.Zero;
                                 }
                             } else if (FDOpenTime != TimeSpan.Zero) {
+                                FDCloseTime = TimeSpan.Zero;
                                 if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 2) {
                                     panel[193] = 2;
                                 } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1.5) {
@@ -144,6 +146,7 @@ namespace MetroPIAddon {
                     } else {
                         if (corePlugin.KeyPos != MetroAts.KeyPosList.None) {
                             if (FDCloseTime != TimeSpan.Zero) {
+                                FDOpenTime = TimeSpan.Zero;
                                 if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
                                     panel[193] = 7;
                                 } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
@@ -161,6 +164,7 @@ namespace MetroPIAddon {
                                     FDCloseTime = TimeSpan.Zero;
                                 }
                             } else if (FDOpenTime != TimeSpan.Zero) {
+                                FDCloseTime = TimeSpan.Zero;
                                 if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 2) {
                                     panel[193] = 2;
                                 } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1.5) {
