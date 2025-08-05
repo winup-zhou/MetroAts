@@ -78,8 +78,10 @@ namespace MetroPIAddon {
                     Keyin = true;
                 } else if (e.KeyName == AtsKeyName.C1 && TrainType > 0) {
                     --TrainType;
+                    lastTrainType = TrainType;
                 } else if (e.KeyName == AtsKeyName.C2 && TrainType < Config.MaxTrainTypeCount) {
                     ++TrainType;
+                    lastTrainType = TrainType;
                 }
             }
         }
