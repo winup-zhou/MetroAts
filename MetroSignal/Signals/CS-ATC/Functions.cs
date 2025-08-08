@@ -68,6 +68,11 @@ namespace MetroSignal {
             ATC_EmergencyOperation = false;
         }
 
+        public static void InitNow() {
+            ATCEnable = true;
+            ATC_ATC = true;
+        }
+
         public static void Init(TimeSpan time) {
             ATCEnable = true;
             InitializeStartTime = time;

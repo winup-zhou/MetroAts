@@ -34,13 +34,17 @@ namespace JR_SotetsuSignal {
                     if (ATS_P.P_PEnable) ATS_SN.ResetAll();
                     if (ATS_P.ATSEnable) {
                         ATS_P.Tick(state);
-                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_P.BrakeCommand);
-                        if (ATS_P.BrakeCommand > 0) BrakeTriggered = true;
+                        if (ATS_P.BrakeCommand > 0) {
+                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), ATS_P.BrakeCommand);
+                            BrakeTriggered = true;
+                        }
                     }
                     if (ATS_SN.ATSEnable) {
                         ATS_SN.Tick(state);
-                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_SN.BrakeCommand);
-                        if (ATS_SN.BrakeCommand > 0) BrakeTriggered = true;
+                        if (ATS_SN.BrakeCommand > 0) {
+                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), ATS_SN.BrakeCommand);
+                            BrakeTriggered = true;
+                        }
                     }
                 } else {
                     if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
@@ -49,13 +53,17 @@ namespace JR_SotetsuSignal {
                     if (ATS_P.P_PEnable) ATS_SN.ResetAll();
                     if (ATS_P.ATSEnable) {
                         ATS_P.Tick(state);
-                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_P.BrakeCommand);
-                        if (ATS_P.BrakeCommand > 0) BrakeTriggered = true;
+                        if (ATS_P.BrakeCommand > 0) {
+                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), ATS_P.BrakeCommand);
+                            BrakeTriggered = true;
+                        }
                     }
                     if (ATS_SN.ATSEnable) {
                         ATS_SN.Tick(state);
-                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_SN.BrakeCommand);
-                        if (ATS_SN.BrakeCommand > 0) BrakeTriggered = true;
+                        if (ATS_SN.BrakeCommand > 0) {
+                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), ATS_SN.BrakeCommand);
+                            BrakeTriggered = true;
+                        }
                     }
                 }
                 if ((currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49)

@@ -44,8 +44,9 @@ namespace SeibuSignal {
             ATC_EmergencyOperation = false;
         }
 
-        public static void SwitchFromATS() {
+        public static void InitNow() {
             ATCEnable = true;
+            ATC_ATC = true;
         }
 
         public static void Init(TimeSpan time) {

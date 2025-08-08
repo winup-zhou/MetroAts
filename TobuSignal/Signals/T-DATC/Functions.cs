@@ -114,9 +114,9 @@ namespace TobuSignal {
                     if (ATCEnable)
                         LimitPattern = SpeedPattern.inf;
                     break;
-                case 42:
-                    ATCswitchoverSection = true;
-                    break;
+                //case 42:
+                //    ATCswitchoverSection = true;
+                //    break;
             }
         }
 
@@ -184,9 +184,10 @@ namespace TobuSignal {
         }
 
         public static void SignalUpdated() {
-            if (ATCEnable && ATCswitchoverSection) {
-                InitializeStartTime = TimeSpan.MaxValue;
-            }
+
+            //if (ATCEnable && ATCswitchoverSection) {
+            //    InitializeStartTime = TimeSpan.MaxValue;
+            //}
         }
 
         //private

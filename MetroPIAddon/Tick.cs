@@ -104,7 +104,7 @@ namespace MetroPIAddon {
                     
                     if (StandAloneMode) {
                         if (Keyin && state.Speed < 15) {
-                            if (FDCloseTime != TimeSpan.Zero && state.Speed<15) {
+                            if (FDCloseTime != TimeSpan.Zero) {
                                 FDOpenTime = TimeSpan.Zero;
                                 if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
                                     panel[193] = 7;
@@ -189,13 +189,13 @@ namespace MetroPIAddon {
                 } else {
                     panel[181] = panel[182] = 1;
                     if (StandAloneMode && Keyin) {
-                        if (Math.Abs(state.Location - currentStation.Location) < 10) {
+                        if (Math.Abs(state.Location - currentStation.Location) < 10 && state.Speed < 15) {
                             panel[193] = 1;
                         } else {
                             panel[193] = 0;
                         }
                     } else if (corePlugin.KeyPos != MetroAts.KeyPosList.None) {
-                        if (Math.Abs(state.Location - currentStation.Location) < 10) {
+                        if (Math.Abs(state.Location - currentStation.Location) < 10 && state.Speed < 15) {
                             panel[193] = 1;
                         } else {
                             panel[193] = 0;
