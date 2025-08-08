@@ -41,7 +41,9 @@ namespace MetroSignal {
                     if (CS_ATC.ATCEnable) {
                         CS_ATC.Tick(state, currentSection, nextSection, handles, Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset, Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.InDepot);
                         if (CS_ATC.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), CS_ATC.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, CS_ATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = CS_ATC.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
@@ -49,7 +51,9 @@ namespace MetroSignal {
                     if (WS_ATC.ATCEnable) {
                         WS_ATC.Tick(state, currentSection, Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset);
                         if (WS_ATC.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), WS_ATC.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, WS_ATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = WS_ATC.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (CS_ATC.ATCEnable) CS_ATC.ResetAll();
@@ -85,7 +89,9 @@ namespace MetroSignal {
                     if (CS_ATC.ATCEnable) {
                         CS_ATC.Tick(state, currentSection, nextSection, handles, corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset, corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot);
                         if (CS_ATC.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), CS_ATC.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, CS_ATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = CS_ATC.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
@@ -93,7 +99,9 @@ namespace MetroSignal {
                     if (WS_ATC.ATCEnable) {
                         WS_ATC.Tick(state, currentSection, corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset);
                         if (WS_ATC.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), WS_ATC.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, WS_ATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = WS_ATC.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (CS_ATC.ATCEnable) CS_ATC.ResetAll();

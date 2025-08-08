@@ -19,11 +19,11 @@ namespace ConductorlessAddon {
         }
 
         private void DoorOpened(object sender, EventArgs e) {
-           
+            isDoorOpen = true;
         }
 
         private void DoorClosed(object sender, EventArgs e) {
-            
+            isDoorOpen = false;
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {

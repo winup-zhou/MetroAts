@@ -25,6 +25,7 @@ namespace ConductorlessAddon {
         private static VehicleSpec vehicleSpec;
         private LeverText leverText;
         private static bool isDoorOpen = false;
+        private static bool StandAloneMode = false;
         private static CorePlugin corePlugin;
 
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_SignalSW;

@@ -35,7 +35,9 @@ namespace TobuSignal {
                     //T-DATC
                     if (T_DATC.ATCEnable) {
                         if (T_DATC.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), T_DATC.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, T_DATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = T_DATC.BrakeCommand;
                             BrakeTriggered = true;
                         }
                     } else {
@@ -52,7 +54,9 @@ namespace TobuSignal {
                     if (TSP_ATS.ATSEnable) {
                         TSP_ATS.Tick(state);
                         if (TSP_ATS.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), TSP_ATS.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, TSP_ATS.BrakeCommand);
+                            else AtsHandles.BrakeNotch = TSP_ATS.BrakeCommand;
                             BrakeTriggered = true;
                         }
                     } else {

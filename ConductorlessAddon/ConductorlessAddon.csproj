@@ -56,5 +56,13 @@
       <Name>MetroAts</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BveEx.CoreExtensions">
+      <Version>2.0.8</Version>
+    </PackageReference>
+    <PackageReference Include="BveEx.PluginHost">
+      <Version>2.0.8</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

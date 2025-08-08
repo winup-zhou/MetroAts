@@ -21,6 +21,7 @@ namespace ConductorlessAddon {
         protected override event EventHandler DoorClosed;
 
         public ManualConductor(Conductor original) : base(original) {
+
         }
 
         protected override MethodOverrideMode OnJumped(int stationIndex, bool isDoorClosed) {
@@ -60,13 +61,13 @@ namespace ConductorlessAddon {
             return MethodOverrideMode.SkipOriginal;
         }
 
-        public void RequestFixStopPosition() {
-            FixStopPositionRequested(this, EventArgs.Empty);
-        }
-
         public void OpenDoors(DoorSide doorSide) {
-            Station nextStation = GetNextStation();
-            if (!(nextStation is null) && nextStation.DoorSideNumber == ToDoorSideNumber(doorSide)) {
+            double location = Original.Location.Location;
+            Station nextStation = GetNextStation(), currentStation = GetCurrentStation();
+            if(nextStation.MinStopPosition > location) 
+                nextStation = currentStation;
+            if (!(nextStation is null) && nextStation.DoorSideNumber == ToDoorSideNumber(doorSide)
+                && location > nextStation.MinStopPosition && location < nextStation.MaxStopPosition) {
                 if (!HasStopPositionChecked) {
                     HasStopPositionChecked = true;
                     StopPositionChecked(this, EventArgs.Empty);
@@ -74,18 +75,23 @@ namespace ConductorlessAddon {
 
                 Original.Doors.GetSide(doorSide).OpenDoors();
                 DoorOpening(this, EventArgs.Empty);
-            } else {
-                Original.Doors.GetSide(doorSide).OpenDoors();
             }
         }
 
         public void PlayDepartureSound() {
+            Station nextStation = GetNextStation();
+            if (!(nextStation is null)) {
+                nextStation?.ArrivalSound.Stop(0);
+                nextStation?.DepartureSound.Play(1, 1, 0);
+            }
             DepartureSoundPlaying(this, EventArgs.Empty);
         }
 
         public void CloseDoors(DoorSide doorSide) {
+            double location = Original.Location.Location;
             Station nextStation = GetNextStation();
-            if (!(nextStation is null) && nextStation.DoorSideNumber == ToDoorSideNumber(doorSide)) {
+            if (!(nextStation is null) && nextStation.DoorSideNumber == ToDoorSideNumber(doorSide)
+                 && location > nextStation.MinStopPosition && location < nextStation.MaxStopPosition) {
                 if (!HasStopPositionChecked) {
                     HasStopPositionChecked = true;
                     StopPositionChecked(this, EventArgs.Empty);
@@ -93,13 +99,14 @@ namespace ConductorlessAddon {
 
                 Original.Doors.GetSide(doorSide).CloseDoors(nextStation.StuckInDoorMilliseconds);
                 DoorClosing(this, EventArgs.Empty);
-            } else {
-                Original.Doors.GetSide(doorSide).CloseDoors(nextStation is null ? 0 : nextStation.StuckInDoorMilliseconds);
             }
         }
 
         private Station GetNextStation()
             => Original.Stations.Count <= Original.Stations.CurrentIndex + 1 ? null : Original.Stations[Original.Stations.CurrentIndex + 1] as Station;
+
+        private Station GetCurrentStation()
+            => Original.Stations.Count <= Original.Stations.CurrentIndex + 1 ? null : Original.Stations[Original.Stations.CurrentIndex] as Station;
 
         private int ToDoorSideNumber(DoorSide doorSide) => (int)doorSide * 2 - 1;
     }

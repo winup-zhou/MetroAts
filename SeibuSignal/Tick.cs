@@ -33,7 +33,9 @@ namespace SeibuSignal {
                     if (SeibuATS.ATSEnable) {
                         SeibuATS.Tick(state, sectionManager);
                         if (SeibuATS.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), SeibuATS.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, SeibuATS.BrakeCommand);
+                            else AtsHandles.BrakeNotch = SeibuATS.BrakeCommand;
                             BrakeTriggered = true;
                         }
                     } else {
@@ -54,18 +56,22 @@ namespace SeibuSignal {
                     if (SeibuATS.ATSEnable) {
                         SeibuATS.Tick(state, sectionManager);
                         if (SeibuATS.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), SeibuATS.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, SeibuATS.BrakeCommand);
+                            else AtsHandles.BrakeNotch = SeibuATS.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (ATC.ATCEnable && !(currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49))
                             ATC.ResetAll();
                     }
                     if (ATC.ATCEnable) {
+                        ATC.Tick(state, handles, currentSection, corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset, corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot);
                         if (ATC.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), ATC.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = ATC.BrakeCommand;
                             BrakeTriggered = true;
                         }
-                        if (ATC.BrakeCommand > 0) BrakeTriggered = true;
                         if (SeibuATS.ATSEnable)
                             SeibuATS.ResetAll();
                     }

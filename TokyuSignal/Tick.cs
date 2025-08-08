@@ -41,7 +41,9 @@ namespace TokyuSignal {
                     if (ATC.ATCEnable) {
                         ATC.Tick(state, currentSection, nextSection, handles, Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset);
                         if (ATC.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), ATC.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = ATC.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (TokyuATS.ATSEnable) TokyuATS.ResetAll();
@@ -49,7 +51,9 @@ namespace TokyuSignal {
                     if (TokyuATS.ATSEnable) {
                         TokyuATS.Tick(state);
                         if (TokyuATS.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), TokyuATS.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, TokyuATS.BrakeCommand);
+                            else AtsHandles.BrakeNotch = TokyuATS.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (ATC.ATCEnable) ATC.ResetAll();
@@ -63,7 +67,7 @@ namespace TokyuSignal {
                             AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                             AtsHandles.ReverserPosition = ReverserPosition.N;
                         }
-                        if (!ATC.ATCEnable) 
+                        if (!ATC.ATCEnable)
                             sound[256] = Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.ATC ? (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
                     } else if (corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset) {
                         if (ATC.ATCEnable) ATC.ResetAll();
@@ -81,7 +85,9 @@ namespace TokyuSignal {
                     if (ATC.ATCEnable) {
                         ATC.Tick(state, currentSection, nextSection, handles, corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset);
                         if (ATC.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), ATC.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = ATC.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (TokyuATS.ATSEnable) TokyuATS.ResetAll();
@@ -89,7 +95,9 @@ namespace TokyuSignal {
                     if (TokyuATS.ATSEnable) {
                         TokyuATS.Tick(state);
                         if (TokyuATS.BrakeCommand > 0) {
-                            AtsHandles.BrakeNotch = Math.Max(Math.Min(AtsHandles.BrakeNotch, vehicleSpec.BrakeNotches + 1), TokyuATS.BrakeCommand);
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2) 
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, TokyuATS.BrakeCommand);
+                            else AtsHandles.BrakeNotch = TokyuATS.BrakeCommand;
                             BrakeTriggered = true;
                         }
                         if (ATC.ATCEnable) ATC.ResetAll();
@@ -99,7 +107,7 @@ namespace TokyuSignal {
                         if (!ATC.ATCEnable) {
                             if (corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset) {
                                 ATC.Init(state.Time);
-                            } else if(corePlugin.SignalSWPos == MetroAts.SignalSWList.TokyuATS) {
+                            } else if (corePlugin.SignalSWPos == MetroAts.SignalSWList.TokyuATS) {
                                 ATC.InitNow();
                             }
                         }
@@ -108,7 +116,7 @@ namespace TokyuSignal {
                         //    AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                         //    AtsHandles.ReverserPosition = ReverserPosition.N;
                         //}
-                        if (!ATC.ATCEnable)sound[256] = (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC)
+                        if (!ATC.ATCEnable) sound[256] = (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC)
                             ? (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
                     } else if (corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset) {
                         if (ATC.ATCEnable) ATC.ResetAll();
