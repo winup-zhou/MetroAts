@@ -19,6 +19,18 @@ namespace ConductorlessAddon {
         Continue = 2        // Continue
     }
 
+    public enum KeyPosList {
+        Tokyu = 0,
+        None = 1,
+        Metro = 2,
+        Tobu = 3,
+        Seibu = 4,
+        Sotetsu = 5,
+        JR = 6,
+        ToyoKosoku = 7,
+        Odakyu = 8
+    }
+
     [Plugin(PluginType.VehiclePlugin)]
     public partial class ConductorlessAddon : AssemblyPluginBase {
         private readonly INative Native;
@@ -29,6 +41,8 @@ namespace ConductorlessAddon {
         private static CorePlugin corePlugin;
 
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_SignalSW;
+        private static int Direction = 0; //0:未設定 1:上り 2:下り
+        private static KeyPosList LineDef = KeyPosList.None;
 
         public ConductorlessAddon(PluginBuilder services) : base(services) {
             Config.Load();

@@ -60,6 +60,9 @@ namespace MetroAts {
         public SignalSWList SignalSWPos {  get { return Config.SignalSWLists[NowSignalSW]; } }
         public bool SubPluginEnabled { set; get; } = false;
 
+        private static int Direction = 0; //0:未設定 1:上り 2:下り
+        private static KeyPosList LineDef = KeyPosList.None;
+
         public MetroAts(PluginBuilder services) : base(services) {
             Config.Load();
 
@@ -70,6 +73,7 @@ namespace MetroAts {
             Native.AtsKeys.AnyKeyPressed += KeyDown;
             Native.AtsKeys.AnyKeyReleased += KeyUp;
             Native.VehicleSpecLoaded += SetVehicleSpec;
+            Native.BeaconPassed += SetBeaconData;
         }
 
         public override void Dispose() {
@@ -77,6 +81,7 @@ namespace MetroAts {
             Native.DoorClosed -= DoorClosed;
             Native.DoorOpened -= DoorOpened;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
+            Native.BeaconPassed -= SetBeaconData;
         }
     }
 }

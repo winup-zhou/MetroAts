@@ -38,5 +38,9 @@ namespace ConductorlessAddon {
            
         }
 
+        private void SetBeaconData(object sender, BeaconPassedEventArgs e) {
+
+        }
+
     }
 }

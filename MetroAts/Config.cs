@@ -27,6 +27,8 @@ namespace MetroAts {
         public static int Panel_keyoutput = 1023;
         public static int Panel_SignalSWoutput = 1023;
 
+        public static bool EnforceKeyPos = false;
+
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroAtsConfig.ini")).FullName;
             if (File.Exists(path)) {
@@ -45,6 +47,7 @@ namespace MetroAts {
                             break;
                         }
                     }
+                    ReadConfig("keys", "enforce", ref EnforceKeyPos);
 
                     var SignalSWString = "";
                     ReadConfig("signalsw", "positions", ref SignalSWString);
