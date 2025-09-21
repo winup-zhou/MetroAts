@@ -61,6 +61,8 @@ namespace MetroPIAddon {
         private static int FDmode;
         private static bool NeedConductorBuzzer;
         private static bool UpdateRequested = false;
+        private static int Direction = 0; //0:未設定 1:上り 2:下り
+        private static KeyPosList LineDef = KeyPosList.None;
 
         public MetroPIAddon(PluginBuilder services) : base(services) {
             Config.Load();

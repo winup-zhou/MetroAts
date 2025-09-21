@@ -30,6 +30,7 @@ namespace MetroPIAddon {
         public static Keys InstrumentLightKey = Keys.None;
         public static double SnowBrakePressure = 0.0;
         public static int MaxTrainTypeCount = 19;
+        public static int Panel_LineDefOutput = 1024;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroPIAddon.ini")).FullName;
@@ -62,6 +63,7 @@ namespace MetroPIAddon {
                     ReadConfig("snowbrake", "pressure", ref SnowBrakePressure);
 
                     ReadConfig("traininfo", "typecounts", ref MaxTrainTypeCount);
+                    ReadConfig("traininfo", "linedef", ref Panel_LineDefOutput);
                 } catch (Exception ex) {
                     throw ex;
                 }

@@ -174,7 +174,20 @@ namespace MetroPIAddon {
                             break;
                     }
                     break;
-
+                case 42:
+                    switch (e.Optional / 10) {
+                        default: LineDef = KeyPosList.None; break;
+                        case 1: LineDef = KeyPosList.Metro; break;
+                        case 2: LineDef = KeyPosList.Tobu; break;
+                        case 3: LineDef = KeyPosList.Tokyu; break;
+                        case 4: LineDef = KeyPosList.Seibu; break;
+                        case 5: LineDef = KeyPosList.Sotetsu; break;
+                        case 6: LineDef = KeyPosList.JR; break;
+                        case 7: LineDef = KeyPosList.Odakyu; break;
+                        case 8: LineDef = KeyPosList.ToyoKosoku; break;
+                    }
+                    Direction = e.Optional % 10;
+                    break;
                 case 46://FD OPEN SOUND CHANGE
                     if (e.Optional < Config.FDOpenSounds.Count && e.Optional >= 0) {
                         if (MapSoundList is null) FDOpenSoundIndex = e.Optional;

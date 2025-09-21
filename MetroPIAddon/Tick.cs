@@ -292,6 +292,18 @@ namespace MetroPIAddon {
                 }
             }
 
+            switch (LineDef) {
+                case KeyPosList.None: panel[Config.Panel_LineDefOutput] = 0; break;
+                case KeyPosList.Metro: panel[Config.Panel_LineDefOutput] = 1; break;
+                case KeyPosList.Tobu: panel[Config.Panel_LineDefOutput] = 2; break;
+                case KeyPosList.Tokyu: panel[Config.Panel_LineDefOutput] = 3; break;
+                case KeyPosList.Seibu: panel[Config.Panel_LineDefOutput] = 4; break;
+                case KeyPosList.Sotetsu: panel[Config.Panel_LineDefOutput] = 5; break;
+                case KeyPosList.JR: panel[Config.Panel_LineDefOutput] = 6; break;
+                case KeyPosList.Odakyu: panel[Config.Panel_LineDefOutput] = 7; break;
+                case KeyPosList.ToyoKosoku: panel[Config.Panel_LineDefOutput] = 8; break;
+            }
+
             sound[5] = (int)StopAnnounce;
             sound[6] = (int)StopAnnounce_Confirmed;
             sound[12] = (int)Lamp_SW_on;
