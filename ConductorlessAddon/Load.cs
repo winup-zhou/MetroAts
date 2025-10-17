@@ -54,6 +54,7 @@ namespace ConductorlessAddon {
             Native.AtsKeys.AnyKeyPressed += KeyDown;
             Native.AtsKeys.AnyKeyReleased += KeyUp;
             Native.VehicleSpecLoaded += SetVehicleSpec;
+            Native.BeaconPassed += SetBeaconData;
         }
 
         private void OnAllPluginsLoaded(object sender, EventArgs e) {
@@ -70,6 +71,7 @@ namespace ConductorlessAddon {
             Native.DoorClosed -= DoorClosed;
             Native.DoorOpened -= DoorOpened;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
+            Native.BeaconPassed -= SetBeaconData;
         }
     }
 }

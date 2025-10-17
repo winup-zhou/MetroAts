@@ -19,7 +19,7 @@ namespace MetroAts {
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
                     if (Config.KeyPosLists[i] == KeyPosList.None) {
-                        NowKey = i;
+                        NoneKeyPos = NowKey = i;
                         break;
                     }
                 }
@@ -75,23 +75,23 @@ namespace MetroAts {
                             NowKey--;
                             Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
-                    } else if (Config.KeyPosLists[NowKey] != KeyPosList.None) {
-                        for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
-                            if (Config.KeyPosLists[i] == KeyPosList.None) {
-                                if (NowKey > i) {
-                                    NowKey = i;
-                                    Sound_Keyout = AtsSoundControlInstruction.Play;
+                    } else {
+                        if (NowKey > NoneKeyPos) {
+                            for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
+                                if (Config.KeyPosLists[i] == KeyPosList.None) {
+                                    if (NowKey > i) {
+                                        NowKey = i;
+                                        Sound_Keyout = AtsSoundControlInstruction.Play;
+                                    }
+                                    break;
                                 }
-                                break;
                             }
+                        } else if(NowKey > 0) {
+                            NowKey--;
+                            Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
-                        if (LineDef == KeyPosList.None || !Config.EnforceKeyPos) {
-                            if (Config.KeyPosLists[NowKey] != KeyPosList.None && NowKey > 0) {
-                                NowKey--;
-                                Sound_Keyin = AtsSoundControlInstruction.Play;
-                            }
-                        } 
                     }
+                    
                 } else if (e.KeyName == AtsKeyName.J) {
                     if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey < Config.KeyPosLists.Count - 1) {
                         if (LineDef != KeyPosList.None && Config.EnforceKeyPos) {
@@ -109,21 +109,21 @@ namespace MetroAts {
                             Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
                     } else {
-                        for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
-                            if (Config.KeyPosLists[i] == KeyPosList.None) {
-                                if (NowKey < i) {
-                                    NowKey = i;
-                                    Sound_Keyout = AtsSoundControlInstruction.Play;
+                        if (NowKey < NoneKeyPos) {
+                            for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
+                                if (Config.KeyPosLists[i] == KeyPosList.None) {
+                                    if (NowKey < i) {
+                                        NowKey = i;
+                                        Sound_Keyout = AtsSoundControlInstruction.Play;
+                                    }
+                                    break;
                                 }
-                                break;
                             }
+                        } else if (NowKey < Config.KeyPosLists.Count - 1) {
+                            NowKey++;
+                            Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
-                        if (LineDef == KeyPosList.None || !Config.EnforceKeyPos) {
-                            if (Config.KeyPosLists[NowKey] != KeyPosList.None && NowKey < Config.KeyPosLists.Count - 1) {
-                                NowKey++;
-                                Sound_Keyin = AtsSoundControlInstruction.Play;
-                            }
-                        }   
+                            
                     }
                 } else if (e.KeyName == AtsKeyName.G) {
                     if (Config.SignalSW_loop) {

@@ -39,7 +39,24 @@ namespace ConductorlessAddon {
         }
 
         private void SetBeaconData(object sender, BeaconPassedEventArgs e) {
-
+            var state = Native.VehicleState;
+            if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
+            switch (e.Type) {
+                case 42:
+                    switch (e.Optional / 10) {
+                        default: LineDef = KeyPosList.None; break;
+                        case 1: LineDef = KeyPosList.Metro; break;
+                        case 2: LineDef = KeyPosList.Tobu; break;
+                        case 3: LineDef = KeyPosList.Tokyu; break;
+                        case 4: LineDef = KeyPosList.Seibu; break;
+                        case 5: LineDef = KeyPosList.Sotetsu; break;
+                        case 6: LineDef = KeyPosList.JR; break;
+                        case 7: LineDef = KeyPosList.Odakyu; break;
+                        case 8: LineDef = KeyPosList.ToyoKosoku; break;
+                    }
+                    Direction = e.Optional % 10;
+                    break;
+            }
         }
 
     }

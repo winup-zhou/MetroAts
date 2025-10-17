@@ -53,6 +53,7 @@ namespace MetroAts {
 
         public static int NowKey;
         public static int NowSignalSW;
+        private static int NoneKeyPos;
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_SignalSW;
 
         //Infomation that should be readable by sub-plugins
