@@ -68,6 +68,18 @@ namespace MetroAts {
             } else throw new BveFileLoadException("Unable to find configuration file: MetroAtsConfig.ini", "MetroAts");
         }
 
+        public static void Dispose() {
+            KeyPosLists.Clear();
+            SignalSWLists.Clear();
+            SignalSW_loop = false;
+
+            Panel_brakeoutput = 1023;
+            Panel_poweroutput = 1023;
+            Panel_keyoutput = 1023;
+            Panel_SignalSWoutput = 1023;
+            EnforceKeyPos = false;
+        }
+
         private static void ReadConfig(string Section, string Key, ref int Value) {
             var OriginalVal = Value;
             var RetVal = new StringBuilder(buffer_size);

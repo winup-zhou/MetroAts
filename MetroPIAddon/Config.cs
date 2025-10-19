@@ -70,6 +70,23 @@ namespace MetroPIAddon {
             } else throw new BveFileLoadException("Unable to find configuration file: MetroPIAddon.ini", "MetroPIAddon");
         }
 
+        public static void Dispose() {
+            StandAloneKey = KeyPosList.None;
+            FDOpenSounds.Clear(); 
+            FDCloseSounds.Clear();
+            FDsoundenable = FDsinglelamp = false;
+            Delay_FDclosed = 1.0;
+            CurrentPanelIndex = 1023;
+            MaxCurrentSpeed = 20.0;
+            Current_abs = false;
+            DriverBuzzerKey = Keys.None;
+            SnowBrakeKey = Keys.None;
+            InstrumentLightKey = Keys.None;
+            SnowBrakePressure = 0.0;
+            MaxTrainTypeCount = 19;
+            Panel_LineDefOutput = 1024;
+        }
+
         private static void ReadConfig(string Section, string Key, ref int Value) {
             var OriginalVal = Value;
             var RetVal = new StringBuilder(buffer_size);

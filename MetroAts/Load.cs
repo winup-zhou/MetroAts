@@ -78,11 +78,17 @@ namespace MetroAts {
         }
 
         public override void Dispose() {
+            Config.Dispose();
+
             Native.Started -= Initialize;
             Native.DoorClosed -= DoorClosed;
             Native.DoorOpened -= DoorOpened;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
             Native.BeaconPassed -= SetBeaconData;
+
+            Direction = 0; //0:未設定 1:上り 2:下り
+            LineDef = KeyPosList.None;
+            isDoorOpen = false;
         }
     }
 }

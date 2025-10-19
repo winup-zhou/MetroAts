@@ -58,8 +58,8 @@ namespace MetroPIAddon {
         private static int CurrentSta, NextSta, Destination, TrainNumber, TrainType, lastTrainType, TrainRunningNumber;
         private static TimeSpan DoorOpenTime = TimeSpan.Zero, DoorClosedTime = TimeSpan.Zero, Conductorbuzzertime_global = TimeSpan.Zero, Conductorbuzzertime_station = TimeSpan.Zero,
             FDOpenTime = TimeSpan.Zero, FDCloseTime = TimeSpan.Zero;
-        private static int FDmode;
-        private static bool NeedConductorBuzzer;
+        private static int FDmode = 0;
+        private static bool NeedConductorBuzzer = false;
         private static bool UpdateRequested = false;
         private static int Direction = 0; //0:未設定 1:上り 2:下り
         private static KeyPosList LineDef = KeyPosList.None;
@@ -93,6 +93,8 @@ namespace MetroPIAddon {
         }
 
         public override void Dispose() {
+            Config.Dispose();
+
             Native.Started -= Initialize;
             Native.DoorClosed -= DoorClosed;
             Native.DoorOpened -= DoorOpened;
@@ -104,6 +106,26 @@ namespace MetroPIAddon {
             BveHacker.MainFormSource.KeyUp -= OnKeyUp;
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
+
+            isDoorOpen = false;
+            StandAloneMode = false;
+            Keyin = false;
+            MapSoundList.Clear();
+            MapStationList.Clear();
+            lastLeftDoorState = lastRightDoorState = DoorState.Close;
+            lastBrakeNotch = 0;
+
+            Snowbrake = InstrumentLight = isStopAnnounce = false;
+         
+            FDOpenSoundIndex = FDCloseSoundIndex = 0;
+
+            CurrentSta = NextSta = Destination = TrainNumber = TrainType = lastTrainType = TrainRunningNumber = 0;
+            DoorOpenTime = DoorClosedTime = Conductorbuzzertime_global =  Conductorbuzzertime_station = FDOpenTime = FDCloseTime = TimeSpan.Zero;
+            FDmode = 0;
+            NeedConductorBuzzer = false;
+            UpdateRequested = false;
+            Direction = 0; //0:未設定 1:上り 2:下り
+            LineDef = KeyPosList.None;
         }
     }
 }
