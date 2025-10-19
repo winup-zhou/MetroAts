@@ -139,19 +139,14 @@ namespace TobuSignal {
 
                         if (ValidSections < 3 && ValidSections > 0) {
                             ATCPattern = new SpeedPattern(Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)),
-                                NextSection.Location - 25,
-                                sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 ?
-                                Math.Max(SignalIndexToSpeed(PreviousSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)) :
-                                Math.Max(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)));
+                                NextSection.Location - 25, Math.Min(Config.MaxSpeed, LimitPattern.AtLocation(state.Location, SignalPatternDec)));
                         } else if (ValidSections < 1) {
                             ATCPattern = new SpeedPattern(Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)),
                                 currentSection.Location,
                                 Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)));
                         } else {
                             ATCPattern = new SpeedPattern(0, stopSignalSection.Location - 25,
-                                sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 ?
-                                Math.Max(SignalIndexToSpeed(PreviousSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)) :
-                                Math.Max(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)));
+                                Math.Min(Config.MaxSpeed, LimitPattern.AtLocation(state.Location, SignalPatternDec)));
                         }
 
                         var lastATCTargetSpeed = ATCTargetSpeed;
@@ -178,8 +173,7 @@ namespace TobuSignal {
                                 ORPlamp = false;
                             }
                         } else {
-                            if (LimitPattern != SpeedPattern.inf && state.Location < LimitPatternSignalEndLocation &&
-                                    LimitPattern.AtLocation(NextSection.Location - 26, SignalPatternDec) >= Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex))) {
+                            if (LimitPattern != SpeedPattern.inf && state.Location < LimitPatternSignalEndLocation) {
                                 ORPlamp = true;
                             } else ORPlamp = false;
                         }
