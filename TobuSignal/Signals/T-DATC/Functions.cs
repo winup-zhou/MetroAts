@@ -114,9 +114,9 @@ namespace TobuSignal {
                     if (ATCEnable)
                         LimitPattern = SpeedPattern.inf;
                     break;
-                //case 42:
-                //    ATCswitchoverSection = true;
-                //    break;
+                    //case 42:
+                    //    ATCswitchoverSection = true;
+                    //    break;
             }
         }
 

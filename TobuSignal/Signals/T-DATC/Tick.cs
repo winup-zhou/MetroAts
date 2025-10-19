@@ -122,8 +122,8 @@ namespace TobuSignal {
 
                         //開通情報
                         if (sectionManager.StopSignalSectionIndexes.Count > 0) {
-                            if (sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 && stopSignalSection.CurrentSignalIndex > 8
-                            && stopSignalSection.CurrentSignalIndex < 34 && ValidSections > 0) {
+                            if (sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 && stopSignalSection.CurrentSignalIndex >= 109
+                            && stopSignalSection.CurrentSignalIndex < 134 && ValidSections > 0) {
                                 var pretrainLocation = stopSignalSection.Location - state.Location;
                                 if (pretrainLocation < 200) ATC_EndPointDistance = 0;
                                 else if (pretrainLocation >= 200 && pretrainLocation < 400) ATC_EndPointDistance = 1;
@@ -226,7 +226,7 @@ namespace TobuSignal {
                             ATC_90 = ATCTargetSpeed == 90;
                             ATC_95 = ATCTargetSpeed == 95;
                             ATC_100 = ATCTargetSpeed == 100;
-                            ATC_100 = ATCTargetSpeed == 105;
+                            ATC_105 = ATCTargetSpeed == 105;
                             ATC_110 = ATCTargetSpeed == 110;
                         } else {
                             ATCNeedle = ATCTargetSpeed;

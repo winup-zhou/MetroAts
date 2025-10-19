@@ -31,9 +31,11 @@ namespace TobuSignal {
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
             if (SignalEnable) {
+                if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                 if (currentSection.CurrentSignalIndex >= 109 && currentSection.CurrentSignalIndex != 134 && currentSection.CurrentSignalIndex < 149 && Config.EnableATC) {
                     //T-DATC
                     if (T_DATC.ATCEnable) {
+                        T_DATC.Tick(state, sectionManager, handles);
                         if (T_DATC.BrakeCommand > 0) {
                             if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
                                 AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, T_DATC.BrakeCommand);
@@ -73,7 +75,6 @@ namespace TobuSignal {
                     sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu ?
                         (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
                 if (!StandAloneMode) {
-                    if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                     if (corePlugin.KeyPos != MetroAts.KeyPosList.Tobu || corePlugin.SignalSWPos != MetroAts.SignalSWList.Tobu) {
                         BrakeTriggered = false;
                         SignalEnable = false;
