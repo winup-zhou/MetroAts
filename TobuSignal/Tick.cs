@@ -32,7 +32,7 @@ namespace TobuSignal {
 
             if (SignalEnable) {
                 if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
-                if (currentSection.CurrentSignalIndex >= 109 && currentSection.CurrentSignalIndex != 134 && currentSection.CurrentSignalIndex < 149 && Config.EnableATC) {
+                if (currentSection.CurrentSignalIndex > 4 && Config.EnableATC) {
                     //T-DATC
                     if (T_DATC.ATCEnable) {
                         T_DATC.Tick(state, sectionManager, handles);
