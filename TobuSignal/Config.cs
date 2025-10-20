@@ -23,6 +23,7 @@ namespace TobuSignal {
 
         //≈‰÷√œÓ
         public static double MaxSpeed = 100;
+        public static double TrainLength = 200;
         public static bool EnableATC = true;
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
         public static bool SeparateATCGRlamp = false;//1:pilotlamp 0:needle
@@ -37,6 +38,7 @@ namespace TobuSignal {
                 try {
                     //train
                     ReadConfig("train", "maxspeed", ref MaxSpeed);
+                    ReadConfig("train", "length", ref TrainLength);
                     ReadConfig("train", "enableatc", ref EnableATC);
 
                     //panel
@@ -54,6 +56,7 @@ namespace TobuSignal {
 
         public static void Dispose() {
             MaxSpeed = 100;
+            TrainLength = 200;
             EnableATC = true;
             ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
             SeparateATCGRlamp = false;//1:pilotlamp 0:needle

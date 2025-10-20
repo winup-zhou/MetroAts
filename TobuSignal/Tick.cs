@@ -31,7 +31,6 @@ namespace TobuSignal {
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
             if (SignalEnable) {
-                if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                 if (currentSection.CurrentSignalIndex > 4 && Config.EnableATC) {
                     //T-DATC
                     if (T_DATC.ATCEnable) {
@@ -75,6 +74,7 @@ namespace TobuSignal {
                     sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu ?
                         (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
                 if (!StandAloneMode) {
+                    if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                     if (corePlugin.KeyPos != MetroAts.KeyPosList.Tobu || corePlugin.SignalSWPos != MetroAts.SignalSWList.Tobu) {
                         BrakeTriggered = false;
                         SignalEnable = false;
