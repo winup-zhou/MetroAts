@@ -189,13 +189,13 @@ namespace MetroPIAddon {
                 } else {
                     panel[181] = panel[182] = 1;
                     if (StandAloneMode && Keyin) {
-                        if (Math.Abs(state.Location - currentStation.Location) < 10 && state.Speed < 15) {
+                        if (Math.Abs(state.Location - currentStation.Location) < 10 && state.Speed < 15 && CCTVenable) {
                             panel[193] = 1;
                         } else {
                             panel[193] = 0;
                         }
                     } else if (corePlugin.KeyPos != MetroAts.KeyPosList.None) {
-                        if (Math.Abs(state.Location - currentStation.Location) < 10 && state.Speed < 15) {
+                        if (Math.Abs(state.Location - currentStation.Location) < 10 && state.Speed < 15 && CCTVenable) {
                             panel[193] = 1;
                         } else {
                             panel[193] = 0;
