@@ -110,7 +110,7 @@ namespace TobuSignal {
                     var lastLimitPattern = LimitPattern;
                     if (ATCEnable) {
                         LimitPatternSignalEndLocation = state.Location + e.Distance;
-                        LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.TargetSpeed);
+                        LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.AtLocation(state.Location ,SignalPatternDec));
                         LimitPatternSignalTriggerLoc = state.Location;
                     }
                     break;
