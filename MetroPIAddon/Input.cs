@@ -187,6 +187,7 @@ namespace MetroPIAddon {
                         case 7: LineDef = KeyPosList.Odakyu; break;
                         case 8: LineDef = KeyPosList.ToyoKosoku; break;
                     }
+                    RadioChannel = LineDef;
                     Direction = e.Optional % 10;
                     UpdateRequested = true;
                     break;
