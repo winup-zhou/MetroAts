@@ -159,11 +159,11 @@ namespace MetroPIAddon {
                     break;
                 case 33://車掌電鈴遅延
                     if (e.Optional < 100) {
-                        if (e.Optional != 99) Conductorbuzzertime_station = new TimeSpan(0, 0, e.Optional % 100);
+                        if (e.Optional != 99) Conductorbuzzertime_station = new TimeSpan(0, 0, e.Optional % 10);
                         else Conductorbuzzertime_station = TimeSpan.Zero;
                     } else {
                         Conductorbuzzertime_station = TimeSpan.Zero;
-                        if (e.Optional != 199) Conductorbuzzertime_global = new TimeSpan(0, 0, e.Optional % 100);
+                        if (e.Optional != 199) Conductorbuzzertime_global = new TimeSpan(0, 0, e.Optional % 10);
                         else Conductorbuzzertime_global = TimeSpan.Zero;
                     }
                     break;
