@@ -17,7 +17,8 @@ namespace TobuSignal {
         private static SpeedPattern ATCPattern = SpeedPattern.inf, StationPattern = SpeedPattern.inf, LimitPattern = SpeedPattern.inf, lastLimitPattern = SpeedPattern.inf;
         private static int TrackPos = 0, ValidSections = 0;
         private static bool EBUntilStop = false, ORPlamp = false, ServiceBrake = false;
-        private static int ATCTargetSpeed = 0, ATCPatternSpeed = 0;
+        private static int ATCTargetSpeed = 0; 
+        private static double ATCPatternSpeed = 0;
         private static int ZeroTargetSpeedBrakeSeconds = -1; //seconds to apply brake when target speed is 0
         private static double TrackPosDisplayEndLocation = 0, LimitPatternSignalEndLocation = 0, LimitPatternEndLocation = 0, LimitPatternSignalTriggerLoc = 0;
         private static TimeSpan InitializeStartTime = TimeSpan.Zero, LastDingTime = TimeSpan.Zero, BrakeStartTime = TimeSpan.Zero,
@@ -154,7 +155,7 @@ namespace TobuSignal {
 
                         var lastATCTargetSpeed = ATCTargetSpeed;
                         ATCTargetSpeed = (int)SignalIndexToSpeed(currentSection.CurrentSignalIndex);
-                        ATCPatternSpeed = (int)Math.Min(ATCPattern.AtLocation(state.Location, SignalPatternDec),
+                        ATCPatternSpeed = Math.Min(ATCPattern.AtLocation(state.Location, SignalPatternDec),
                             Math.Min(LimitPattern.AtLocation(state.Location, SignalPatternDec), lastLimitPattern.AtLocation(state.Location, SignalPatternDec)));
 
                         //パターン接近
@@ -209,7 +210,7 @@ namespace TobuSignal {
                             LastDingTime = TimeSpan.Zero;
                         }
 
-                        ORPNeedle = ((ATCPatternSpeed < 0) ? 0 : ATCPatternSpeed) * 10;
+                        ORPNeedle = (int)((ATCPatternSpeed < 0) ? 0 : ATCPatternSpeed) * 10;
 
                         //ATC速度指示
                         if (!Config.ATCLimitUseNeedle) {
