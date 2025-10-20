@@ -57,7 +57,7 @@ namespace MetroPIAddon {
 
         private static int CurrentSta, NextSta, Destination, TrainNumber, TrainType, lastTrainType, TrainRunningNumber;
         private static TimeSpan DoorOpenTime = TimeSpan.Zero, DoorClosedTime = TimeSpan.Zero, Conductorbuzzertime_global = TimeSpan.Zero, Conductorbuzzertime_station = TimeSpan.Zero,
-            FDOpenTime = TimeSpan.Zero, FDCloseTime = TimeSpan.Zero;
+            FDOpenTime = TimeSpan.Zero, FDCloseTime = TimeSpan.Zero, RadioChannelUpdateTime = TimeSpan.Zero;
         private static int FDmode = 0;
         private static bool NeedConductorBuzzer = false;
         private static bool UpdateRequested = false;
@@ -130,6 +130,7 @@ namespace MetroPIAddon {
             lastRadioChannel = KeyPosList.None;
             Direction = 0; //0:未設定 1:上り 2:下り
             LineDef = KeyPosList.None;
+            RadioChannelUpdateTime = TimeSpan.Zero;
         }
     }
 }

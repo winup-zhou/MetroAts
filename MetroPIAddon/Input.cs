@@ -19,6 +19,10 @@ namespace MetroPIAddon {
             var panel = Native.AtsPanelArray;
             isStopAnnounce = false;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
+                if (!StandAloneMode) {
+                    lastRadioChannel = RadioChannel;
+                    RadioChannel = (KeyPosList)corePlugin.KeyPos;
+                }
                 Keyin = false;
                 panel[167] = CurrentSta;
                 panel[168] = panel[169] = 0;
@@ -31,17 +35,6 @@ namespace MetroPIAddon {
                 panel[153] = D(TrainRunningNumber, 1);
                 panel[154] = D(TrainRunningNumber, 0);
                 panel[172] = Destination;
-                switch (RadioChannel) {
-                    case KeyPosList.None: panel[Config.Panel_RadiochannelOutput] = 0; break;
-                    case KeyPosList.Metro: panel[Config.Panel_RadiochannelOutput] = 1; break;
-                    case KeyPosList.Tobu: panel[Config.Panel_RadiochannelOutput] = 2; break;
-                    case KeyPosList.Tokyu: panel[Config.Panel_RadiochannelOutput] = 3; break;
-                    case KeyPosList.Seibu: panel[Config.Panel_RadiochannelOutput] = 4; break;
-                    case KeyPosList.Sotetsu: panel[Config.Panel_RadiochannelOutput] = 5; break;
-                    case KeyPosList.JR: panel[Config.Panel_RadiochannelOutput] = 6; break;
-                    case KeyPosList.Odakyu: panel[Config.Panel_RadiochannelOutput] = 7; break;
-                    case KeyPosList.ToyoKosoku: panel[Config.Panel_RadiochannelOutput] = 8; break;
-                }
                 UpdateRequested = false;
             }
         }
@@ -83,6 +76,11 @@ namespace MetroPIAddon {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
+                if (!StandAloneMode) {
+                    if (RadioChannelUpdateTime == TimeSpan.Zero) lastRadioChannel = RadioChannel;
+                    RadioChannel = (KeyPosList)corePlugin.KeyPos;
+                    RadioChannelUpdateTime = state.Time + new TimeSpan(0, 0, 10);
+                }
                 if (StandAloneMode && e.KeyName == AtsKeyName.I) {
                     Keyin = false;
                 } else if (StandAloneMode && e.KeyName == AtsKeyName.J) {
@@ -186,7 +184,6 @@ namespace MetroPIAddon {
                     }
                     break;
                 case 42:
-                    lastRadioChannel = LineDef;
                     switch (e.Optional / 10) {
                         default: LineDef = KeyPosList.None; break;
                         case 1: LineDef = KeyPosList.Metro; break;
@@ -198,7 +195,6 @@ namespace MetroPIAddon {
                         case 7: LineDef = KeyPosList.Odakyu; break;
                         case 8: LineDef = KeyPosList.ToyoKosoku; break;
                     }
-                    RadioChannel = LineDef;
                     Direction = e.Optional % 10;
                     UpdateRequested = true;
                     break;
