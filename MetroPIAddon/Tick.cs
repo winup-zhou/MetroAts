@@ -103,7 +103,7 @@ namespace MetroPIAddon {
                     }
                     
                     if (StandAloneMode) {
-                        if (Keyin && state.Speed < 15) {
+                        if (Keyin && state.Speed < 15 && CCTVenable) {
                             if (FDCloseTime != TimeSpan.Zero) {
                                 FDOpenTime = TimeSpan.Zero;
                                 if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
@@ -144,7 +144,7 @@ namespace MetroPIAddon {
                             }
                         } else panel[193] = 0;
                     } else {
-                        if (corePlugin.KeyPos != MetroAts.KeyPosList.None && state.Speed < 15) {
+                        if (corePlugin.KeyPos != MetroAts.KeyPosList.None && state.Speed < 15 && CCTVenable) {
                             if (FDCloseTime != TimeSpan.Zero) {
                                 FDOpenTime = TimeSpan.Zero;
                                 if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
