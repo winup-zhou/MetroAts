@@ -210,7 +210,7 @@ namespace TobuSignal {
                             LastDingTime = TimeSpan.Zero;
                         }
 
-                        ORPNeedle = (int)((ATCPatternSpeed < 0) ? 0 : ATCPatternSpeed) * 10;
+                        ORPNeedle = ((ATCPatternSpeed < 0) ? 0 : (int)(ATCPatternSpeed * 10.0)) ;
 
                         //ATC速度指示
                         if (!Config.ATCLimitUseNeedle) {
