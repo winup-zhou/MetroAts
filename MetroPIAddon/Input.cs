@@ -18,6 +18,7 @@ namespace MetroPIAddon {
         private void Initialize(object sender, StartedEventArgs e) {
             var panel = Native.AtsPanelArray;
             isStopAnnounce = false;
+            //NeedConductorBuzzer = false;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 Keyin = false;
                 panel[167] = CurrentSta;
@@ -31,6 +32,17 @@ namespace MetroPIAddon {
                 panel[153] = D(TrainRunningNumber, 1);
                 panel[154] = D(TrainRunningNumber, 0);
                 panel[172] = Destination;
+                switch (RadioChannel) {
+                    case KeyPosList.None: panel[Config.Panel_RadiochannelOutput] = 0; break;
+                    case KeyPosList.Metro: panel[Config.Panel_RadiochannelOutput] = 1; break;
+                    case KeyPosList.Tobu: panel[Config.Panel_RadiochannelOutput] = 2; break;
+                    case KeyPosList.Tokyu: panel[Config.Panel_RadiochannelOutput] = 3; break;
+                    case KeyPosList.Seibu: panel[Config.Panel_RadiochannelOutput] = 4; break;
+                    case KeyPosList.Sotetsu: panel[Config.Panel_RadiochannelOutput] = 5; break;
+                    case KeyPosList.JR: panel[Config.Panel_RadiochannelOutput] = 6; break;
+                    case KeyPosList.Odakyu: panel[Config.Panel_RadiochannelOutput] = 7; break;
+                    case KeyPosList.ToyoKosoku: panel[Config.Panel_RadiochannelOutput] = 8; break;
+                }
                 UpdateRequested = false;
             }
         }
@@ -147,11 +159,11 @@ namespace MetroPIAddon {
                     break;
                 case 33://車掌電鈴遅延
                     if (e.Optional < 100) {
-                        if (e.Optional != 99) Conductorbuzzertime_station = new TimeSpan(0, 0, e.Optional);
-                        else Conductorbuzzertime_station = TimeSpan.MinValue;
+                        if (e.Optional != 99) Conductorbuzzertime_station = new TimeSpan(0, 0, e.Optional % 100);
+                        else Conductorbuzzertime_station = TimeSpan.Zero;
                     } else {
-                        Conductorbuzzertime_station = TimeSpan.MinValue;
-                        if (e.Optional != 199) Conductorbuzzertime_global = new TimeSpan(0, 0, e.Optional);
+                        Conductorbuzzertime_station = TimeSpan.Zero;
+                        if (e.Optional != 199) Conductorbuzzertime_global = new TimeSpan(0, 0, e.Optional % 100);
                         else Conductorbuzzertime_global = TimeSpan.Zero;
                     }
                     break;

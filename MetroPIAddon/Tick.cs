@@ -315,12 +315,11 @@ namespace MetroPIAddon {
                 if (state.Speed > 5) NeedConductorBuzzer = false;
                 if (Conductorbuzzertime_station != TimeSpan.Zero) {
                     if (!isDoorOpen && state.Time > DoorClosedTime + Conductorbuzzertime_station) {
-                        if (Conductorbuzzertime_station != TimeSpan.MinValue)
-                            Conductorbuzzer_Depart = AtsSoundControlInstruction.Play;
+                        Conductorbuzzer_Depart = AtsSoundControlInstruction.Play;
                         Conductorbuzzertime_station = TimeSpan.Zero;
                         NeedConductorBuzzer = false;
                     }
-                } else if (Conductorbuzzertime_global != TimeSpan.Zero) {
+                } else if (Conductorbuzzertime_global != TimeSpan.Zero && Conductorbuzzertime_station == TimeSpan.Zero) {
                     if (!isDoorOpen && state.Time > DoorClosedTime + Conductorbuzzertime_global) {
                         Conductorbuzzer_Depart = AtsSoundControlInstruction.Play;
                         NeedConductorBuzzer = false;

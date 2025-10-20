@@ -86,7 +86,7 @@ namespace MetroAts {
                                     break;
                                 }
                             }
-                        } else if(NowKey > 0) {
+                        } else if(NowKey > 0 && !Config.EnforceKeyPos) {
                             NowKey--;
                             Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
@@ -119,7 +119,7 @@ namespace MetroAts {
                                     break;
                                 }
                             }
-                        } else if (NowKey < Config.KeyPosLists.Count - 1) {
+                        } else if (NowKey < Config.KeyPosLists.Count - 1 && !Config.EnforceKeyPos) {
                             NowKey++;
                             Sound_Keyin = AtsSoundControlInstruction.Play;
                         }

@@ -14,7 +14,7 @@ namespace TobuSignal {
         public static double[] ATCLimits = { -2, 60, 60, 60, 60, -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
             -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
             -2, 35, -2, -1, 35, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
-        private static SpeedPattern ATCPattern = SpeedPattern.inf, StationPattern = SpeedPattern.inf, LimitPattern = SpeedPattern.inf;
+        private static SpeedPattern ATCPattern = SpeedPattern.inf, StationPattern = SpeedPattern.inf, LimitPattern = SpeedPattern.inf, lastLimitPattern = SpeedPattern.inf;
         private static int TrackPos = 0, ValidSections = 0;
         private static bool EBUntilStop = false, ORPlamp = false, ServiceBrake = false;
         private static int ATCTargetSpeed = 0, ATCPatternSpeed = 0;
@@ -141,19 +141,21 @@ namespace TobuSignal {
 
                         if (ValidSections < 3 && ValidSections > 0) {
                             ATCPattern = new SpeedPattern(SignalIndexToSpeed(currentSection.CurrentSignalIndex),
-                                NextSection.Location - 25, Math.Min(Config.MaxSpeed, LimitPattern.AtLocation(state.Location, SignalPatternDec)));
+                                NextSection.Location - 25, Math.Min(Config.MaxSpeed,
+                                Math.Min(LimitPattern.AtLocation(state.Location, SignalPatternDec), lastLimitPattern.AtLocation(state.Location, SignalPatternDec))));
                         } else if (ValidSections < 1) {
                             ATCPattern = new SpeedPattern(SignalIndexToSpeed(currentSection.CurrentSignalIndex),
                                 currentSection.Location,
                                 SignalIndexToSpeed(currentSection.CurrentSignalIndex));
                         } else {
                             ATCPattern = new SpeedPattern(0, stopSignalSection.Location - 25,
-                                Math.Min(Config.MaxSpeed, LimitPattern.AtLocation(state.Location, SignalPatternDec)));
+                                Math.Min(Config.MaxSpeed, Math.Min(LimitPattern.AtLocation(state.Location, SignalPatternDec), lastLimitPattern.AtLocation(state.Location, SignalPatternDec))));
                         }
 
                         var lastATCTargetSpeed = ATCTargetSpeed;
                         ATCTargetSpeed = (int)SignalIndexToSpeed(currentSection.CurrentSignalIndex);
-                        ATCPatternSpeed = (int)Math.Min(ATCPattern.AtLocation(state.Location, SignalPatternDec), LimitPattern.AtLocation(state.Location, SignalPatternDec));
+                        ATCPatternSpeed = (int)Math.Min(ATCPattern.AtLocation(state.Location, SignalPatternDec),
+                            Math.Min(LimitPattern.AtLocation(state.Location, SignalPatternDec), lastLimitPattern.AtLocation(state.Location, SignalPatternDec)));
 
                         //パターン接近
                         var lastATC_PatternApproach = ATC_PatternApproach;
@@ -264,6 +266,11 @@ namespace TobuSignal {
                         if (state.Location > LimitPatternEndLocation && LimitPatternEndLocation != 0) {
                             LimitPatternEndLocation = 0;
                             LimitPattern = SpeedPattern.inf;
+                        }
+
+                        if (state.Location > lastLimitPattern.Location) {
+                            LimitPattern.MaxSpeed = lastLimitPattern.TargetSpeed;
+                            lastLimitPattern = SpeedPattern.inf;
                         }
 
                         if (Math.Abs(state.Speed) > ATCPatternSpeed) {

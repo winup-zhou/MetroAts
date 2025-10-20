@@ -12,7 +12,7 @@ namespace TobuSignal {
         public static void ResetAll() {
             ATCPattern = SpeedPattern.inf;
             StationPattern = SpeedPattern.inf;
-            LimitPattern = SpeedPattern.inf;
+            lastLimitPattern = LimitPattern = SpeedPattern.inf;
             TrackPos = 0;
             BrakeCommand = 0;
             ORPlamp = false;
@@ -107,10 +107,10 @@ namespace TobuSignal {
                         StationPattern = new SpeedPattern(0, state.Location + e.Optional + 25);
                     break;
                 case 44:
-                    var lastLimitPattern = LimitPattern;
+                    lastLimitPattern = LimitPattern;
                     if (ATCEnable) {
                         LimitPatternSignalEndLocation = state.Location + e.Distance;
-                        LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.AtLocation(state.Location ,SignalPatternDec));
+                        LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.AtLocation(state.Location, SignalPatternDec));
                         LimitPatternSignalTriggerLoc = state.Location;
                     }
                     break;
