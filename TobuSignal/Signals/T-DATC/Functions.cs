@@ -118,7 +118,7 @@ namespace TobuSignal {
                     if (ATCEnable)
                         LimitPatternEndLocation = state.Location + Config.TrainLength;
                     break;
-                case 42:
+                case 49:
                     if (ATCEnable)
                         ZeroTargetSpeedBrakeSeconds = e.Optional;
                     break;
