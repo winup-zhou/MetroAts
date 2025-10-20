@@ -248,7 +248,7 @@ namespace MetroPIAddon {
                     panel[151] = panel[152] = lastTrainType;
                 }
             } else {
-                if (state.Time > DoorClosedTime + new TimeSpan(0, 0, 15) && DoorClosedTime != TimeSpan.Zero) {
+                if (state.Time > DoorClosedTime + new TimeSpan(0, 0, 10) && DoorClosedTime != TimeSpan.Zero) {
                     panel[167] = 0;
                     panel[168] = CurrentSta;
                     panel[169] = NextSta;

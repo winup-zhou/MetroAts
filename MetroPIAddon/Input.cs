@@ -18,7 +18,6 @@ namespace MetroPIAddon {
         private void Initialize(object sender, StartedEventArgs e) {
             var panel = Native.AtsPanelArray;
             isStopAnnounce = false;
-            //NeedConductorBuzzer = false;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 Keyin = false;
                 panel[167] = CurrentSta;
