@@ -129,9 +129,9 @@ namespace MetroPIAddon {
                     CurrentSta = e.Optional / 1000;
                     NextSta = e.Optional % 1000;
                     break;
-                //case 49://ドア開側
-                //    doorSide = e.Optional;
-                //    break;
+                case 51://CCTV設定
+                    CCTVenable = e.Optional > 0;
+                    break;
                 case 14://連動表示灯
                     FDmode = e.Optional;
                     break;
@@ -175,6 +175,7 @@ namespace MetroPIAddon {
                     }
                     break;
                 case 42:
+                    lastRadioChannel = LineDef;
                     switch (e.Optional / 10) {
                         default: LineDef = KeyPosList.None; break;
                         case 1: LineDef = KeyPosList.Metro; break;
@@ -187,6 +188,7 @@ namespace MetroPIAddon {
                         case 8: LineDef = KeyPosList.ToyoKosoku; break;
                     }
                     Direction = e.Optional % 10;
+                    UpdateRequested = true;
                     break;
                 case 46://FD OPEN SOUND CHANGE
                     if (e.Optional < Config.FDOpenSounds.Count && e.Optional >= 0) {

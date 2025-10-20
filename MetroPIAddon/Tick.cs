@@ -231,8 +231,20 @@ namespace MetroPIAddon {
                     if (UpdateRequested) {
                         UpdateRequested = false;
                         lastTrainType = TrainType;
+                        lastRadioChannel = RadioChannel;
                     }
                 } else {
+                    switch (lastRadioChannel) {
+                        case KeyPosList.None: panel[Config.Panel_RadiochannelOutput] = 0; break;
+                        case KeyPosList.Metro: panel[Config.Panel_RadiochannelOutput] = 1; break;
+                        case KeyPosList.Tobu: panel[Config.Panel_RadiochannelOutput] = 2; break;
+                        case KeyPosList.Tokyu: panel[Config.Panel_RadiochannelOutput] = 3; break;
+                        case KeyPosList.Seibu: panel[Config.Panel_RadiochannelOutput] = 4; break;
+                        case KeyPosList.Sotetsu: panel[Config.Panel_RadiochannelOutput] = 5; break;
+                        case KeyPosList.JR: panel[Config.Panel_RadiochannelOutput] = 6; break;
+                        case KeyPosList.Odakyu: panel[Config.Panel_RadiochannelOutput] = 7; break;
+                        case KeyPosList.ToyoKosoku: panel[Config.Panel_RadiochannelOutput] = 8; break;
+                    }
                     panel[151] = panel[152] = lastTrainType;
                 }
             } else {
@@ -242,10 +254,34 @@ namespace MetroPIAddon {
                     panel[169] = NextSta;
                     DoorClosedTime = TimeSpan.Zero;
                 }
-                if (UpdateRequested) 
+                if (UpdateRequested) {
+                    switch (lastRadioChannel) {
+                        case KeyPosList.None: panel[Config.Panel_RadiochannelOutput] = 0; break;
+                        case KeyPosList.Metro: panel[Config.Panel_RadiochannelOutput] = 1; break;
+                        case KeyPosList.Tobu: panel[Config.Panel_RadiochannelOutput] = 2; break;
+                        case KeyPosList.Tokyu: panel[Config.Panel_RadiochannelOutput] = 3; break;
+                        case KeyPosList.Seibu: panel[Config.Panel_RadiochannelOutput] = 4; break;
+                        case KeyPosList.Sotetsu: panel[Config.Panel_RadiochannelOutput] = 5; break;
+                        case KeyPosList.JR: panel[Config.Panel_RadiochannelOutput] = 6; break;
+                        case KeyPosList.Odakyu: panel[Config.Panel_RadiochannelOutput] = 7; break;
+                        case KeyPosList.ToyoKosoku: panel[Config.Panel_RadiochannelOutput] = 8; break;
+                    }
                     panel[151] = panel[152] = lastTrainType;
-                else
+                } else {
+                    switch (RadioChannel) {
+                        case KeyPosList.None: panel[Config.Panel_RadiochannelOutput] = 0; break;
+                        case KeyPosList.Metro: panel[Config.Panel_RadiochannelOutput] = 1; break;
+                        case KeyPosList.Tobu: panel[Config.Panel_RadiochannelOutput] = 2; break;
+                        case KeyPosList.Tokyu: panel[Config.Panel_RadiochannelOutput] = 3; break;
+                        case KeyPosList.Seibu: panel[Config.Panel_RadiochannelOutput] = 4; break;
+                        case KeyPosList.Sotetsu: panel[Config.Panel_RadiochannelOutput] = 5; break;
+                        case KeyPosList.JR: panel[Config.Panel_RadiochannelOutput] = 6; break;
+                        case KeyPosList.Odakyu: panel[Config.Panel_RadiochannelOutput] = 7; break;
+                        case KeyPosList.ToyoKosoku: panel[Config.Panel_RadiochannelOutput] = 8; break;
+                    }
                     panel[151] = panel[152] = TrainType;
+                }
+                    
             }
 
             if (Snowbrake && state.BcPressure < Config.SnowBrakePressure) {

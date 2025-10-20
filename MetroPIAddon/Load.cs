@@ -61,8 +61,9 @@ namespace MetroPIAddon {
         private static int FDmode = 0;
         private static bool NeedConductorBuzzer = false;
         private static bool UpdateRequested = false;
+        private static bool CCTVenable = true;
         private static int Direction = 0; //0:未設定 1:上り 2:下り
-        private static KeyPosList LineDef = KeyPosList.None;
+        private static KeyPosList LineDef = KeyPosList.None, RadioChannel = KeyPosList.None, lastRadioChannel = KeyPosList.None;
 
         public MetroPIAddon(PluginBuilder services) : base(services) {
             Config.Load();
@@ -124,6 +125,9 @@ namespace MetroPIAddon {
             FDmode = 0;
             NeedConductorBuzzer = false;
             UpdateRequested = false;
+            CCTVenable = true;
+            RadioChannel = KeyPosList.None;
+            lastRadioChannel = KeyPosList.None;
             Direction = 0; //0:未設定 1:上り 2:下り
             LineDef = KeyPosList.None;
         }
