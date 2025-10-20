@@ -167,10 +167,11 @@ namespace TobuSignal {
                         //P表示灯
                         var lastORPlamp = ORPlamp;
 
-                        if (ValidSections < 3 && ValidSections > 0 && ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec) > SignalIndexToSpeed(currentSection.CurrentSignalIndex)) {
+                        if (ValidSections < 3 && ValidSections > 0
+                            && Math.Min(Config.MaxSpeed, ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec)) > SignalIndexToSpeed(currentSection.CurrentSignalIndex)) {
                             ORPlamp = true;
                         } else if (sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 && ValidSections >= 3
-                            && Math.Min(Config.MaxSpeed, LimitPattern.AtLocation(NextSection.Location - 26, SignalPatternDec)) > SignalIndexToSpeed(currentSection.CurrentSignalIndex)) {
+                            && Math.Min(Config.MaxSpeed, ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec)) > SignalIndexToSpeed(currentSection.CurrentSignalIndex)) {
                             ORPlamp = true;
                         } else if (LimitPattern != SpeedPattern.inf && state.Location < LimitPatternSignalEndLocation && currentSection.Location > LimitPatternSignalTriggerLoc) {
                             ORPlamp = true;
