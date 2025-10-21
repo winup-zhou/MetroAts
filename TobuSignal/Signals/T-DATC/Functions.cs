@@ -30,6 +30,7 @@ namespace TobuSignal {
             ATCEnable = false;
             LimitPatternEndLocation = 0;
             LimitPatternSignalTriggerLoc = 0;
+            ReverseStartLoc = -1;
 
             BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 

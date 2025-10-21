@@ -20,7 +20,7 @@ namespace TobuSignal {
         private static int ATCTargetSpeed = 0; 
         private static double ATCPatternSpeed = 0;
         private static int ZeroTargetSpeedBrakeSeconds = -1; //seconds to apply brake when target speed is 0
-        private static double TrackPosDisplayEndLocation = 0, LimitPatternSignalEndLocation = 0, LimitPatternEndLocation = 0, LimitPatternSignalTriggerLoc = 0;
+        private static double TrackPosDisplayEndLocation = 0, LimitPatternSignalEndLocation = 0, LimitPatternEndLocation = 0, LimitPatternSignalTriggerLoc = 0, ReverseStartLoc = -1;
         private static TimeSpan InitializeStartTime = TimeSpan.Zero, LastDingTime = TimeSpan.Zero, BrakeStartTime = TimeSpan.Zero,
             ZeroTargetSpeedBrakeStartTime = TimeSpan.MaxValue;
         private const double SignalPatternDec = -2.25; //*10
@@ -95,6 +95,11 @@ namespace TobuSignal {
                     BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 
                 } else {
+                    if (handles.ReverserPosition == ReverserPosition.B && ReverseStartLoc == -1) {
+                        ReverseStartLoc = state.Location;
+                    } else if(handles.ReverserPosition != ReverserPosition.B) {
+                        ReverseStartLoc = -1;
+                    }
                     if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 1000) {
                         //Initializing
                         ATC_X = true;
@@ -114,10 +119,9 @@ namespace TobuSignal {
                         if (TrackPos > 0 && TrackPosDisplayEndLocation < NextSection.Location) TrackPosDisplayEndLocation = NextSection.Location;
                     } else {
                         //After initializing
+                        var lastATC_X = ATC_X;
                         if (ATC_X) {
                             ATC_X = false;
-                            ATC_Ding = AtsSoundControlInstruction.Play;
-                            LastDingTime = state.Time;
                         }
 
                         //Refresh Valid Sections
@@ -158,12 +162,6 @@ namespace TobuSignal {
                         ATCPatternSpeed = Math.Min(ATCPattern.AtLocation(state.Location, SignalPatternDec),
                             Math.Min(LimitPattern.AtLocation(state.Location, SignalPatternDec), lastLimitPattern.AtLocation(state.Location, SignalPatternDec)));
 
-                        //パターン接近
-                        var lastATC_PatternApproach = ATC_PatternApproach;
-                        ATC_PatternApproach = ATCPatternSpeed - Math.Abs(state.Speed) < 5 && ATCPatternSpeed > 0;
-                        if (!lastATC_PatternApproach && ATC_PatternApproach)
-                            ATC_PatternApproachBeep = AtsSoundControlInstruction.Play;
-
                         var lastATC_Depot = ATC_Depot;
                         ATC_Depot = currentSection.CurrentSignalIndex >= 138 && currentSection.CurrentSignalIndex <= 148;
 
@@ -182,14 +180,17 @@ namespace TobuSignal {
                             ORPlamp = false;
                         }
 
-                        if (state.Speed > 0 && ZeroTargetSpeedBrakeSeconds != -1)
+                        if (Math.Abs(state.Speed) > 0 && ZeroTargetSpeedBrakeSeconds != -1)
                             ZeroTargetSpeedBrakeStartTime = state.Time + new TimeSpan(0, 0, ZeroTargetSpeedBrakeSeconds);
-
-                        if (currentSection.CurrentSignalIndex == 109
-                            || (state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110)) {
+                        if (state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) {
                             ATCPatternSpeed = 0;
                             ATCTargetSpeed = 0;
                             ORPlamp = false;
+                        } else if (currentSection.CurrentSignalIndex == 109) {
+                            ATCPatternSpeed = 0;
+                            ATCTargetSpeed = 0;
+                            ORPlamp = false;
+                            ATC_X = true;
                         }
 
                         if (ATCLimits[currentSection.CurrentSignalIndex] > 0) {
@@ -200,21 +201,31 @@ namespace TobuSignal {
                         ATC_P = ORPlamp;
 
                         //ATCベル
-                        if (lastATCTargetSpeed != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot) {
+                        if (lastATCTargetSpeed != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot || lastATC_X != ATC_X) {
                             ATC_Ding = AtsSoundControlInstruction.Play;
                             LastDingTime = state.Time;
-                            if (state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) LastDingTime = TimeSpan.Zero;
+                            if ((state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) || currentSection.CurrentSignalIndex == 109) LastDingTime = TimeSpan.Zero;
                         }
                         if (ATCTargetSpeed == 0 && state.Time.TotalMilliseconds - LastDingTime.TotalMilliseconds > 500 && LastDingTime != TimeSpan.Zero) {
                             ATC_Ding = AtsSoundControlInstruction.Play;
                             LastDingTime = TimeSpan.Zero;
                         }
 
-                        ORPNeedle = ((ATCPatternSpeed < 0) ? 0 : (int)(ATCPatternSpeed * 10.0)) ;
+                        //if (handles.ReverserPosition == ReverserPosition.B && ATCPatternSpeed < 7) {
+                        //    ATCPatternSpeed = 7;
+                        //}
+
+                        //パターン接近
+                        var lastATC_PatternApproach = ATC_PatternApproach;
+                        ATC_PatternApproach = ATCPatternSpeed - Math.Abs(state.Speed) < 5 && (ValidSections > 0 ? ATCPatternSpeed >= 0 : ATCPatternSpeed > 0);
+                        if (!lastATC_PatternApproach && ATC_PatternApproach)
+                            ATC_PatternApproachBeep = AtsSoundControlInstruction.Play;
+
+                        ORPNeedle = ((ATCPatternSpeed < 0) ? 0 : (int)(ATCPatternSpeed * 10.0));
 
                         //ATC速度指示
                         if (!Config.ATCLimitUseNeedle) {
-                            ATC_01 = ATCTargetSpeed == 0;
+                            ATC_01 = ATCTargetSpeed == 0 && currentSection.CurrentSignalIndex != 109;
                             ATC_10 = ATCTargetSpeed == 10;
                             ATC_15 = ATCTargetSpeed == 15;
                             ATC_20 = ATCTargetSpeed == 20;
@@ -238,11 +249,12 @@ namespace TobuSignal {
                             ATC_110 = ATCTargetSpeed == 110;
                         } else {
                             ATCNeedle = ATCTargetSpeed;
-                            ATCNeedle_Disappear = false;
+                            if (currentSection.CurrentSignalIndex == 109) ATCNeedle_Disappear = true;
+                            else ATCNeedle_Disappear = false;
                         }
 
                         //進行・停止
-                        ATC_Stop = ATCTargetSpeed == 0;
+                        ATC_Stop = ATCTargetSpeed == 0 || currentSection.CurrentSignalIndex == 109;
                         ATC_Proceed = ATCTargetSpeed > 0;
 
                         //駅停車
@@ -274,7 +286,7 @@ namespace TobuSignal {
                             lastLimitPattern = SpeedPattern.inf;
                         }
 
-                        if (Math.Abs(state.Speed) > ATCPatternSpeed) {
+                        if (Math.Abs(state.Speed) >= ATCPatternSpeed) {
                             if (Math.Abs(state.Speed) >= ATCPatternSpeed + 1.5) {
                                 if (!ServiceBrake) ServiceBrake = true;
                                 if (BrakeStartTime == TimeSpan.Zero) BrakeStartTime = state.Time;
@@ -289,14 +301,15 @@ namespace TobuSignal {
                             BrakeStartTime = TimeSpan.Zero;
                         }
 
-                        if (ServiceBrake || currentSection.CurrentSignalIndex == 109
-                            || (ValidSections < 1 && ATCTargetSpeed == 0) || (state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110)) {
+                        if (ServiceBrake || (ValidSections < 1 && ATCTargetSpeed == 0) || (state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110)) {
                             if (state.Time.TotalMilliseconds - BrakeStartTime.TotalMilliseconds < 1500)
                                 BrakeCommand = (int)Math.Ceiling(TobuSignal.vehicleSpec.BrakeNotches * 0.5);
                             else BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches;
                         } else if (EBUntilStop) {
                             BrakeCommand = Math.Max(BrakeCommand, TobuSignal.vehicleSpec.BrakeNotches + 1);
                             if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= TobuSignal.vehicleSpec.BrakeNotches) EBUntilStop = false;
+                        } else if (currentSection.CurrentSignalIndex == 109 || ReverseStartLoc - state.Location > 50) {
+                            BrakeCommand = Math.Max(BrakeCommand, TobuSignal.vehicleSpec.BrakeNotches + 1);
                         }
                     }
                 }
