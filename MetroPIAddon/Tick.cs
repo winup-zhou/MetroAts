@@ -295,7 +295,7 @@ namespace MetroPIAddon {
                 }
             }
 
-            if(state.Time > RadioChannelUpdateTime && RadioChannelUpdateTime != TimeSpan.Zero) {
+            if (state.Time > RadioChannelUpdateTime && RadioChannelUpdateTime != TimeSpan.Zero) {
                 switch (RadioChannel) {
                     case KeyPosList.None: panel[Config.Panel_RadiochannelOutput] = 0; break;
                     case KeyPosList.Metro: panel[Config.Panel_RadiochannelOutput] = 1; break;

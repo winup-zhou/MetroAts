@@ -77,9 +77,12 @@ namespace MetroPIAddon {
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
                 if (!StandAloneMode) {
+                    var lastKeyPos = RadioChannel;
                     if (RadioChannelUpdateTime == TimeSpan.Zero) lastRadioChannel = RadioChannel;
-                    RadioChannel = (KeyPosList)corePlugin.KeyPos;
-                    RadioChannelUpdateTime = state.Time + new TimeSpan(0, 0, 10);
+                    if (lastKeyPos != (KeyPosList)corePlugin.KeyPos) {
+                        RadioChannel = (KeyPosList)corePlugin.KeyPos;
+                        RadioChannelUpdateTime = state.Time + new TimeSpan(0, 0, 10);
+                    }
                 }
                 if (StandAloneMode && e.KeyName == AtsKeyName.I) {
                     Keyin = false;
