@@ -231,7 +231,6 @@ namespace MetroPIAddon {
                     if (UpdateRequested) {
                         UpdateRequested = false;
                         lastTrainType = TrainType;
-                        lastRadioChannel = RadioChannel;
                     }
                 } else {
                     panel[151] = panel[152] = lastTrainType;
