@@ -35,7 +35,7 @@ namespace TokyuSignal {
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == TokyuSignal.vehicleSpec.BrakeNotches + 1;
 
-                if (CurrentSection.CurrentSignalIndex < 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
+                if (CurrentSection.CurrentSignalIndex <= 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
                     ATC_ORPBeep = AtsSoundControlInstruction.Stop;
                     if (Noset) {
                         ATC_Noset = true;
