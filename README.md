@@ -15,6 +15,9 @@ MetroAtsはBveEXを利用して以下の機能を実現しています：
 ## Latest Dev Build
 [![MSBuild](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml/badge.svg)](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml)
 
+## Latest Release
+[![GitHub Release](https://img.shields.io/github/v/release/winup-zhou/MetroAts)](https://github.com/winup-zhou/MetroAts/releases/latest)
+
 ## License
 [The MIT License](LICENSE)
 
