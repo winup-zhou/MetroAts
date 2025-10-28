@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace SeibuSignal {
     internal partial class SeibuATS {
         private static SpeedPattern B1Pattern = SpeedPattern.inf, B2Pattern = SpeedPattern.inf, StopPattern = SpeedPattern.inf, LimitPattern = SpeedPattern.inf;
-        private static bool NeedConfirm = false, MaxOver95 = false, lastMaxOver95 = false;
+        private static bool NeedConfirm = false, CanConfirm = false, MaxOver95 = false, lastMaxOver95 = false;
         private static double B1MonitorSectionLocation = 0, B2MonitorSectionLocation = 0, B1Speed = 0, B2Speed = 0;
         private static TimeSpan InitializeStartTime = TimeSpan.Zero;
         private enum EBTypes {
@@ -135,7 +135,7 @@ namespace SeibuSignal {
 
                         if (lastMaxOver95 && state.Location >= B1MonitorSectionLocation && state.Location >= B2MonitorSectionLocation)
                             lastMaxOver95 = false;
-                        if (ATS_Confirm) B1Speed = B2Speed = 30;
+                        if (ATS_Confirm) B1Speed = B2Speed = 20;
                     }
 
                     ATS_Limit = LimitPattern != SpeedPattern.inf;
@@ -144,18 +144,16 @@ namespace SeibuSignal {
                     ATS_Stop = StopPattern != SpeedPattern.inf;
                     if (!lastATS_Stop && ATS_Stop) ATS_StopAnnounce = AtsSoundControlInstruction.Play;
 
-                    var PatternSpeed = Math.Min(Math.Min(B1Speed, B2Speed),
-                        Math.Min(StopPattern.AtLocation(state.Location, -4.0), LimitPattern.AtLocation(state.Location, -4.0)));
+                    var PatternSpeed = Math.Min(Math.Min(B1Speed, B2Speed), Math.Min(StopPattern.AtLocation(state.Location, -4.0), LimitPattern.AtLocation(state.Location, -4.0)));
                     if (Math.Abs(state.Speed) > PatternSpeed) {
                         if (StopPattern.AtLocation(state.Location, -4.0) < LimitPattern.AtLocation(state.Location, -4.6)
                             && StopPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
                             EBType = EBTypes.CannotReleaseUntilStop;
                             StopPattern.TargetSpeed = 15;
-                        } else if (LimitPattern.AtLocation(state.Location, -4.0) < StopPattern.AtLocation(state.Location, -4.0)
-                    && LimitPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
+                        } else if (LimitPattern.AtLocation(state.Location, -4.0) < StopPattern.AtLocation(state.Location, -4.0) && LimitPattern.AtLocation(state.Location, -4.0) < Math.Min(B1Speed, B2Speed)) {
                             EBType = EBTypes.CanReleaseWithoutstop;
                         } else {
-                            if (B1Pattern.TargetSpeed == 0) {
+                            if (B1MonitorSection.CurrentSignalIndex == 0 && !ATS_Confirm) {
                                 EBType = EBTypes.CannotReleaseUntilStop;
                                 NeedConfirm = true;
                             } else EBType = EBTypes.CanReleaseWithoutstop;
@@ -163,6 +161,8 @@ namespace SeibuSignal {
                     } else {
                         if (EBType != EBTypes.CannotReleaseUntilStop) EBType = EBTypes.Normal;
                     }
+
+                    CanConfirm = CurrentSection.CurrentSignalIndex == 0 || B1MonitorSection.CurrentSignalIndex == 0;
 
                     BrakeCommand = EBType != EBTypes.Normal ? SeibuSignal.vehicleSpec.BrakeNotches + 1 : 0;
                     ATS_EB = EBType != EBTypes.Normal;

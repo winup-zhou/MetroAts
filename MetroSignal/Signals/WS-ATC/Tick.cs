@@ -17,7 +17,7 @@ namespace MetroSignal {
 
         private static int IndexToSpeed(int index) {
             if (index == 50) {
-                return -1;
+                return 0;
             } else if (index == 51) {
                 return 25;
             } else if (index == 52) {
@@ -40,7 +40,6 @@ namespace MetroSignal {
                         Disable_Noset();
                     } else {
                         ATC_Noset = false;
-                        NeedConfirm = true;
                         BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                     }
                 } else {
@@ -48,14 +47,17 @@ namespace MetroSignal {
                         BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                     } else {
                         ATC_WSATC = true;
-                        if (IndexToSpeed(CurrentSection.CurrentSignalIndex) == -1) {
-                            if (!Confirmed) NeedConfirm = true;
-                            else if (Math.Abs(state.Speed) > 15) EB = true;
+                        if (CurrentSection.CurrentSignalIndex == 50) {
+                            if (!Confirmed) {
+                                EB = true;
+                                NeedConfirm = true;
+                            } 
                         } else Confirmed = false;
 
-                        if (Math.Abs(state.Speed) > IndexToSpeed(CurrentSection.CurrentSignalIndex) + 2.5 || (IndexToSpeed(CurrentSection.CurrentSignalIndex) == -1 && !Confirmed))
+                        if ((Math.Abs(state.Speed) > IndexToSpeed(CurrentSection.CurrentSignalIndex) + 2.5 && IndexToSpeed(CurrentSection.CurrentSignalIndex) > 0)
+                            | (CurrentSection.CurrentSignalIndex == 50 && Confirmed && Math.Abs(state.Speed) > 17.5))
                             BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches;
-                        else if (EB && Confirmed) BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
+                        else if ((EB && !Confirmed) || IndexToSpeed(CurrentSection.CurrentSignalIndex) == -1) BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                         else BrakeCommand = 0;
                     }
                 }
