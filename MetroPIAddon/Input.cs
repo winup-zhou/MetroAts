@@ -141,7 +141,7 @@ namespace MetroPIAddon {
                     CurrentSta = e.Optional / 1000;
                     NextSta = e.Optional % 1000;
                     break;
-                case 51://CCTV設定
+                case 52://CCTV設定
                     CCTVenable = e.Optional > 0;
                     break;
                 case 14://連動表示灯
