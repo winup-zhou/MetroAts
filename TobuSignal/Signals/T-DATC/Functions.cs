@@ -12,7 +12,7 @@ namespace TobuSignal {
         public static void ResetAll() {
             ATCPattern = SpeedPattern.inf;
             StationPattern = SpeedPattern.inf;
-            LimitPattern = SpeedPattern.inf;
+            lastLimitPattern = LimitPattern = SpeedPattern.inf;
             TrackPos = 0;
             BrakeCommand = 0;
             ORPlamp = false;
@@ -24,9 +24,13 @@ namespace TobuSignal {
             LastDingTime = TimeSpan.Zero;
             BrakeStartTime = TimeSpan.Zero;
             InitializeStartTime = TimeSpan.Zero;
+            ZeroTargetSpeedBrakeStartTime = TimeSpan.MaxValue;
+            ZeroTargetSpeedBrakeSeconds = -1;
             TrackPosDisplayEndLocation = 0;
             ATCEnable = false;
-            ATCswitchoverSection = false;
+            LimitPatternEndLocation = 0;
+            LimitPatternSignalTriggerLoc = 0;
+            ReverseStartLoc = -1;
 
             BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 
@@ -104,18 +108,20 @@ namespace TobuSignal {
                         StationPattern = new SpeedPattern(0, state.Location + e.Optional + 25);
                     break;
                 case 44:
-                    var lastLimitPattern = LimitPattern;
+                    lastLimitPattern = LimitPattern;
                     if (ATCEnable) {
                         LimitPatternSignalEndLocation = state.Location + e.Distance;
-                        LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.TargetSpeed);
+                        LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.AtLocation(state.Location, SignalPatternDec));
+                        LimitPatternSignalTriggerLoc = state.Location;
                     }
                     break;
                 case 45:
                     if (ATCEnable)
-                        LimitPattern = SpeedPattern.inf;
+                        LimitPatternEndLocation = state.Location + Config.TrainLength;
                     break;
-                case 42:
-                    ATCswitchoverSection = true;
+                case 49:
+                    if (ATCEnable)
+                        ZeroTargetSpeedBrakeSeconds = e.Optional;
                     break;
             }
         }
@@ -127,7 +133,7 @@ namespace TobuSignal {
 
 
         public static void Disable() {
-            ATCswitchoverSection = false;
+            LimitPatternEndLocation = 0;
             ATCEnable = false;
 
             BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
@@ -184,9 +190,10 @@ namespace TobuSignal {
         }
 
         public static void SignalUpdated() {
-            if (ATCEnable && ATCswitchoverSection) {
-                InitializeStartTime = TimeSpan.MaxValue;
-            }
+
+            //if (ATCEnable && ATCswitchoverSection) {
+            //    InitializeStartTime = TimeSpan.MaxValue;
+            //}
         }
 
         //private

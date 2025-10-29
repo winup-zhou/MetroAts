@@ -44,6 +44,14 @@ namespace SeibuSignal {
             } else throw new BveFileLoadException("Unable to find configuration file: SeibuSignal.ini","SeibuSignal");
         }
 
+        public static void Dispose() {
+            ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
+
+            Panel_poweroutput = 1023;
+            Panel_brakeoutput = 1023;
+            Panel_keyoutput = 1023;
+        }
+
         //读取配置相关函数
         private static void ReadConfig(string Section, string Key, ref int Value) {
             var OriginalVal = Value;

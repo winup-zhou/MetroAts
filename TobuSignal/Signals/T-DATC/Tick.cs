@@ -11,14 +11,18 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 namespace TobuSignal {
     internal partial class T_DATC {
         //InternalValue -> ATC
-        public static double[] ATCLimits = { -2, 60, 60, 60, 60, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
+        public static double[] ATCLimits = { -2, 60, 60, 60, 60, -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+            -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
             -2, 35, -2, -1, 35, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
-        private static SpeedPattern ATCPattern = SpeedPattern.inf, StationPattern = SpeedPattern.inf, LimitPattern = SpeedPattern.inf;
+        private static SpeedPattern ATCPattern = SpeedPattern.inf, StationPattern = SpeedPattern.inf, LimitPattern = SpeedPattern.inf, lastLimitPattern = SpeedPattern.inf;
         private static int TrackPos = 0, ValidSections = 0;
-        private static bool EBUntilStop = false, ORPlamp = false, ServiceBrake = false, ATCswitchoverSection = false;
-        private static int ATCTargetSpeed = 0, ATCPatternSpeed = 0;
-        private static double TrackPosDisplayEndLocation = 0, LimitPatternSignalEndLocation = 0;
-        private static TimeSpan InitializeStartTime = TimeSpan.Zero, LastDingTime = TimeSpan.Zero, BrakeStartTime = TimeSpan.Zero;
+        private static bool EBUntilStop = false, ORPlamp = false, ServiceBrake = false;
+        private static int ATCTargetSpeed = 0; 
+        private static double ATCPatternSpeed = 0;
+        private static int ZeroTargetSpeedBrakeSeconds = -1; //seconds to apply brake when target speed is 0
+        private static double TrackPosDisplayEndLocation = 0, LimitPatternSignalEndLocation = 0, LimitPatternEndLocation = 0, LimitPatternSignalTriggerLoc = 0, ReverseStartLoc = -1;
+        private static TimeSpan InitializeStartTime = TimeSpan.Zero, LastDingTime = TimeSpan.Zero, BrakeStartTime = TimeSpan.Zero,
+            ZeroTargetSpeedBrakeStartTime = TimeSpan.MaxValue;
         private const double SignalPatternDec = -2.25; //*10
         private const double StationPatternDec = -4.0;
         private static Section LastCurrentSection, currentSection;
@@ -48,21 +52,23 @@ namespace TobuSignal {
                         break;
                     }
                 }
-
-                while (sectionManager.Sections[sectionManager.StopSignalSectionIndexes[pointer_]].Location < state.Location) {
-                    pointer_++;
-                    if (pointer_ >= sectionManager.StopSignalSectionIndexes.Count) {
-                        pointer_ = sectionManager.StopSignalSectionIndexes.Count - 1;
-                        break;
+                if (sectionManager.StopSignalSectionIndexes.Count > 0) {
+                    while (sectionManager.Sections[sectionManager.StopSignalSectionIndexes[pointer_]].Location < state.Location) {
+                        pointer_++;
+                        if (pointer_ >= sectionManager.StopSignalSectionIndexes.Count) {
+                            pointer_ = sectionManager.StopSignalSectionIndexes.Count - 1;
+                            break;
+                        }
                     }
                 }
 
-
+                Section stopSignalSection = sectionManager.Sections[0] as Section;
                 LastCurrentSection = currentSection;
                 currentSection = sectionManager.Sections[pointer > 0 ? pointer - 1 : 0] as Section;
                 var NextSection = sectionManager.Sections[pointer] as Section;
                 var PreviousSection = sectionManager.Sections[pointer > 1 ? pointer - 2 : 0] as Section;
-                var stopSignalSection = sectionManager.Sections[sectionManager.StopSignalSectionIndexes[pointer_]] as Section;
+                if (sectionManager.StopSignalSectionIndexes.Count > 0)
+                    stopSignalSection = sectionManager.Sections[sectionManager.StopSignalSectionIndexes[pointer_]] as Section;
 
                 ATC_TobuATC = true;
 
@@ -72,7 +78,7 @@ namespace TobuSignal {
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == TobuSignal.vehicleSpec.BrakeNotches + 1;
 
-                if (currentSection.CurrentSignalIndex < 9 || currentSection.CurrentSignalIndex == 34 || currentSection.CurrentSignalIndex >= 49) {
+                if (currentSection.CurrentSignalIndex < 109 || currentSection.CurrentSignalIndex == 134 || currentSection.CurrentSignalIndex >= 149) {
                     //no valid ATC signal
                     ATC_X = true;
                     ATC_Stop = ATC_Proceed = ATC_P = false;
@@ -89,6 +95,11 @@ namespace TobuSignal {
                     BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 
                 } else {
+                    if (handles.ReverserPosition == ReverserPosition.B && ReverseStartLoc == -1) {
+                        ReverseStartLoc = state.Location;
+                    } else if(handles.ReverserPosition != ReverserPosition.B) {
+                        ReverseStartLoc = -1;
+                    }
                     if (state.Time.TotalMilliseconds - InitializeStartTime.TotalMilliseconds < 1000) {
                         //Initializing
                         ATC_X = true;
@@ -108,100 +119,113 @@ namespace TobuSignal {
                         if (TrackPos > 0 && TrackPosDisplayEndLocation < NextSection.Location) TrackPosDisplayEndLocation = NextSection.Location;
                     } else {
                         //After initializing
+                        var lastATC_X = ATC_X;
                         if (ATC_X) {
                             ATC_X = false;
-                            ATC_Ding = AtsSoundControlInstruction.Play;
-                            LastDingTime = state.Time;
                         }
 
                         //Refresh Valid Sections
                         if (LastCurrentSection.Location != currentSection.Location) --ValidSections;
 
                         //開通情報
-                        if (sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 && stopSignalSection.CurrentSignalIndex > 8
-                            && stopSignalSection.CurrentSignalIndex < 34 && ValidSections > 0) {
-                            var pretrainLocation = stopSignalSection.Location - state.Location;
-                            if (pretrainLocation < 200) ATC_EndPointDistance = 0;
-                            else if (pretrainLocation >= 200 && pretrainLocation < 400) ATC_EndPointDistance = 1;
-                            else if (pretrainLocation >= 400 && pretrainLocation < 600) ATC_EndPointDistance = 2;
-                            else if (pretrainLocation >= 600 && pretrainLocation < 800) ATC_EndPointDistance = 3;
-                            else if (pretrainLocation >= 800 && pretrainLocation < 1000) ATC_EndPointDistance = 4;
-                            else if (pretrainLocation >= 1000 && pretrainLocation < 1200) ATC_EndPointDistance = 5;
-                            else if (pretrainLocation >= 1200 && pretrainLocation < 1400) ATC_EndPointDistance = 6;
-                            else if (pretrainLocation > 1400 && pretrainLocation < 1600) ATC_EndPointDistance = 7;
-                            else if (pretrainLocation > 1600) ATC_EndPointDistance = 0;
-                        } else ATC_EndPointDistance = 0;
+                        if (sectionManager.StopSignalSectionIndexes.Count > 0) {
+                            if (sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 && stopSignalSection.CurrentSignalIndex >= 109
+                            && stopSignalSection.CurrentSignalIndex < 134 && ValidSections > 0) {
+                                var pretrainLocation = stopSignalSection.Location - state.Location;
+                                if (pretrainLocation < 200) ATC_EndPointDistance = 0;
+                                else if (pretrainLocation >= 200 && pretrainLocation < 400) ATC_EndPointDistance = 1;
+                                else if (pretrainLocation >= 400 && pretrainLocation < 600) ATC_EndPointDistance = 2;
+                                else if (pretrainLocation >= 600 && pretrainLocation < 800) ATC_EndPointDistance = 3;
+                                else if (pretrainLocation >= 800 && pretrainLocation < 1000) ATC_EndPointDistance = 4;
+                                else if (pretrainLocation >= 1000 && pretrainLocation < 1200) ATC_EndPointDistance = 5;
+                                else if (pretrainLocation >= 1200 && pretrainLocation < 1400) ATC_EndPointDistance = 6;
+                                else if (pretrainLocation > 1400 && pretrainLocation < 1600) ATC_EndPointDistance = 7;
+                                else if (pretrainLocation > 1600) ATC_EndPointDistance = 0;
+                            } else ATC_EndPointDistance = 0;
+                        }
 
                         if (ValidSections < 3 && ValidSections > 0) {
-                            ATCPattern = new SpeedPattern(Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)),
-                                NextSection.Location - 25,
-                                sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 ?
-                                Math.Max(SignalIndexToSpeed(PreviousSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)) :
-                                Math.Max(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)));
+                            ATCPattern = new SpeedPattern(SignalIndexToSpeed(currentSection.CurrentSignalIndex),
+                                NextSection.Location - 25, Math.Min(Config.MaxSpeed,
+                                Math.Min(LimitPattern.AtLocation(state.Location, SignalPatternDec), lastLimitPattern.AtLocation(state.Location, SignalPatternDec))));
                         } else if (ValidSections < 1) {
-                            ATCPattern = new SpeedPattern(Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)),
+                            ATCPattern = new SpeedPattern(SignalIndexToSpeed(currentSection.CurrentSignalIndex),
                                 currentSection.Location,
-                                Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)));
+                                SignalIndexToSpeed(currentSection.CurrentSignalIndex));
                         } else {
                             ATCPattern = new SpeedPattern(0, stopSignalSection.Location - 25,
-                                sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 ?
-                                Math.Max(SignalIndexToSpeed(PreviousSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)) :
-                                Math.Max(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex)));
+                                Math.Min(Config.MaxSpeed, Math.Min(LimitPattern.AtLocation(state.Location, SignalPatternDec), lastLimitPattern.AtLocation(state.Location, SignalPatternDec))));
                         }
 
                         var lastATCTargetSpeed = ATCTargetSpeed;
-                        ATCTargetSpeed = (int)Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex));
-                        ATCPatternSpeed = (int)Math.Min(ATCPattern.AtLocation(state.Location, SignalPatternDec), LimitPattern.AtLocation(state.Location, SignalPatternDec));
-
-                        //パターン接近
-                        var lastATC_PatternApproach = ATC_PatternApproach;
-                        ATC_PatternApproach = ATCPatternSpeed - Math.Abs(state.Speed) < 5 && ATCPatternSpeed > 0;
-                        if (!lastATC_PatternApproach && ATC_PatternApproach)
-                            ATC_PatternApproachBeep = AtsSoundControlInstruction.Play;
+                        ATCTargetSpeed = (int)SignalIndexToSpeed(currentSection.CurrentSignalIndex);
+                        ATCPatternSpeed = Math.Min(ATCPattern.AtLocation(state.Location, SignalPatternDec),
+                            Math.Min(LimitPattern.AtLocation(state.Location, SignalPatternDec), lastLimitPattern.AtLocation(state.Location, SignalPatternDec)));
 
                         var lastATC_Depot = ATC_Depot;
-                        ATC_Depot = currentSection.CurrentSignalIndex >= 38 && currentSection.CurrentSignalIndex <= 48;
+                        ATC_Depot = currentSection.CurrentSignalIndex >= 138 && currentSection.CurrentSignalIndex <= 148;
 
                         //P表示灯
                         var lastORPlamp = ORPlamp;
-                        if (ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec) < LimitPattern.AtLocation(NextSection.Location - 26, SignalPatternDec)) {
-                            if (ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec) >
-                                Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex))
-                                && (SignalIndexToSpeed(NextSection.CurrentSignalIndex) <= SignalIndexToSpeed(currentSection.CurrentSignalIndex) || sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4)) {
-                                ORPlamp = true;
-                            } else {
-                                ORPlamp = false;
-                            }
+
+                        if (ValidSections < 3 && ValidSections > 0
+                            && Math.Min(Config.MaxSpeed, ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec)) > SignalIndexToSpeed(currentSection.CurrentSignalIndex)) {
+                            ORPlamp = true;
+                        } else if (sectionManager.StopSignalSectionIndexes[pointer_] - pointer < 4 && ValidSections >= 3
+                            && Math.Min(Config.MaxSpeed, ATCPattern.AtLocation(NextSection.Location - 26, SignalPatternDec)) > SignalIndexToSpeed(currentSection.CurrentSignalIndex)) {
+                            ORPlamp = true;
+                        } else if (LimitPattern != SpeedPattern.inf && state.Location < LimitPatternSignalEndLocation && currentSection.Location > LimitPatternSignalTriggerLoc) {
+                            ORPlamp = true;
                         } else {
-                            if (LimitPattern != SpeedPattern.inf && state.Location < LimitPatternSignalEndLocation &&
-                                    LimitPattern.AtLocation(NextSection.Location - 26, SignalPatternDec) >= Math.Min(SignalIndexToSpeed(NextSection.CurrentSignalIndex), SignalIndexToSpeed(currentSection.CurrentSignalIndex))) {
-                                ORPlamp = true;
-                            } else ORPlamp = false;
+                            ORPlamp = false;
                         }
 
+                        if (Math.Abs(state.Speed) > 0 && ZeroTargetSpeedBrakeSeconds != -1)
+                            ZeroTargetSpeedBrakeStartTime = state.Time + new TimeSpan(0, 0, ZeroTargetSpeedBrakeSeconds);
+                        if (state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) {
+                            ATCPatternSpeed = 0;
+                            ATCTargetSpeed = 0;
+                            ORPlamp = false;
+                        } else if (currentSection.CurrentSignalIndex == 109) {
+                            ATCPatternSpeed = 0;
+                            ATCTargetSpeed = 0;
+                            ORPlamp = false;
+                            ATC_X = true;
+                        }
+
+                        if (ATCLimits[currentSection.CurrentSignalIndex] > 0) {
+                            ZeroTargetSpeedBrakeSeconds = -1;
+                            ZeroTargetSpeedBrakeStartTime = TimeSpan.MaxValue;
+                        }
 
                         ATC_P = ORPlamp;
 
-                        if (ATCLimits[currentSection.CurrentSignalIndex] <= 0) {
-                            ATCPatternSpeed = 0;
-                            ATCTargetSpeed = 0;
-                        }
-
                         //ATCベル
-                        if (lastATCTargetSpeed != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot) {
+                        if (lastATCTargetSpeed != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot || lastATC_X != ATC_X) {
                             ATC_Ding = AtsSoundControlInstruction.Play;
                             LastDingTime = state.Time;
+                            if ((state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) || currentSection.CurrentSignalIndex == 109) LastDingTime = TimeSpan.Zero;
                         }
                         if (ATCTargetSpeed == 0 && state.Time.TotalMilliseconds - LastDingTime.TotalMilliseconds > 500 && LastDingTime != TimeSpan.Zero) {
                             ATC_Ding = AtsSoundControlInstruction.Play;
                             LastDingTime = TimeSpan.Zero;
                         }
 
-                        ORPNeedle = ((ATCPatternSpeed < 0) ? 0 : ATCPatternSpeed) * 10;
+                        //if (handles.ReverserPosition == ReverserPosition.B && ATCPatternSpeed < 7) {
+                        //    ATCPatternSpeed = 7;
+                        //}
+
+                        //パターン接近
+                        var lastATC_PatternApproach = ATC_PatternApproach;
+                        ATC_PatternApproach = ATCPatternSpeed - Math.Abs(state.Speed) < 5 && (ValidSections > 0 ? ATCPatternSpeed >= 0 : ATCPatternSpeed > 0);
+                        if (!lastATC_PatternApproach && ATC_PatternApproach)
+                            ATC_PatternApproachBeep = AtsSoundControlInstruction.Play;
+
+                        ORPNeedle = ((ATCPatternSpeed < 0) ? 0 : (int)(ATCPatternSpeed * 10.0));
 
                         //ATC速度指示
                         if (!Config.ATCLimitUseNeedle) {
-                            ATC_01 = ATCTargetSpeed == 0;
+                            ATC_01 = ATCTargetSpeed == 0 && currentSection.CurrentSignalIndex != 109;
                             ATC_10 = ATCTargetSpeed == 10;
                             ATC_15 = ATCTargetSpeed == 15;
                             ATC_20 = ATCTargetSpeed == 20;
@@ -221,15 +245,16 @@ namespace TobuSignal {
                             ATC_90 = ATCTargetSpeed == 90;
                             ATC_95 = ATCTargetSpeed == 95;
                             ATC_100 = ATCTargetSpeed == 100;
-                            ATC_100 = ATCTargetSpeed == 105;
+                            ATC_105 = ATCTargetSpeed == 105;
                             ATC_110 = ATCTargetSpeed == 110;
                         } else {
                             ATCNeedle = ATCTargetSpeed;
-                            ATCNeedle_Disappear = false;
+                            if (currentSection.CurrentSignalIndex == 109) ATCNeedle_Disappear = true;
+                            else ATCNeedle_Disappear = false;
                         }
 
                         //進行・停止
-                        ATC_Stop = ATCTargetSpeed == 0;
+                        ATC_Stop = ATCTargetSpeed == 0 || currentSection.CurrentSignalIndex == 109;
                         ATC_Proceed = ATCTargetSpeed > 0;
 
                         //駅停車
@@ -245,10 +270,23 @@ namespace TobuSignal {
                             TrackPosDisplayEndLocation = 0;
                         }
 
-                        if (Math.Abs(state.Speed) > StationPattern.AtLocation(state.Location, StationPatternDec))
+                        if (Math.Abs(state.Speed) > StationPattern.AtLocation(state.Location, StationPatternDec)) {
+                            StationPattern.MaxSpeed = StationPattern.TargetSpeed = 15;
                             EBUntilStop = true;
+                        }
 
-                        if (Math.Abs(state.Speed) > ATCPatternSpeed) {
+
+                        if (state.Location > LimitPatternEndLocation && LimitPatternEndLocation != 0) {
+                            LimitPatternEndLocation = 0;
+                            LimitPattern = SpeedPattern.inf;
+                        }
+
+                        if (state.Location > lastLimitPattern.Location) {
+                            LimitPattern.MaxSpeed = lastLimitPattern.TargetSpeed;
+                            lastLimitPattern = SpeedPattern.inf;
+                        }
+
+                        if (Math.Abs(state.Speed) >= ATCPatternSpeed) {
                             if (Math.Abs(state.Speed) >= ATCPatternSpeed + 1.5) {
                                 if (!ServiceBrake) ServiceBrake = true;
                                 if (BrakeStartTime == TimeSpan.Zero) BrakeStartTime = state.Time;
@@ -263,13 +301,15 @@ namespace TobuSignal {
                             BrakeStartTime = TimeSpan.Zero;
                         }
 
-                        if (ServiceBrake || ATCLimits[currentSection.CurrentSignalIndex] <= 0 || (ValidSections < 1 && ATCTargetSpeed == 0)) {
+                        if (ServiceBrake || (ValidSections < 1 && ATCTargetSpeed == 0) || (state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110)) {
                             if (state.Time.TotalMilliseconds - BrakeStartTime.TotalMilliseconds < 1500)
                                 BrakeCommand = (int)Math.Ceiling(TobuSignal.vehicleSpec.BrakeNotches * 0.5);
                             else BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches;
                         } else if (EBUntilStop) {
                             BrakeCommand = Math.Max(BrakeCommand, TobuSignal.vehicleSpec.BrakeNotches + 1);
                             if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= TobuSignal.vehicleSpec.BrakeNotches) EBUntilStop = false;
+                        } else if (currentSection.CurrentSignalIndex == 109 || ReverseStartLoc - state.Location > 50) {
+                            BrakeCommand = Math.Max(BrakeCommand, TobuSignal.vehicleSpec.BrakeNotches + 1);
                         }
                     }
                 }

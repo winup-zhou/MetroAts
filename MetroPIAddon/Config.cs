@@ -29,6 +29,9 @@ namespace MetroPIAddon {
         public static Keys SnowBrakeKey = Keys.None;
         public static Keys InstrumentLightKey = Keys.None;
         public static double SnowBrakePressure = 0.0;
+        public static int MaxTrainTypeCount = 19;
+        public static int Panel_LineDefOutput = 1023;
+        public static int Panel_RadiochannelOutput = 1023;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroPIAddon.ini")).FullName;
@@ -59,10 +62,33 @@ namespace MetroPIAddon {
                     ReadConfig("Inputs", "InstrumentLightKey", ref InstrumentLightKey);
 
                     ReadConfig("snowbrake", "pressure", ref SnowBrakePressure);
+
+                    ReadConfig("traininfo", "typecounts", ref MaxTrainTypeCount);
+                    ReadConfig("traininfo", "linedef", ref Panel_LineDefOutput);
+                    ReadConfig("traininfo", "radiochannel", ref Panel_RadiochannelOutput);
+
                 } catch (Exception ex) {
                     throw ex;
                 }
             } else throw new BveFileLoadException("Unable to find configuration file: MetroPIAddon.ini", "MetroPIAddon");
+        }
+
+        public static void Dispose() {
+            StandAloneKey = KeyPosList.None;
+            FDOpenSounds.Clear(); 
+            FDCloseSounds.Clear();
+            FDsoundenable = FDsinglelamp = false;
+            Delay_FDclosed = 1.0;
+            CurrentPanelIndex = 1023;
+            MaxCurrentSpeed = 20.0;
+            Current_abs = false;
+            DriverBuzzerKey = Keys.None;
+            SnowBrakeKey = Keys.None;
+            InstrumentLightKey = Keys.None;
+            SnowBrakePressure = 0.0;
+            MaxTrainTypeCount = 19;
+            Panel_LineDefOutput = 1023;
+            Panel_RadiochannelOutput = 1023;
         }
 
         private static void ReadConfig(string Section, string Key, ref int Value) {

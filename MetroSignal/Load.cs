@@ -68,6 +68,8 @@ namespace MetroSignal {
         }
 
         public override void Dispose() {
+            Config.Dispose();
+
             Native.BeaconPassed -= BeaconPassed;
             Native.DoorOpened -= DoorOpened;
             Native.DoorClosed -= DoorClosed;
@@ -77,6 +79,13 @@ namespace MetroSignal {
             BveHacker.ScenarioCreated -= OnScenarioCreated;
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
+
+            SignalEnable = false;
+            Keyin = false;
+            NowSignalSW = 0;
+            StandAloneMode = true;
+            isDoorOpen = false;
+            BrakeTriggered = false;
         }
     }
 }

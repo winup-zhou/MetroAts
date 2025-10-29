@@ -9,8 +9,16 @@ using System.Threading.Tasks;
 using System.Drawing;
 using BveEx.Extensions.Native;
 using System.Windows.Forms;
+using CorePlugin = MetroAts.MetroAts;
 
-namespace MetroAts {
+namespace ConductorlessAddon {
+    public enum AtsSoundControlInstruction {
+        Stop = -10000,      // Stop
+        Play = 1,           // Play Once
+        PlayLooping = 0,    // Play Repeatedly
+        Continue = 2        // Continue
+    }
+
     public enum KeyPosList {
         Tokyu = 0,
         None = 1,
@@ -23,48 +31,20 @@ namespace MetroAts {
         Odakyu = 8
     }
 
-    public enum SignalSWList {
-        Noset = 0,
-        TokyuATS = 1,
-        InDepot= 2,
-        Sotetsu = 3,
-        ATC = 4,
-        SeibuATS = 5,
-        Tobu = 6,
-        JR = 7,
-        WS_ATC = 8,
-        ATP = 9,
-        Odakyu = 10
-    }
-
-    public enum AtsSoundControlInstruction {
-        Stop = -10000,      // Stop
-        Play = 1,           // Play Once
-        PlayLooping = 0,    // Play Repeatedly
-        Continue = 2        // Continue
-    }
-
     [Plugin(PluginType.VehiclePlugin)]
-    public partial class MetroAts : AssemblyPluginBase {
+    public partial class ConductorlessAddon : AssemblyPluginBase {
         private readonly INative Native;
         private static VehicleSpec vehicleSpec;
         private LeverText leverText;
         private static bool isDoorOpen = false;
+        private static bool StandAloneMode = false;
+        private static CorePlugin corePlugin;
 
-        public static int NowKey;
-        public static int NowSignalSW;
-        private static int NoneKeyPos;
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_SignalSW;
-
-        //Infomation that should be readable by sub-plugins
-        public KeyPosList KeyPos {  get { return Config.KeyPosLists[NowKey]; } }
-        public SignalSWList SignalSWPos {  get { return Config.SignalSWLists[NowSignalSW]; } }
-        public bool SubPluginEnabled { set; get; } = false;
-
         private static int Direction = 0; //0:未設定 1:上り 2:下り
         private static KeyPosList LineDef = KeyPosList.None;
 
-        public MetroAts(PluginBuilder services) : base(services) {
+        public ConductorlessAddon(PluginBuilder services) : base(services) {
             Config.Load();
 
             Native = Extensions.GetExtension<INative>();
@@ -77,18 +57,21 @@ namespace MetroAts {
             Native.BeaconPassed += SetBeaconData;
         }
 
-        public override void Dispose() {
-            Config.Dispose();
+        private void OnAllPluginsLoaded(object sender, EventArgs e) {
+            try {
+                corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin;
+                StandAloneMode = false;
+            } catch (Exception ex) {
+                StandAloneMode = true;
+            }
+        }
 
+        public override void Dispose() {
             Native.Started -= Initialize;
             Native.DoorClosed -= DoorClosed;
             Native.DoorOpened -= DoorOpened;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
             Native.BeaconPassed -= SetBeaconData;
-
-            Direction = 0; //0:未設定 1:上り 2:下り
-            LineDef = KeyPosList.None;
-            isDoorOpen = false;
         }
     }
 }

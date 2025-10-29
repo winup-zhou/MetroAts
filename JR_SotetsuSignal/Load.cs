@@ -59,6 +59,8 @@ namespace JR_SotetsuSignal {
         }
 
         public override void Dispose() {
+            Config.Dispose();
+
             Native.BeaconPassed -= BeaconPassed;
             Native.DoorOpened -= DoorOpened;
             Native.DoorClosed -= DoorClosed;
@@ -68,6 +70,12 @@ namespace JR_SotetsuSignal {
             BveHacker.ScenarioCreated -= OnScenarioCreated;
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
+
+            SignalEnable = false;
+            Keyin = false;
+            StandAloneMode = true;
+            isDoorOpen = false;
+            BrakeTriggered = false;
         }
     }
 }

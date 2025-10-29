@@ -34,7 +34,7 @@ namespace SeibuSignal {
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == SeibuSignal.vehicleSpec.BrakeNotches + 1;
 
-                if (CurrentSection.CurrentSignalIndex < 9 || !ValidATCCode(CurrentSection.CurrentSignalIndex) || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
+                if (CurrentSection.CurrentSignalIndex <= 9 || !ValidATCCode(CurrentSection.CurrentSignalIndex) || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
                     if (InDepot) {
                         ATC_Depot = true;
                         Disable_Noset_inDepot();

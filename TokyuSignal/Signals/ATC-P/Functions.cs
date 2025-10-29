@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace TokyuSignal {
     internal partial class ATC {
@@ -68,6 +69,11 @@ namespace TokyuSignal {
             ATC_EmergencyBrake = false;
             ATC_EmergencyOperation = false;
             ATC_StationStop = false;
+        }
+
+        public static void InitNow() {
+            ATCEnable = true;
+            ATC_ATC = true;
         }
 
         public static void Init(TimeSpan time) {

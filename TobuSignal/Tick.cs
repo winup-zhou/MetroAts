@@ -31,12 +31,16 @@ namespace TobuSignal {
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
             if (SignalEnable) {
-                if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49 && Config.EnableATC) {
+                if (currentSection.CurrentSignalIndex > 4 && Config.EnableATC) {
                     //T-DATC
                     if (T_DATC.ATCEnable) {
                         T_DATC.Tick(state, sectionManager, handles);
-                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, T_DATC.BrakeCommand);
-                        if (T_DATC.BrakeCommand > 0) BrakeTriggered = true;
+                        if (T_DATC.BrakeCommand > 0) {
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, T_DATC.BrakeCommand);
+                            else AtsHandles.BrakeNotch = T_DATC.BrakeCommand;
+                            BrakeTriggered = true;
+                        }
                     } else {
                         if (TSP_ATS.ATSEnable) {
                             TSP_ATS.Disable();
@@ -50,8 +54,12 @@ namespace TobuSignal {
                     //TSP-ATS
                     if (TSP_ATS.ATSEnable) {
                         TSP_ATS.Tick(state);
-                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, TSP_ATS.BrakeCommand);
-                        if (TSP_ATS.BrakeCommand > 0) BrakeTriggered = true;
+                        if (TSP_ATS.BrakeCommand > 0) {
+                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, TSP_ATS.BrakeCommand);
+                            else AtsHandles.BrakeNotch = TSP_ATS.BrakeCommand;
+                            BrakeTriggered = true;
+                        }
                     } else {
                         if (T_DATC.ATCEnable) {
                             T_DATC.Disable();
@@ -62,7 +70,7 @@ namespace TobuSignal {
                         }
                     }
                 }
-                if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49 && !StandAloneMode)
+                if (currentSection.CurrentSignalIndex >= 109 && currentSection.CurrentSignalIndex != 134 && currentSection.CurrentSignalIndex < 149 && !StandAloneMode)
                     sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu ?
                         (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
                 if (!StandAloneMode) {

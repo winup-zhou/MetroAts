@@ -19,6 +19,10 @@ namespace MetroPIAddon {
             var panel = Native.AtsPanelArray;
             isStopAnnounce = false;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
+                if (!StandAloneMode) {
+                    lastRadioChannel = RadioChannel;
+                    RadioChannel = (KeyPosList)corePlugin.KeyPos;
+                }
                 Keyin = false;
                 panel[167] = CurrentSta;
                 panel[168] = panel[169] = 0;
@@ -27,10 +31,11 @@ namespace MetroPIAddon {
                 panel[64] = D(TrainNumber / 100, 1);
                 panel[65] = D(TrainNumber / 100, 0);
                 panel[68] = TrainNumber % 100;
-                panel[152] = TrainType;
+                panel[151] = panel[152] = TrainType;
                 panel[153] = D(TrainRunningNumber, 1);
                 panel[154] = D(TrainRunningNumber, 0);
                 panel[172] = Destination;
+                UpdateRequested = false;
             }
         }
 
@@ -70,11 +75,25 @@ namespace MetroPIAddon {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
-            if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
-                if (e.KeyName == AtsKeyName.I) {
+            if (handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
+                if (!StandAloneMode) {
+                    var lastKeyPos = RadioChannel;
+                    if (RadioChannelUpdateTime == TimeSpan.Zero) lastRadioChannel = RadioChannel;
+                    if (lastKeyPos != (KeyPosList)corePlugin.KeyPos) {
+                        RadioChannel = (KeyPosList)corePlugin.KeyPos;
+                        RadioChannelUpdateTime = state.Time + new TimeSpan(0, 0, 10);
+                    }
+                }
+                if (StandAloneMode && e.KeyName == AtsKeyName.I) {
                     Keyin = false;
-                } else if (e.KeyName == AtsKeyName.J) {
+                } else if (StandAloneMode && e.KeyName == AtsKeyName.J) {
                     Keyin = true;
+                } else if (e.KeyName == AtsKeyName.C1 && TrainType > 0) {
+                    --TrainType;
+                    lastTrainType = TrainType;
+                } else if (e.KeyName == AtsKeyName.C2 && TrainType < Config.MaxTrainTypeCount) {
+                    ++TrainType;
+                    lastTrainType = TrainType;
                 }
             }
         }
@@ -122,9 +141,9 @@ namespace MetroPIAddon {
                     CurrentSta = e.Optional / 1000;
                     NextSta = e.Optional % 1000;
                     break;
-                //case 49://ドア開側
-                //    doorSide = e.Optional;
-                //    break;
+                case 52://CCTV設定
+                    CCTVenable = e.Optional > 0;
+                    break;
                 case 14://連動表示灯
                     FDmode = e.Optional;
                     break;
@@ -133,16 +152,18 @@ namespace MetroPIAddon {
                 //    break;
                 case 50://種別/行先/運番表示
                     TrainRunningNumber = e.Optional % 100;
-                    Destination = (e.Optional / 100) % 100;
-                    TrainType = e.Optional / 10000;
+                    Destination = (e.Optional / 100) % 1000;
+                    lastTrainType = TrainType;
+                    TrainType = e.Optional / 100000;
+                    UpdateRequested = true;
                     break;
                 case 33://車掌電鈴遅延
                     if (e.Optional < 100) {
-                        if (e.Optional != 99) Conductorbuzzertime_station = new TimeSpan(0, 0, e.Optional);
-                        else Conductorbuzzertime_station = TimeSpan.MinValue;
+                        if (e.Optional != 99) Conductorbuzzertime_station = new TimeSpan(0, 0, e.Optional % 10);
+                        else Conductorbuzzertime_station = TimeSpan.Zero;
                     } else {
-                        Conductorbuzzertime_station = TimeSpan.MinValue;
-                        if (e.Optional != 199) Conductorbuzzertime_global = new TimeSpan(0, 0, e.Optional);
+                        Conductorbuzzertime_station = TimeSpan.Zero;
+                        if (e.Optional != 199) Conductorbuzzertime_global = new TimeSpan(0, 0, e.Optional % 10);
                         else Conductorbuzzertime_global = TimeSpan.Zero;
                     }
                     break;
@@ -165,7 +186,21 @@ namespace MetroPIAddon {
                             break;
                     }
                     break;
-
+                case 42:
+                    switch (e.Optional / 10) {
+                        default: LineDef = KeyPosList.None; break;
+                        case 1: LineDef = KeyPosList.Metro; break;
+                        case 2: LineDef = KeyPosList.Tobu; break;
+                        case 3: LineDef = KeyPosList.Tokyu; break;
+                        case 4: LineDef = KeyPosList.Seibu; break;
+                        case 5: LineDef = KeyPosList.Sotetsu; break;
+                        case 6: LineDef = KeyPosList.JR; break;
+                        case 7: LineDef = KeyPosList.Odakyu; break;
+                        case 8: LineDef = KeyPosList.ToyoKosoku; break;
+                    }
+                    Direction = e.Optional % 10;
+                    UpdateRequested = true;
+                    break;
                 case 46://FD OPEN SOUND CHANGE
                     if (e.Optional < Config.FDOpenSounds.Count && e.Optional >= 0) {
                         if (MapSoundList is null) FDOpenSoundIndex = e.Optional;

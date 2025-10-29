@@ -61,6 +61,8 @@ namespace TobuSignal {
         }
 
         public override void Dispose() {
+            Config.Dispose();
+
             Native.BeaconPassed -= BeaconPassed;
             Native.DoorOpened -= DoorOpened;
             Native.DoorClosed -= DoorClosed;
@@ -70,6 +72,12 @@ namespace TobuSignal {
             BveHacker.ScenarioCreated -= OnScenarioCreated;
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
+
+            SignalEnable = false;
+            Keyin = false;
+            StandAloneMode = true;
+            isDoorOpen = false;
+            BrakeTriggered = false;
         }
     }
 }

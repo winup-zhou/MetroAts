@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace SeibuSignal {
     internal partial class ATC {
@@ -44,8 +45,9 @@ namespace SeibuSignal {
             ATC_EmergencyOperation = false;
         }
 
-        public static void SwitchFromATS() {
+        public static void InitNow() {
             ATCEnable = true;
+            ATC_ATC = true;
         }
 
         public static void Init(TimeSpan time) {
