@@ -71,8 +71,8 @@ namespace TokyuSignal {
             } else if (e.KeyName == AtsKeyName.S) {
                 TokyuATS.ResetWarn();
             }
-            if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
-                if (e.KeyName == AtsKeyName.I) {
+            if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
+                if (e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N) {
                     Sound_Keyout = AtsSoundControlInstruction.Play;
                     Keyin = false;
                     BrakeTriggered = false;
@@ -83,7 +83,7 @@ namespace TokyuSignal {
                     panel[275] = 0;
                     panel[278] = 0;
                     UpdatePanelAndSound(panel, sound);     
-                } else if (e.KeyName == AtsKeyName.J) {
+                } else if (e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;
                 } else if (e.KeyName == AtsKeyName.G && NowSignalSW > 0) {

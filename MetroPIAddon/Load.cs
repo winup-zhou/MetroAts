@@ -50,7 +50,7 @@ namespace MetroPIAddon {
 
         private static bool Snowbrake = false, InstrumentLight = false;
         private static bool isStopAnnounce;
-        private static AtsSoundControlInstruction StopAnnounce, StopAnnounce_Confirmed, Tobu_DoorClosed, Door_poon,
+        private static AtsSoundControlInstruction OnBoardDepartMelody1, OnBoardDepartMelody2, StopAnnounce, StopAnnounce_Confirmed, Tobu_DoorClosed, Door_poon,
             Conductorbuzzer_Tokyu, Conductorbuzzer_Tobu, Conductorbuzzer_Odakyu, Conductorbuzzer_Test, Conductorbuzzer_Depart, Driver_buzzer, Lamp_SW_on, Lamp_SW_off, SnowBrake_on, SnowBrake_off;
         private static Sound FDOpenSound, FDCloseSound;
         private static int FDOpenSoundIndex, FDCloseSoundIndex;

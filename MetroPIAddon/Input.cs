@@ -75,8 +75,8 @@ namespace MetroPIAddon {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
-            if (handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
-                if (!StandAloneMode) {
+            if (handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
+                if (!StandAloneMode && handles.ReverserPosition == ReverserPosition.N) {
                     var lastKeyPos = RadioChannel;
                     if (RadioChannelUpdateTime == TimeSpan.Zero) lastRadioChannel = RadioChannel;
                     if (lastKeyPos != (KeyPosList)corePlugin.KeyPos) {
@@ -84,9 +84,9 @@ namespace MetroPIAddon {
                         RadioChannelUpdateTime = state.Time + new TimeSpan(0, 0, 10);
                     }
                 }
-                if (StandAloneMode && e.KeyName == AtsKeyName.I) {
+                if (StandAloneMode && e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N) {
                     Keyin = false;
-                } else if (StandAloneMode && e.KeyName == AtsKeyName.J) {
+                } else if (StandAloneMode && e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N) {
                     Keyin = true;
                 } else if (e.KeyName == AtsKeyName.C1 && TrainType > 0) {
                     --TrainType;
@@ -101,6 +101,9 @@ namespace MetroPIAddon {
         private void OnKeyUp(object sender, KeyEventArgs e) {
             if (e.KeyCode == Config.DriverBuzzerKey) {
                 Driver_buzzer = AtsSoundControlInstruction.Stop;
+            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey) {
+                OnBoardDepartMelody1 = AtsSoundControlInstruction.Stop;
+                OnBoardDepartMelody2 = AtsSoundControlInstruction.Play;
             }
         }
 
@@ -115,6 +118,9 @@ namespace MetroPIAddon {
                 if (InstrumentLight) Lamp_SW_off = AtsSoundControlInstruction.Play;
                 else Lamp_SW_on = AtsSoundControlInstruction.Play;
                 InstrumentLight = !InstrumentLight;
+            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey) {
+                OnBoardDepartMelody2 = AtsSoundControlInstruction.Stop;
+                OnBoardDepartMelody1 = AtsSoundControlInstruction.PlayLooping;
             }
         }
 
@@ -141,7 +147,7 @@ namespace MetroPIAddon {
                     CurrentSta = e.Optional / 1000;
                     NextSta = e.Optional % 1000;
                     break;
-                case 52://CCTV設定
+                case -52://CCTV設定
                     CCTVenable = e.Optional > 0;
                     break;
                 case 14://連動表示灯

@@ -27,7 +27,7 @@ namespace JR_SotetsuSignal {
             ATC_P, ATC_ATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation,
             ATC_SignalAnn, ATC_Noset, ATC_TempLimit, ATCNeedle_Disappear;
         public static int ORPNeedle, ATCNeedle;
-        public static AtsSoundControlInstruction ATC_Ding, ATC_ORPBeep, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
+        public static AtsSoundControlInstruction ATC_Ding, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
 
         public static void Tick(VehicleState state, Section CurrentSection, Section NextSection, HandleSet handles, bool Noset, bool InDepot) {
             if (ATCEnable) {
@@ -107,10 +107,6 @@ namespace JR_SotetsuSignal {
                                 LastATCSpeed = ATCSpeed;
                             }
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
-                            if (!Config.ORPUseNeedle) {
-                                if (ORPSpeed - Math.Abs(state.Speed) < 5 || ORPSpeed == 7.5) ATC_ORPBeep = AtsSoundControlInstruction.PlayLooping;
-                                else ATC_ORPBeep = AtsSoundControlInstruction.Stop;
-                            }
                         } else {
                             ORPPattern = SpeedPattern.inf;
                             if (ATC_ORPBeep == AtsSoundControlInstruction.PlayLooping)
@@ -165,12 +161,9 @@ namespace JR_SotetsuSignal {
                         }
 
                         if (ORPPattern != SpeedPattern.inf) {
-                            if (!Config.ORPUseNeedle) {
-                                ATC_P = state.Time.TotalMilliseconds % 1000 < 500;
-                            } else {
-                                ATC_P = true;
-                                ORPNeedle = (int)ORPSpeed * 10;
-                            }
+                            ATC_P = true;
+                            ORPNeedle = (int)ORPSpeed * 10;
+
                         } else {
                             ORPNeedle = (int)ORPSpeed * 10;
                             ATC_P = false;

@@ -347,6 +347,8 @@ namespace MetroPIAddon {
             sound[30] = (int)Tobu_DoorClosed;
             sound[31] = (int)Conductorbuzzer_Depart;
             sound[32] = (int)Door_poon;
+            sound[33] = (int)OnBoardDepartMelody1;
+            sound[34] = (int)OnBoardDepartMelody2;
 
             sound[90] = (int)Conductorbuzzer_Tokyu;
             sound[91] = (int)Conductorbuzzer_Odakyu;
@@ -354,7 +356,7 @@ namespace MetroPIAddon {
             sound[95] = (int)Conductorbuzzer_Test;
             sound[99] = (int)Driver_buzzer;
 
-            Tobu_DoorClosed = Conductorbuzzer_Tokyu = Conductorbuzzer_Tobu = Conductorbuzzer_Odakyu = Conductorbuzzer_Test = Lamp_SW_on = Lamp_SW_off = SnowBrake_on = SnowBrake_off = AtsSoundControlInstruction.Continue;
+            OnBoardDepartMelody2 = Tobu_DoorClosed = Conductorbuzzer_Tokyu = Conductorbuzzer_Tobu = Conductorbuzzer_Odakyu = Conductorbuzzer_Test = Lamp_SW_on = Lamp_SW_off = SnowBrake_on = SnowBrake_off = AtsSoundControlInstruction.Continue;
         }
     }
 }

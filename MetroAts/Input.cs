@@ -52,14 +52,18 @@ namespace MetroAts {
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
-            //throw new NotImplementedException();
+            if (e.KeyName == AtsKeyName.S) {
+                isSpacePressed = false;
+            }
         }
 
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
-            if (Math.Abs(state.Speed) == 0 && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
-                if (e.KeyName == AtsKeyName.I) {
+            if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
+                if (e.KeyName == AtsKeyName.S) {
+                    isSpacePressed = true;
+                } else if (e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N) {
                     if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey > 0) {
                         if (LineDef != KeyPosList.None && Config.EnforceKeyPos) {
                             for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
@@ -86,13 +90,13 @@ namespace MetroAts {
                                     break;
                                 }
                             }
-                        } else if(NowKey > 0 && !Config.EnforceKeyPos) {
+                        } else if (NowKey > 0 && !Config.EnforceKeyPos) {
                             NowKey--;
                             Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
                     }
-                    
-                } else if (e.KeyName == AtsKeyName.J) {
+
+                } else if (e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N) {
                     if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey < Config.KeyPosLists.Count - 1) {
                         if (LineDef != KeyPosList.None && Config.EnforceKeyPos) {
                             for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
@@ -123,26 +127,40 @@ namespace MetroAts {
                             NowKey++;
                             Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
-                            
+
                     }
-                } else if (e.KeyName == AtsKeyName.G) {
-                    if (Config.SignalSW_loop) {
-                        NowSignalSW = (NowSignalSW - 1) % Config.SignalSWLists.Count;
-                        if (NowSignalSW < 0) NowSignalSW += Config.SignalSWLists.Count;
-                        Sound_SignalSW = AtsSoundControlInstruction.Play;
-                    } else if (NowSignalSW > 0) {
-                        NowSignalSW--;
-                        Sound_SignalSW = AtsSoundControlInstruction.Play;
-                    }
-                } else if (e.KeyName == AtsKeyName.H) {
-                    if (Config.SignalSW_loop) {
-                        NowSignalSW = (NowSignalSW + 1) % Config.SignalSWLists.Count;
-                        Sound_SignalSW = AtsSoundControlInstruction.Play;
-                    } else if (NowSignalSW < Config.SignalSWLists.Count - 1) {
-                        NowSignalSW++;
-                        Sound_SignalSW = AtsSoundControlInstruction.Play;
+                } else {
+                    if (isSpacePressed) { //TASC
+                        if (e.KeyName == AtsKeyName.G) {
+                            isTASCenabled = false;
+                            Sound_SignalSW = AtsSoundControlInstruction.Play;
+                        } else if (e.KeyName == AtsKeyName.H) {
+                            isTASCenabled = true;
+                            Sound_SignalSW = AtsSoundControlInstruction.Play;
+                        }
+                    } else {
+                        if (e.KeyName == AtsKeyName.G) {
+                            if (Config.SignalSW_loop) {
+                                NowSignalSW = (NowSignalSW - 1) % Config.SignalSWLists.Count;
+                                if (NowSignalSW < 0) NowSignalSW += Config.SignalSWLists.Count;
+                                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            } else if (NowSignalSW > 0) {
+                                NowSignalSW--;
+                                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            }
+                        } else if (e.KeyName == AtsKeyName.H) {
+                            if (Config.SignalSW_loop) {
+                                NowSignalSW = (NowSignalSW + 1) % Config.SignalSWLists.Count;
+                                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            } else if (NowSignalSW < Config.SignalSWLists.Count - 1) {
+                                NowSignalSW++;
+                                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            }
+                        }
                     }
                 }
+                
+                
             }
         }
 

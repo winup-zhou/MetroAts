@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConductorlessAddon {
-    public partial class ConductorlessAddon : AssemblyPluginBase {
+namespace OdakyuPIAddon {
+    public partial class OdakyuPIAddon : AssemblyPluginBase {
         public override void Tick(TimeSpan elapsed) {
 
         }

@@ -26,6 +26,7 @@ namespace MetroAts {
         public static int Panel_poweroutput = 1023;
         public static int Panel_keyoutput = 1023;
         public static int Panel_SignalSWoutput = 1023;
+        public static int Panel_ATOTASCSWoutput = 1023;
 
         public static bool EnforceKeyPos = false;
 
@@ -59,6 +60,7 @@ namespace MetroAts {
                     ReadConfig("signalsw", "isloop", ref SignalSW_loop);
 
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
+                    ReadConfig("output", "atotascsw", ref Panel_ATOTASCSWoutput);
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);
                     ReadConfig("output", "key", ref Panel_keyoutput);

@@ -26,6 +26,7 @@ namespace MetroPIAddon {
         public static double MaxCurrentSpeed = 20.0;
         public static bool Current_abs = false;
         public static Keys DriverBuzzerKey = Keys.None;
+        public static Keys OnBoardDepartMelodyKey = Keys.None;
         public static Keys SnowBrakeKey = Keys.None;
         public static Keys InstrumentLightKey = Keys.None;
         public static double SnowBrakePressure = 0.0;
@@ -58,6 +59,7 @@ namespace MetroPIAddon {
                     ReadConfig("Current", "abs", ref Current_abs);
 
                     ReadConfig("Inputs", "driverbuzzer", ref DriverBuzzerKey);
+                    ReadConfig("Inputs", "onboarddepartmelody", ref OnBoardDepartMelodyKey);
                     ReadConfig("Inputs", "snowbrake", ref SnowBrakeKey);
                     ReadConfig("Inputs", "InstrumentLightKey", ref InstrumentLightKey);
 

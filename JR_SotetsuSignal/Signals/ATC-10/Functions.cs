@@ -20,7 +20,6 @@ namespace JR_SotetsuSignal {
             inDepot = false;
 
             ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_ORPBeep = AtsSoundControlInstruction.Stop;
             ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
             ATC_WarningBell = AtsSoundControlInstruction.Stop;
 
@@ -87,7 +86,6 @@ namespace JR_SotetsuSignal {
             BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
 
             ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_ORPBeep = AtsSoundControlInstruction.Stop;
             ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
             ATC_WarningBell = AtsSoundControlInstruction.Stop;
 
@@ -137,7 +135,6 @@ namespace JR_SotetsuSignal {
 
         private static void Disable_Noset_inDepot() {
             ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_ORPBeep = AtsSoundControlInstruction.Stop;
             ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
             ATC_WarningBell = AtsSoundControlInstruction.Stop;
 

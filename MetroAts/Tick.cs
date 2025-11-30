@@ -94,9 +94,11 @@ namespace MetroAts {
                     break;
             }
 
+            var TASCstate = isTASCenabled ? "ATO/TASC" : "手動";
+
             var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
             leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
-            leverText.Text = $"キー:{KeyText} 保安:{SignalSWText}\n{description}";
+            leverText.Text = $"キー:{KeyText} 保安:{SignalSWText} 運転:{TASCstate}\n{description}";
             if (Config.KeyPosLists[NowKey] == KeyPosList.None || !SubPluginEnabled) {
                 AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                 AtsHandles.ReverserPosition = ReverserPosition.N;
@@ -121,7 +123,7 @@ namespace MetroAts {
                 case KeyPosList.ToyoKosoku: panel[Config.Panel_keyoutput] = 8; break;
             }
 
-
+            panel[Config.Panel_ATOTASCSWoutput] = Convert.ToInt32(isTASCenabled);
             panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
 
             sound[270] = (int)Sound_Keyin;

@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using System;
 using System.Linq;
 
-namespace ConductorlessAddon {
+namespace OdakyuPIAddon {
     public static class Config {
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern int GetPrivateProfileString(string Section, string Key, string Default, StringBuilder RetVal, int Size, string FilePath);
@@ -26,14 +26,14 @@ namespace ConductorlessAddon {
         public static int Panel_SignalSWoutput = 1023;
 
         public static void Load() {
-            path = new FileInfo(Path.Combine(PluginDir, "MetroAtsConfig.ini")).FullName;
+            path = new FileInfo(Path.Combine(PluginDir, "OdakyuPIAddonConfig.ini")).FullName;
             if (File.Exists(path)) {
                 try {
                    
                 } catch (Exception ex) {
                     throw ex;
                 }
-            } else throw new BveFileLoadException("Unable to find configuration file: MetroAtsConfig.ini", "MetroAts");
+            } else throw new BveFileLoadException("Unable to find configuration file: OdakyuPIAddonConfig.ini", "OdakyuPIAddon");
         }
 
         private static void ReadConfig(string Section, string Key, ref int Value) {

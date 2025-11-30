@@ -7,8 +7,8 @@
     <ProjectGuid>{E145099B-27D0-482C-86A4-CF88F41BFBC6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ConductorlessAddon</RootNamespace>
-    <AssemblyName>ConductorlessAddon</AssemblyName>
+    <RootNamespace>OdakyuPIAddon</RootNamespace>
+    <AssemblyName>OdakyuPIAddon</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -46,8 +46,6 @@
     <Compile Include="Input.cs" />
     <Compile Include="Load.cs" />
     <Compile Include="Tick.cs" />
-    <Compile Include="EmptyConductor.cs" />
-    <Compile Include="ManualConductor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

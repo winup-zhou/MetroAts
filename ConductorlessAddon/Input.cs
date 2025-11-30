@@ -11,8 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ConductorlessAddon {
-    public partial class ConductorlessAddon : AssemblyPluginBase {
+namespace OdakyuPIAddon {
+    public partial class OdakyuPIAddon : AssemblyPluginBase {
 
         private void Initialize(object sender, StartedEventArgs e) {
 

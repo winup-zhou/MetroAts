@@ -11,7 +11,7 @@ using BveEx.Extensions.Native;
 using System.Windows.Forms;
 using CorePlugin = MetroAts.MetroAts;
 
-namespace ConductorlessAddon {
+namespace OdakyuPIAddon {
     public enum AtsSoundControlInstruction {
         Stop = -10000,      // Stop
         Play = 1,           // Play Once
@@ -32,7 +32,7 @@ namespace ConductorlessAddon {
     }
 
     [Plugin(PluginType.VehiclePlugin)]
-    public partial class ConductorlessAddon : AssemblyPluginBase {
+    public partial class OdakyuPIAddon : AssemblyPluginBase {
         private readonly INative Native;
         private static VehicleSpec vehicleSpec;
         private LeverText leverText;
@@ -44,7 +44,7 @@ namespace ConductorlessAddon {
         private static int Direction = 0; //0:未設定 1:上り 2:下り
         private static KeyPosList LineDef = KeyPosList.None;
 
-        public ConductorlessAddon(PluginBuilder services) : base(services) {
+        public OdakyuPIAddon(PluginBuilder services) : base(services) {
             Config.Load();
 
             Native = Extensions.GetExtension<INative>();
