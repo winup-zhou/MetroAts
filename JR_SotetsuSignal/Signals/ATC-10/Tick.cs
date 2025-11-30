@@ -36,7 +36,6 @@ namespace JR_SotetsuSignal {
                 ATC_EmergencyBrake = BrakeCommand == JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
 
                 if (CurrentSection.CurrentSignalIndex <= 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
-                    ATC_ORPBeep = AtsSoundControlInstruction.Stop;
                     if (InDepot) {
                         ATC_Depot = true;
                         Disable_Noset_inDepot();
@@ -109,8 +108,6 @@ namespace JR_SotetsuSignal {
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
                         } else {
                             ORPPattern = SpeedPattern.inf;
-                            if (ATC_ORPBeep == AtsSoundControlInstruction.PlayLooping)
-                                ATC_ORPBeep = AtsSoundControlInstruction.Stop;
                         }
 
                         ATCSpeed = ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? -1 : ATCLimits[CurrentSection.CurrentSignalIndex];
