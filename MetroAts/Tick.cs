@@ -107,8 +107,11 @@ namespace MetroAts {
             SubPluginEnabled = false;
 
             if (!SubPluginEnabled) {
-                panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
-                panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                if (state.Time.TotalMilliseconds - lastHandleOutputRefreshTime.TotalMilliseconds > Config.Panel_HandleOutputRefreshInterval) {
+                    lastHandleOutputRefreshTime = state.Time;
+                    panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
+                    panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                }
             }
             
             switch (Config.KeyPosLists[NowKey]) {

@@ -31,6 +31,7 @@ namespace MetroSignal {
         public static int Panel_keyoutput = 1023;
         public static int Panel_SignalSWoutput = 1023;
         public static bool SignalSW_legacyoutput = false;
+        public static int Panel_HandleOutputRefreshInterval = 0;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroSignal.ini")).FullName;
@@ -53,6 +54,7 @@ namespace MetroSignal {
                     ReadConfig("output", "brake", ref Panel_brakeoutput);
                     ReadConfig("output", "key", ref Panel_keyoutput);
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
+                    ReadConfig("output", "handlerefreshinterval", ref Panel_HandleOutputRefreshInterval);
                 } catch (Exception ex) {
                     throw ex;
                 }
@@ -68,6 +70,9 @@ namespace MetroSignal {
             Panel_brakeoutput = 1023;
             Panel_keyoutput = 1023;
             Panel_SignalSWoutput = 1023;
+
+            Panel_HandleOutputRefreshInterval = 0; 
+            SignalSW_legacyoutput = false;
         }
 
         //读取配置相关函数

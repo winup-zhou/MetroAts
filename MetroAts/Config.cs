@@ -28,6 +28,7 @@ namespace MetroAts {
         public static int Panel_keyoutput = 1023;
         public static int Panel_SignalSWoutput = 1023;
         public static int Panel_ATOTASCSWoutput = 1023;
+        public static int Panel_HandleOutputRefreshInterval = 0;
 
         public static bool EnforceKeyPos = false;
 
@@ -66,6 +67,7 @@ namespace MetroAts {
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);
                     ReadConfig("output", "key", ref Panel_keyoutput);
+                    ReadConfig("output", "handlerefreshinterval", ref Panel_HandleOutputRefreshInterval);
                 } catch (Exception ex) {
                     throw ex;
                 }
@@ -82,6 +84,9 @@ namespace MetroAts {
             Panel_keyoutput = 1023;
             Panel_SignalSWoutput = 1023;
             EnforceKeyPos = false;
+
+            SignalSW_legacyoutput = false;
+            Panel_HandleOutputRefreshInterval = 0;
         }
 
         private static void ReadConfig(string Section, string Key, ref int Value) {

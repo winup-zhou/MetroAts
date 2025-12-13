@@ -93,8 +93,11 @@ namespace JR_SotetsuSignal {
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
                 UpdatePanelAndSound(panel, sound);
-                panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
-                panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                if (state.Time.TotalMilliseconds - lastHandleOutputRefreshTime.TotalMilliseconds > Config.Panel_HandleOutputRefreshInterval) {
+                    lastHandleOutputRefreshTime = state.Time;
+                    panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
+                    panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                }
             } else {
                 if (StandAloneMode) {
                     if (!SignalEnable && Keyin)

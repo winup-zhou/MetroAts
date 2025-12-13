@@ -58,6 +58,7 @@ namespace MetroAts {
         public static int NowSignalSW;
         private static int NoneKeyPos;
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_SignalSW;
+        private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero;
 
         //Infomation that should be readable by sub-plugins
         public KeyPosList KeyPos {  get { return Config.KeyPosLists[NowKey]; } }

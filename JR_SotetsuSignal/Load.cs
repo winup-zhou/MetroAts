@@ -31,6 +31,7 @@ namespace JR_SotetsuSignal {
         private static bool StandAloneMode = true;
         private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
+        private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero;
 
         public JR_SotetsuSignal(PluginBuilder builder) : base(builder) {
             Config.Load();

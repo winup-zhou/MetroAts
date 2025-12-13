@@ -30,6 +30,7 @@ namespace TokyuSignal {
         public static int Panel_keyoutput = 1023;
         public static int Panel_SignalSWoutput = 1023;
         public static bool SignalSW_legacyoutput = false;
+        public static int Panel_HandleOutputRefreshInterval = 0;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "TokyuSignal.ini")).FullName;
@@ -51,6 +52,7 @@ namespace TokyuSignal {
                     ReadConfig("output", "brake", ref Panel_brakeoutput);
                     ReadConfig("output", "key", ref Panel_keyoutput);
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
+                    ReadConfig("output", "handlerefreshinterval", ref Panel_HandleOutputRefreshInterval);
                 } catch (Exception ex) {
                     throw ex;
                 }
@@ -65,6 +67,9 @@ namespace TokyuSignal {
             Panel_brakeoutput = 1023;
             Panel_keyoutput = 1023;
             Panel_SignalSWoutput = 1023;
+
+            SignalSW_legacyoutput = false;
+            Panel_HandleOutputRefreshInterval = 0;
         }
 
         //读取配置相关函数
