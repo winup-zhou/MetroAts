@@ -124,7 +124,34 @@ namespace MetroAts {
             }
 
             panel[Config.Panel_ATOTASCSWoutput] = Convert.ToInt32(isTASCenabled);
-            panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
+            if (!Config.SignalSW_legacyoutput) {
+                panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
+            } else {
+                switch (Config.SignalSWLists[NowSignalSW]) {
+                    case SignalSWList.TokyuATS:
+                    case SignalSWList.Odakyu:
+                    case SignalSWList.Sotetsu:
+                    case SignalSWList.SeibuATS:
+                    case SignalSWList.Tobu:
+                    case SignalSWList.JR:
+                    case SignalSWList.ATP:
+                        panel[Config.Panel_SignalSWoutput] = 0; 
+                        break;
+                    case SignalSWList.WS_ATC:
+                        panel[Config.Panel_SignalSWoutput] = 5;
+                        break;
+                    case SignalSWList.Noset:
+                        panel[Config.Panel_SignalSWoutput] = Config.KeyPosLists[NowKey] == KeyPosList.Tokyu ? 4 : 3;
+                        break;
+                    case SignalSWList.ATC:
+                        panel[Config.Panel_SignalSWoutput] = 1;
+                        break;
+                    case SignalSWList.InDepot:
+                        panel[Config.Panel_SignalSWoutput] = 2;
+                        break;
+                }
+            }
+                
 
             sound[270] = (int)Sound_Keyin;
             sound[271] = (int)Sound_Keyout;

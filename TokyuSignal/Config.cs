@@ -29,6 +29,7 @@ namespace TokyuSignal {
         public static int Panel_brakeoutput = 1023;
         public static int Panel_keyoutput = 1023;
         public static int Panel_SignalSWoutput = 1023;
+        public static bool SignalSW_legacyoutput = false;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "TokyuSignal.ini")).FullName;
@@ -44,6 +45,7 @@ namespace TokyuSignal {
                     }
                     if (!SignalSWLists.Contains(SignalSWListStandAlone.Noset))
                         SignalSWLists.Add(SignalSWListStandAlone.Noset);
+                    ReadConfig("signalsw", "legacyoutput", ref SignalSW_legacyoutput);
 
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);

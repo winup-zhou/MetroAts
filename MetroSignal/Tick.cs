@@ -1,6 +1,7 @@
 ﻿using BveEx.Extensions.Native;
 using BveEx.PluginHost.Plugins;
 using BveTypes.ClassWrappers;
+using MetroAts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -206,7 +207,27 @@ namespace MetroSignal {
                 sound[272] = (int)Sound_SignalSW;
 
                 panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
-                panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
+                if (!Config.SignalSW_legacyoutput) {
+                    panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
+                } else {
+                    switch (Config.SignalSWLists[NowSignalSW]) {
+                        case SignalSWListStandAlone.ATP:
+                            panel[Config.Panel_SignalSWoutput] = 0;
+                            break;
+                        case SignalSWListStandAlone.WS_ATC:
+                            panel[Config.Panel_SignalSWoutput] = 5;
+                            break;
+                        case SignalSWListStandAlone.Noset:
+                            panel[Config.Panel_SignalSWoutput] = 3;
+                            break;
+                        case SignalSWListStandAlone.ATC:
+                            panel[Config.Panel_SignalSWoutput] = 1;
+                            break;
+                        case SignalSWListStandAlone.InDepot:
+                            panel[Config.Panel_SignalSWoutput] = 2;
+                            break;
+                    }
+                }
             }
 
             //sound reset

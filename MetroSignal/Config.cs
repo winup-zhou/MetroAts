@@ -30,6 +30,7 @@ namespace MetroSignal {
         public static int Panel_brakeoutput = 1023;
         public static int Panel_keyoutput = 1023;
         public static int Panel_SignalSWoutput = 1023;
+        public static bool SignalSW_legacyoutput = false;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroSignal.ini")).FullName;
@@ -46,6 +47,7 @@ namespace MetroSignal {
                     }
                     if (!SignalSWLists.Contains(SignalSWListStandAlone.Noset))
                         SignalSWLists.Add(SignalSWListStandAlone.Noset);
+                    ReadConfig("signalsw", "legacyoutput", ref SignalSW_legacyoutput);
 
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);

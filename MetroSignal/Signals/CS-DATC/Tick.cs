@@ -14,7 +14,7 @@ namespace MetroSignal {
         private static SpeedPattern ATCPattern = SpeedPattern.inf;
         private static int LastATCSpeed = 0, ATCSpeed = 0;
         private static bool EBUntilStop = false, ServiceBrake = false, SignalAnn = false, inDepot = false;
-        private static double M01SectionDistance = -25;
+        private static double M01SectionEntrySpeed = -25;
         private const double PatternDec = -2.3; //*10
         private const double StationPatternDec = -4.0;
         private static TimeSpan InitializeStartTime = TimeSpan.Zero, BrakeStartTime = TimeSpan.Zero;

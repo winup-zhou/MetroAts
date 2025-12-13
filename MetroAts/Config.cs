@@ -21,6 +21,7 @@ namespace MetroAts {
         public static List<KeyPosList> KeyPosLists = new List<KeyPosList>();
         public static List<SignalSWList> SignalSWLists = new List<SignalSWList>();
         public static bool SignalSW_loop = false;
+        public static bool SignalSW_legacyoutput = false;
 
         public static int Panel_brakeoutput = 1023;
         public static int Panel_poweroutput = 1023;
@@ -58,6 +59,7 @@ namespace MetroAts {
                     if (!SignalSWLists.Contains(SignalSWList.Noset)&&!SignalSWLists.Contains(SignalSWList.JR)) SignalSWLists.Add(SignalSWList.Noset);
 
                     ReadConfig("signalsw", "isloop", ref SignalSW_loop);
+                    ReadConfig("signalsw", "legacyoutput", ref SignalSW_legacyoutput);
 
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
                     ReadConfig("output", "atotascsw", ref Panel_ATOTASCSWoutput);
