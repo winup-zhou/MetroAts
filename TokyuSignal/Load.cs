@@ -38,6 +38,7 @@ namespace TokyuSignal {
         private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
         private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero;
+        private static int lastBrakeNotch, lastPowerNotch;
 
         public TokyuSignal(PluginBuilder builder) : base(builder) {
             Config.Load();

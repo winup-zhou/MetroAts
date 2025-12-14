@@ -113,8 +113,13 @@ namespace SeibuSignal {
                 UpdatePanelAndSound(panel, sound);
                 if (state.Time.TotalMilliseconds - lastHandleOutputRefreshTime.TotalMilliseconds > Config.Panel_HandleOutputRefreshInterval) {
                     lastHandleOutputRefreshTime = state.Time;
+                    lastBrakeNotch = AtsHandles.BrakeNotch;
+                    lastPowerNotch = AtsHandles.PowerNotch;
                     panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
                     panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                } else {
+                    panel[Config.Panel_poweroutput] = lastPowerNotch;
+                    panel[Config.Panel_brakeoutput] = lastBrakeNotch;
                 }
             } else {
                 if (StandAloneMode) {

@@ -67,8 +67,8 @@ namespace MetroSignal {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
                 WS_ATC.ResetBrake(state, handles);
             }
-            if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 ) {
-                if (e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N) {
+            if (StandAloneMode) {
+                if (e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     Sound_Keyout = AtsSoundControlInstruction.Play;
                     Keyin = false;
                     BrakeTriggered = false;
@@ -79,13 +79,13 @@ namespace MetroSignal {
                     panel[274] = 0;
                     panel[277] = 0;
                     UpdatePanelAndSound(panel, sound);
-                } else if (e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N) {
+                } else if (e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;
-                } else if (e.KeyName == AtsKeyName.G && NowSignalSW > 0) {
+                } else if (e.KeyName == AtsKeyName.G && NowSignalSW > 0 && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     NowSignalSW--;
                     Sound_SignalSW = AtsSoundControlInstruction.Play;
-                } else if (e.KeyName == AtsKeyName.H && NowSignalSW < Config.SignalSWLists.Count - 1) {
+                } else if (e.KeyName == AtsKeyName.H && NowSignalSW < Config.SignalSWLists.Count - 1 && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     NowSignalSW++;
                     Sound_SignalSW = AtsSoundControlInstruction.Play;
                 }

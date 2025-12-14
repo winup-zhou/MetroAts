@@ -32,6 +32,7 @@ namespace JR_SotetsuSignal {
         private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
         private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero;
+        private static int lastBrakeNotch, lastPowerNotch;
 
         public JR_SotetsuSignal(PluginBuilder builder) : base(builder) {
             Config.Load();
