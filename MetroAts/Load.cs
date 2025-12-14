@@ -97,6 +97,8 @@ namespace MetroAts {
             isDoorOpen = false;
             isSpacePressed = false;
             isTASCenabled = false;
+            lastBrakeNotch = lastPowerNotch = 0;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
     }
 }

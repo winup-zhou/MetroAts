@@ -78,6 +78,8 @@ namespace JR_SotetsuSignal {
             StandAloneMode = true;
             isDoorOpen = false;
             BrakeTriggered = false;
+            lastBrakeNotch = lastPowerNotch = 0;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
     }
 }

@@ -88,6 +88,8 @@ namespace MetroSignal {
             StandAloneMode = true;
             isDoorOpen = false;
             BrakeTriggered = false;
+            lastBrakeNotch = lastPowerNotch = 0;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
     }
 }
