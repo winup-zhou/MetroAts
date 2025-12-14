@@ -75,7 +75,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.LATEST_RUN_ID }}
-          path: MetroAts
           repository: ${{ env.TARGET_REPO }}
           github-token: ${{ secrets.ACCESS_TOKEN }}
       - name: Download a build artifact from winup-zhou/MetroAts
