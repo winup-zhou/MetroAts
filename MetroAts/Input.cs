@@ -158,11 +158,13 @@ namespace MetroAts {
                 } else {
                     if (isSpacePressed) { //TASC
                         if (e.KeyName == AtsKeyName.G && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
+                            var lastTASCenabled = isTASCenabled;
                             isTASCenabled = false;
-                            Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            if(lastTASCenabled != isTASCenabled) Sound_SignalSW = AtsSoundControlInstruction.Play;
                         } else if (e.KeyName == AtsKeyName.H && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
+                            var lastTASCenabled = isTASCenabled;
                             isTASCenabled = true;
-                            Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            if (lastTASCenabled != isTASCenabled) Sound_SignalSW = AtsSoundControlInstruction.Play;
                         }
                     } else {
                         if (e.KeyName == AtsKeyName.G && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {

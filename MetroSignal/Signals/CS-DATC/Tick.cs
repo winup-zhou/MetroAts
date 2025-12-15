@@ -150,11 +150,8 @@ namespace MetroSignal {
                             BrakeStartTime = TimeSpan.Zero;
                         }
 
-                        if (ServiceBrake) {
-                            if (state.Time.TotalMilliseconds - BrakeStartTime.TotalMilliseconds < 1500)
-                                BrakeCommand = (int)Math.Ceiling(MetroSignal.vehicleSpec.BrakeNotches * 0.5);
-                            else BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches;
-                        }
+                        if (ServiceBrake) BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches;
+
 
                         if (EBUntilStop) {
                             BrakeCommand = Math.Max(BrakeCommand, MetroSignal.vehicleSpec.BrakeNotches + 1);
