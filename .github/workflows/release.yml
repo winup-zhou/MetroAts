@@ -56,7 +56,7 @@ jobs:
     name: Create release
     runs-on: ubuntu-latest
     env:
-      TARGET_REPO: winup-zhou/bve-autopilot-S-EX
+      TARGET_REPO: winup-zhou/bve-autopilot-lib
       TARGET_WORKFLOW_FILE: build.yml
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     needs: build
