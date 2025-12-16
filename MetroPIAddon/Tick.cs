@@ -266,7 +266,7 @@ namespace MetroPIAddon {
 
             if (Config.Current_abs) {
                 if (state.Speed < Config.MaxCurrentSpeed) {
-                    panel[Config.CurrentPanelIndex] = (int)Math.Abs((state.Speed / Config.MaxCurrentSpeed) * state.Current);
+                    panel[Config.CurrentPanelIndex] = (int)Math.Abs((0.25 + 0.75 * (state.Speed / Config.MaxCurrentSpeed)) * state.Current);
                 } else {
                     panel[Config.CurrentPanelIndex] = (int)Math.Abs(state.Current);
                 }
