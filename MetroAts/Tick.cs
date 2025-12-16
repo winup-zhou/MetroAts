@@ -98,7 +98,11 @@ namespace MetroAts {
 
             var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
             leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
-            leverText.Text = $"キー:{KeyText} 保安:{SignalSWText} 運転:{TASCstate}\n{description}";
+            if(Config.atotascsw_enable)
+                leverText.Text = $"キー:{KeyText} 保安:{SignalSWText} 運転:{TASCstate}\n{description}";
+            else
+                leverText.Text = $"キー:{KeyText} 保安:{SignalSWText}\n{description}";
+
             if (Config.KeyPosLists[NowKey] == KeyPosList.None || !SubPluginEnabled) {
                 AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
                 AtsHandles.ReverserPosition = ReverserPosition.N;

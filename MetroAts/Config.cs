@@ -23,6 +23,8 @@ namespace MetroAts {
         public static bool SignalSW_loop = false;
         public static bool SignalSW_legacyoutput = false;
 
+        public static bool atotascsw_enable = false;
+
         public static int Panel_brakeoutput = 1023;
         public static int Panel_poweroutput = 1023;
         public static int Panel_keyoutput = 1023;
@@ -62,6 +64,8 @@ namespace MetroAts {
                     ReadConfig("signalsw", "isloop", ref SignalSW_loop);
                     ReadConfig("signalsw", "legacyoutput", ref SignalSW_legacyoutput);
 
+                    ReadConfig("atotascsw", "enable", ref atotascsw_enable);
+
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
                     ReadConfig("output", "atotascsw", ref Panel_ATOTASCSWoutput);
                     ReadConfig("output", "power", ref Panel_poweroutput);
@@ -78,6 +82,7 @@ namespace MetroAts {
             KeyPosLists.Clear();
             SignalSWLists.Clear();
             SignalSW_loop = false;
+            atotascsw_enable = false;
 
             Panel_brakeoutput = 1023;
             Panel_poweroutput = 1023;

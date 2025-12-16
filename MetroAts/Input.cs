@@ -158,7 +158,7 @@ namespace MetroAts {
 
                     }
                 } else {
-                    if (isSpacePressed) { //TASC
+                    if (isSpacePressed && Config.atotascsw_enable) { //TASC
                         if (e.KeyName == AtsKeyName.G && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
                             var lastTASCenabled = isTASCenabled;
                             isTASCenabled = false;
