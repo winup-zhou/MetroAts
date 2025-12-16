@@ -99,15 +99,17 @@ namespace MetroPIAddon {
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e) {
+            var state = Native.VehicleState;
             if (e.KeyCode == Config.DriverBuzzerKey) {
                 Driver_buzzer = AtsSoundControlInstruction.Stop;
-            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey) {
+            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey && state.Speed == 0) {
                 OnBoardDepartMelody1 = AtsSoundControlInstruction.Stop;
                 OnBoardDepartMelody2 = AtsSoundControlInstruction.Play;
             }
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e) {
+            var state = Native.VehicleState;
             if (e.KeyCode == Config.DriverBuzzerKey) {
                 Driver_buzzer = AtsSoundControlInstruction.PlayLooping;
             } else if (e.KeyCode == Config.SnowBrakeKey) {
@@ -118,7 +120,7 @@ namespace MetroPIAddon {
                 if (InstrumentLight) Lamp_SW_off = AtsSoundControlInstruction.Play;
                 else Lamp_SW_on = AtsSoundControlInstruction.Play;
                 InstrumentLight = !InstrumentLight;
-            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey) {
+            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey && state.Speed == 0) {
                 OnBoardDepartMelody2 = AtsSoundControlInstruction.Stop;
                 OnBoardDepartMelody1 = AtsSoundControlInstruction.PlayLooping;
             }
