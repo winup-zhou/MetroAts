@@ -49,6 +49,7 @@ namespace SeibuSignal {
             BveHacker.ScenarioCreated += OnScenarioCreated;
 
             Plugins.AllPluginsLoaded += OnAllPluginsLoaded;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
 
         private void OnAllPluginsLoaded(object sender, EventArgs e) {

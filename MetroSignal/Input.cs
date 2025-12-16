@@ -22,6 +22,7 @@ namespace MetroSignal {
         }
 
         private void Initialize(object sender, StartedEventArgs e) {
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
             var panel = Native.AtsPanelArray;
             var sound = Native.AtsSoundArray;
             CS_ATC.ResetAll();

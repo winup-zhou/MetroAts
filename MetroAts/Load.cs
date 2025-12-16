@@ -81,6 +81,7 @@ namespace MetroAts {
             Native.AtsKeys.AnyKeyReleased += KeyUp;
             Native.VehicleSpecLoaded += SetVehicleSpec;
             Native.BeaconPassed += SetBeaconData;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
 
         public override void Dispose() {

@@ -15,6 +15,7 @@ namespace MetroAts {
     public partial class MetroAts : AssemblyPluginBase {
 
         private void Initialize(object sender, StartedEventArgs e) {
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
             var panel = Native.AtsPanelArray;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
