@@ -18,6 +18,7 @@ namespace MetroAts {
             lastHandleOutputRefreshTime = TimeSpan.Zero;
             var panel = Native.AtsPanelArray;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
+                isTASCenabled = false;
                 for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
                     if (Config.KeyPosLists[i] == KeyPosList.None) {
                         NoneKeyPos = NowKey = i;
