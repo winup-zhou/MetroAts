@@ -19,8 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetroPIAddon", "MetroPIAddo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OdakyuSignal", "OdakyuSignal\OdakyuSignal.csproj", "{8CED2E80-DBDE-4240-9476-88D6D0FD3B48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OdakyuPIAddon", "ConductorlessAddon\OdakyuPIAddon.csproj", "{E145099B-27D0-482C-86A4-CF88F41BFBC6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,10 +57,6 @@ Global
 		{8CED2E80-DBDE-4240-9476-88D6D0FD3B48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CED2E80-DBDE-4240-9476-88D6D0FD3B48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CED2E80-DBDE-4240-9476-88D6D0FD3B48}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E145099B-27D0-482C-86A4-CF88F41BFBC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E145099B-27D0-482C-86A4-CF88F41BFBC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E145099B-27D0-482C-86A4-CF88F41BFBC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E145099B-27D0-482C-86A4-CF88F41BFBC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

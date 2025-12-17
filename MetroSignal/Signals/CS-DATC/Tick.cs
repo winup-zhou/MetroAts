@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace MetroSignal {
     internal partial class CS_DATC {
-        public static int[] ATCLimits = { -2, -2, -2, -2, -2, -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
-            -2, -2, -2, -1, -2, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
+        public static double[] ATCLimits = { -2, 60, 60, 60, 60, -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+            -2, -2, -2, -2, 0, 0, 10, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120,
+            -2, 35, -2, -1, 35, 45, 40, 35, 30, 25, 20, 15, 10, 10, 0, -2 };
 
         private static SpeedPattern ATCPattern = SpeedPattern.inf;
         private static int LastATCSpeed = 0, ATCSpeed = 0;
@@ -35,7 +36,7 @@ namespace MetroSignal {
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == MetroSignal.vehicleSpec.BrakeNotches + 1;
 
-                if (CurrentSection.CurrentSignalIndex < 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
+                if (CurrentSection.CurrentSignalIndex < 109 || CurrentSection.CurrentSignalIndex == 134 || CurrentSection.CurrentSignalIndex >= 149) {
                     if (InDepot) {
                         ATC_Depot = true;
                         Disable_Noset_inDepot();
@@ -78,7 +79,7 @@ namespace MetroSignal {
                         BrakeCommand = 0;
 
                         var lastinDepot = inDepot;
-                        inDepot = CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48;
+                        inDepot = CurrentSection.CurrentSignalIndex >= 138 && CurrentSection.CurrentSignalIndex <= 148;
                         if (lastinDepot != inDepot) ATC_Ding = AtsSoundControlInstruction.Play;
 
                         if (Noset) {
@@ -100,19 +101,19 @@ namespace MetroSignal {
                         var lastATCSpeed = ATCSpeed;
 
                         if (inDepot) {
-                            ATCSpeed = ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? -1 : ATCLimits[CurrentSection.CurrentSignalIndex];
+                            ATCSpeed = ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? -1 : (int)ATCLimits[CurrentSection.CurrentSignalIndex];
                         } else {
-                            if (CurrentSection.CurrentSignalIndex == 9) {
+                            if (CurrentSection.CurrentSignalIndex == 109) {
                                 ATC_X = true;
-                            } else if (CurrentSection.CurrentSignalIndex == 10) {
+                            } else if (CurrentSection.CurrentSignalIndex == 110) {
 
                             } else if (ATCLimits[CurrentSection.CurrentSignalIndex] > 0) {
 
                             }
                         }
 
-                            var ORPSpeed = 0.0;
-                        if (CurrentSection.CurrentSignalIndex == 35 || CurrentSection.CurrentSignalIndex == 38) {
+                        var ORPSpeed = 0.0;
+                        if (CurrentSection.CurrentSignalIndex == 135 || CurrentSection.CurrentSignalIndex == 138) {
                             if (ATCPattern == SpeedPattern.inf) {
                                 ATCPattern = new SpeedPattern(0, NextSection.Location);
                                 LastATCSpeed = ATCSpeed;
@@ -125,7 +126,7 @@ namespace MetroSignal {
                         
 
                         if (ATCLimits[CurrentSection.CurrentSignalIndex] == 0 && ATCSpeed != -1) {
-                            BrakeCommand = (int)Math.Ceiling(MetroSignal.vehicleSpec.BrakeNotches * 0.5);
+                            BrakeCommand = (int)MetroSignal.vehicleSpec.BrakeNotches;
                             ATCSpeed = 0;
                         }
 
@@ -133,21 +134,14 @@ namespace MetroSignal {
 
                         ATC_Depot = inDepot;
 
-                        if (Math.Abs(state.Speed) > ATCPattern.AtLocation(state.Location, PatternDec))
+                        if (Math.Abs(state.Speed) > ATCPattern.AtLocation(state.Location, PatternDec)
+                            && (CurrentSection.CurrentSignalIndex == 135 || CurrentSection.CurrentSignalIndex == 138))
                             EBUntilStop = true;
 
                         if (Math.Abs(state.Speed) > ATCSpeed + 2.5 && ATCSpeed != -1) {
-                            if (Math.Abs(state.Speed) >= ATCSpeed + 5) {
-                                if (!ServiceBrake) ServiceBrake = true;
-                                if (BrakeStartTime == TimeSpan.Zero) BrakeStartTime = state.Time;
-                            } else {
-                                ServiceBrake = false;
-                                BrakeStartTime = TimeSpan.Zero;
-                                BrakeCommand = (int)Math.Ceiling(MetroSignal.vehicleSpec.BrakeNotches * 0.5);
-                            }
+                            if (!ServiceBrake) ServiceBrake = true;
                         } else {
                             ServiceBrake = false;
-                            BrakeStartTime = TimeSpan.Zero;
                         }
 
                         if (ServiceBrake) BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches;
@@ -158,7 +152,8 @@ namespace MetroSignal {
                             if (Math.Abs(state.Speed) == 0 && handles.BrakeNotch >= MetroSignal.vehicleSpec.BrakeNotches) EBUntilStop = false;
                         }
 
-                        if (ATCPattern != SpeedPattern.inf && (Math.Abs(state.Speed) > ATCPattern.AtLocation(state.Location, PatternDec) || Math.Abs(state.Speed) < 5 || ATCPattern.AtLocation(state.Location, PatternDec) < 7.5)) {
+                        if (ATCPattern != SpeedPattern.inf && (Math.Abs(state.Speed) > ATCPattern.AtLocation(state.Location, PatternDec)
+                            || Math.Abs(state.Speed) < 5 || ATCPattern.AtLocation(state.Location, PatternDec) < 7.5)) {
                             ATCPattern = new SpeedPattern(7.5, state.Location, 7.5);
                         }
 
