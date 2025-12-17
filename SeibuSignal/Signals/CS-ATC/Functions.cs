@@ -46,6 +46,7 @@ namespace SeibuSignal {
         }
 
         public static void InitNow() {
+            ATC_Ding = AtsSoundControlInstruction.Play;
             ATCEnable = true;
             ATC_ATC = true;
         }
