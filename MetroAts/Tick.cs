@@ -87,7 +87,7 @@ namespace MetroAts {
                     SignalSWText = "ATP";
                     break;
                 case SignalSWList.Odakyu:
-                    KeyText = "小田急";
+                    SignalSWText = "小田急";
                     break;
                 default:
                     SignalSWText = "無効";
