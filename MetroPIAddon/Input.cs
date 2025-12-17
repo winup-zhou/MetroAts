@@ -102,9 +102,9 @@ namespace MetroPIAddon {
             var state = Native.VehicleState;
             if (e.KeyCode == Config.DriverBuzzerKey) {
                 Driver_buzzer = AtsSoundControlInstruction.Stop;
-            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey && state.Speed == 0) {
+            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey) {
                 OnBoardDepartMelody1 = AtsSoundControlInstruction.Stop;
-                OnBoardDepartMelody2 = AtsSoundControlInstruction.Play;
+                if(state.Speed == 0) OnBoardDepartMelody2 = AtsSoundControlInstruction.Play;
             }
         }
 

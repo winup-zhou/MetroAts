@@ -74,7 +74,9 @@ namespace TokyuSignal {
                         BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches + 1;
                         ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
                     } else {
+                        var lastATC_ATC = ATC_ATC;
                         ATC_ATC = true;
+                        if (!lastATC_ATC && ATC_ATC) ATC_Ding = AtsSoundControlInstruction.Play;
                         BrakeCommand = 0;
 
                         var lastinDepot = inDepot;
