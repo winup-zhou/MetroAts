@@ -52,7 +52,7 @@ namespace MetroPIAddon {
                         lastBaseOdometer = BaseOdometer;
                         isOdometerPlus = Math.Abs(targetBeacon.SendData) % 10 > 0;
                         isOdometerHasMinus = Math.Abs(targetBeacon.SendData) / 10 % 10 > 0;
-                        BaseOdometer = Convert.ToInt32(targetBeacon.SendData / 100) - targetBeacon.Location;
+                        BaseOdometer = Convert.ToInt32(targetBeacon.SendData / 100) - (lastisOdometerPlus ? 1 : -1) * targetBeacon.Location;
                         lastOdometerBeacon = targetBeacon;
                     }
                     break;
