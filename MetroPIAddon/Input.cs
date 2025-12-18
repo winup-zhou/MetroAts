@@ -21,46 +21,48 @@ namespace MetroPIAddon {
             if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
             isStopAnnounce = false;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
-                if (!StandAloneMode) {
-                    lastRadioChannel = RadioChannel;
-                    RadioChannel = (KeyPosList)corePlugin.KeyPos;
-                }
+                
                 Keyin = false;
-                panel[167] = CurrentSta;
-                panel[168] = panel[169] = 0;
-                panel[62] = D(TrainNumber / 100, 3);
-                panel[63] = D(TrainNumber / 100, 2);
-                panel[64] = D(TrainNumber / 100, 1);
-                panel[65] = D(TrainNumber / 100, 0);
-                panel[68] = TrainNumber % 100;
-                panel[151] = panel[152] = TrainType;
-                panel[153] = D(TrainRunningNumber, 1);
-                panel[154] = D(TrainRunningNumber, 0);
-                panel[172] = Destination;
-                var nowLocation = (int)(BaseOdometer + (isOdometerPlus ? 1 : -1) * state.Location);
-                //100km = 100000m
-                if (isOdometerHasMinus) {
-                    panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
-                    //100km = 100000m
-                    panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
-                    panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
-                    panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
-                    panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
-                    panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
-                } else {
-                    panel[Config.odometer_Kmsymbol] = 0;
-                    //100km = 100000m
-                    panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
-                    panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
-                    panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
-                    panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
-                    panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
-                }
-                lastisOdometerPlus = isOdometerPlus;
-                lastisOdometerHasMinus = isOdometerHasMinus;
-                lastBaseOdometer = BaseOdometer;
-                UpdateRequested = false;
+                
             }
+            if (!StandAloneMode) {
+                lastRadioChannel = RadioChannel;
+                RadioChannel = (KeyPosList)corePlugin.KeyPos;
+            }
+            panel[167] = CurrentSta;
+            panel[168] = panel[169] = 0;
+            panel[62] = D(TrainNumber / 100, 3);
+            panel[63] = D(TrainNumber / 100, 2);
+            panel[64] = D(TrainNumber / 100, 1);
+            panel[65] = D(TrainNumber / 100, 0);
+            panel[68] = TrainNumber % 100;
+            panel[151] = panel[152] = TrainType;
+            panel[153] = D(TrainRunningNumber, 1);
+            panel[154] = D(TrainRunningNumber, 0);
+            panel[172] = Destination;
+            var nowLocation = (int)(BaseOdometer + (isOdometerPlus ? 1 : -1) * state.Location);
+            //100km = 100000m
+            if (isOdometerHasMinus) {
+                panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
+                //100km = 100000m
+                panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
+                panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
+                panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
+                panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
+                panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
+            } else {
+                panel[Config.odometer_Kmsymbol] = 0;
+                //100km = 100000m
+                panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
+                panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
+                panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
+                panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
+                panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
+            }
+            lastisOdometerPlus = isOdometerPlus;
+            lastisOdometerHasMinus = isOdometerHasMinus;
+            lastBaseOdometer = BaseOdometer;
+            UpdateRequested = false;
         }
 
         private void DoorOpened(object sender, EventArgs e) {
