@@ -43,6 +43,22 @@ namespace MetroPIAddon {
             var currentStation = MapStationList[MapStationList.Count - 1].Location - 25 < state.Location ? MapStationList[MapStationList.Count - 1] as Station :
                 MapStationList[pointer > 0 ? pointer - 1 : 0] as Station;
 
+            for (int i = OdometerBeacons.Count - 1; i >= 0; i--) {
+                if (OdometerBeacons[i].Location <= state.Location) {
+                    var targetBeacon = OdometerBeacons[i];
+                    if (lastOdometerBeacon != targetBeacon) {
+                        lastisOdometerPlus = isOdometerPlus;
+                        lastisOdometerHasMinus = isOdometerHasMinus;
+                        lastBaseOdometer = BaseOdometer;
+                        isOdometerPlus = Math.Abs(targetBeacon.SendData) % 10 > 0;
+                        isOdometerHasMinus = Math.Abs(targetBeacon.SendData) / 10 % 10 > 0;
+                        BaseOdometer = Convert.ToInt32(targetBeacon.SendData / 100) - targetBeacon.Location;
+                        lastOdometerBeacon = targetBeacon;
+                    }
+                    break;
+                }
+            }
+
             if (FDmode == 0) {
                 panel[155] = 0;
                 panel[181] = panel[182] = 0;
@@ -217,6 +233,9 @@ namespace MetroPIAddon {
                 if (state.Time > DoorOpenTime + new TimeSpan(0, 0, 2)) {
                     panel[167] = CurrentSta;
                     panel[168] = panel[169] = 0;
+                    lastisOdometerPlus = isOdometerPlus;
+                    lastisOdometerHasMinus = isOdometerHasMinus;
+                    lastBaseOdometer = BaseOdometer;
                 }
                 if (state.Time > DoorOpenTime + new TimeSpan(0, 0, 10)) {
                     panel[62] = D(TrainNumber / 100, 3);
@@ -235,6 +254,24 @@ namespace MetroPIAddon {
                 } else {
                     panel[151] = panel[152] = lastTrainType;
                 }
+                var nowLocation = (int)(lastBaseOdometer + (lastisOdometerPlus ? 1 : -1) * state.Location);
+                if (lastisOdometerHasMinus) {
+                    panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
+                    //100km = 100000m
+                    panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
+                    panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
+                    panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
+                    panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
+                    panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
+                } else {
+                    panel[Config.odometer_Kmsymbol] = 0;
+                    //100km = 100000m
+                    panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
+                    panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
+                    panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
+                    panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
+                    panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
+                }
             } else {
                 if (state.Time > DoorClosedTime + new TimeSpan(0, 0, 10) && DoorClosedTime != TimeSpan.Zero) {
                     panel[167] = 0;
@@ -245,10 +282,27 @@ namespace MetroPIAddon {
                 if (UpdateRequested) {
                     panel[151] = panel[152] = lastTrainType;
                 } else {
-                    
                     panel[151] = panel[152] = TrainType;
                 }
-                    
+                var nowLocation = (int)(lastBaseOdometer + (lastisOdometerPlus ? 1 : -1) * state.Location);
+                if (lastisOdometerHasMinus) {
+                    panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
+                    //100km = 100000m
+                    panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
+                    panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
+                    panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
+                    panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
+                    panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
+                } else {
+                    panel[Config.odometer_Kmsymbol] = 0;
+                    //100km = 100000m
+                    panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
+                    panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
+                    panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
+                    panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
+                    panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
+                }
+                
             }
 
             if (Snowbrake && state.BcPressure < Config.SnowBrakePressure) {

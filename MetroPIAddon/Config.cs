@@ -34,6 +34,14 @@ namespace MetroPIAddon {
         public static int Panel_LineDefOutput = 1023;
         public static int Panel_RadiochannelOutput = 1023;
 
+        //[odometer]
+        public static int odometer_Kmsymbol = 1023;
+        public static int odometer_Km100 = 1023;
+        public static int odometer_Km10 = 1023;
+        public static int odometer_Km1 = 1023;
+        public static int odometer_Km01 = 1023;
+        public static int odometer_Km001 = 1023;
+
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroPIAddon.ini")).FullName;
             if (File.Exists(path)) {
@@ -68,6 +76,13 @@ namespace MetroPIAddon {
                     ReadConfig("traininfo", "typecounts", ref MaxTrainTypeCount);
                     ReadConfig("traininfo", "linedef", ref Panel_LineDefOutput);
                     ReadConfig("traininfo", "radiochannel", ref Panel_RadiochannelOutput);
+
+                    ReadConfig("odometer", "kmsymbol", ref odometer_Kmsymbol);
+                    ReadConfig("odometer", "km100", ref odometer_Km100);
+                    ReadConfig("odometer", "km10", ref odometer_Km10);
+                    ReadConfig("odometer", "km1", ref odometer_Km1);
+                    ReadConfig("odometer", "km0.1", ref odometer_Km01);
+                    ReadConfig("odometer", "Km0.01", ref odometer_Km001);
 
                 } catch (Exception ex) {
                     throw ex;
