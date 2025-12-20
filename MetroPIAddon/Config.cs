@@ -42,6 +42,9 @@ namespace MetroPIAddon {
         public static int odometer_Km01 = 1023;
         public static int odometer_Km001 = 1023;
 
+        public static int depart_melody = 1023;
+        public static int depart_announce = 1023;
+
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroPIAddon.ini")).FullName;
             if (File.Exists(path)) {
@@ -84,6 +87,9 @@ namespace MetroPIAddon {
                     ReadConfig("odometer", "km0.1", ref odometer_Km01);
                     ReadConfig("odometer", "Km0.01", ref odometer_Km001);
 
+                    ReadConfig("departmelody", "melody", ref depart_melody);
+                    ReadConfig("departmelody", "announce", ref depart_announce);
+
                 } catch (Exception ex) {
                     throw ex;
                 }
@@ -106,6 +112,16 @@ namespace MetroPIAddon {
             MaxTrainTypeCount = 19;
             Panel_LineDefOutput = 1023;
             Panel_RadiochannelOutput = 1023;
+
+            odometer_Kmsymbol = 1023;
+            odometer_Km100 = 1023;
+            odometer_Km10 = 1023;
+            odometer_Km1 = 1023;
+            odometer_Km01 = 1023;
+            odometer_Km001 = 1023;
+
+            depart_melody = 1023;
+            depart_announce = 1023;
         }
 
         private static void ReadConfig(string Section, string Key, ref int Value) {

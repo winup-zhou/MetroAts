@@ -401,8 +401,8 @@ namespace MetroPIAddon {
             sound[30] = (int)Tobu_DoorClosed;
             sound[31] = (int)Conductorbuzzer_Depart;
             sound[32] = (int)Door_poon;
-            sound[33] = (int)OnBoardDepartMelody1;
-            sound[34] = (int)OnBoardDepartMelody2;
+            sound[Config.depart_melody] = (int)OnBoardDepartMelody1;
+            sound[Config.depart_announce] = (int)OnBoardDepartMelody2;
 
             sound[90] = (int)Conductorbuzzer_Tokyu;
             sound[91] = (int)Conductorbuzzer_Odakyu;
