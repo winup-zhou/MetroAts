@@ -15,7 +15,7 @@ namespace MetroSignal {
             ServiceBrake = false;
             InitializeStartTime = TimeSpan.Zero;
             BrakeStartTime = TimeSpan.Zero;
-            LastATCSpeed = 0;
+            LastATCSpeed = 7;
             inDepot = false;
 
             M01SectionEntrySpeed = 25;

@@ -15,7 +15,7 @@ namespace JR_SotetsuSignal {
             ServiceBrake = false;
             InitializeStartTime = TimeSpan.Zero;
             BrakeStartTime = TimeSpan.Zero;
-            LastATCSpeed = 0;
+            LastATCSpeed = 7;
             SignalAnn = false;
             inDepot = false;
 
