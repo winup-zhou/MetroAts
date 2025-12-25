@@ -17,7 +17,7 @@ namespace TokyuSignal {
             ServiceBrake = false;
             InitializeStartTime = TimeSpan.Zero;
             BrakeStartTime = TimeSpan.Zero;
-            LastATCSpeed = 7;
+            LastATCSpeed = 0;
             SignalAnn = false;
             inDepot = false;
 

@@ -103,7 +103,7 @@ namespace TokyuSignal {
                         if (CurrentSection.CurrentSignalIndex == 35 || CurrentSection.CurrentSignalIndex == 38) {
                             if (ORPPattern == SpeedPattern.inf) {
                                 ORPPattern = new SpeedPattern(0, NextSection.Location);
-                                LastATCSpeed = ATCSpeed;
+                                LastATCSpeed = ATCSpeed == 0 ? 7 : ATCSpeed;
                             }
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
 
