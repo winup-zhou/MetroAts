@@ -394,10 +394,10 @@ namespace MetroPIAddon {
             sound[13] = (int)Lamp_SW_off;
             sound[14] = (int)SnowBrake_on;
             sound[15] = (int)SnowBrake_off;
-            if (lastBrakeNotch != vehicleSpec.BrakeNotches + 1 && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && state.Speed > 7) {
+            if (lastBrakeNotch != vehicleSpec.BrakeNotches + 1 && AtsHandles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && state.Speed > 7) {
                 sound[27] = (int)AtsSoundControlInstruction.Play;
-            } else if (handles.BrakeNotch != vehicleSpec.BrakeNotches + 1) sound[27] = (int)AtsSoundControlInstruction.Continue;
-            lastBrakeNotch = handles.BrakeNotch;
+            } else if (AtsHandles.BrakeNotch != vehicleSpec.BrakeNotches + 1) sound[27] = (int)AtsSoundControlInstruction.Continue;
+            lastBrakeNotch = AtsHandles.BrakeNotch;
             sound[30] = (int)Tobu_DoorClosed;
             sound[31] = (int)Conductorbuzzer_Depart;
             sound[32] = (int)Door_poon;
