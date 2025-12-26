@@ -106,7 +106,7 @@ namespace MetroSignal {
                         if (CurrentSection.CurrentSignalIndex == 35 || CurrentSection.CurrentSignalIndex == 38) {
                             if (ORPPattern == SpeedPattern.inf) {
                                 ORPPattern = new SpeedPattern(0, NextSection.Location);
-                                LastATCSpeed = ATCSpeed == 0 ? 7 : ATCSpeed;
+                                LastATCSpeed = ATCSpeed == 0 ? 35 : ATCSpeed;
                             }
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
                             if (!Config.ORPUseNeedle) {
