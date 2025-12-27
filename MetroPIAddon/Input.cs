@@ -275,7 +275,7 @@ namespace MetroPIAddon {
         static int[] pow10 = new int[] { 1, 10, 100, 1000, 10000, 100000, 1000000 };
         static int D(int src, int digit) {
             if (pow10[digit] > src) {
-                return 10;
+                return 0;
             } else if (digit == 0 && src == 0) {
                 return 0;
             } else {
