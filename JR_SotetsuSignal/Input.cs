@@ -28,6 +28,7 @@ namespace JR_SotetsuSignal {
         }
 
         private void Initialize(object sender, StartedEventArgs e) {
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
             var panel = Native.AtsPanelArray;
             var sound = Native.AtsSoundArray;
             ATS_P.ResetAll();

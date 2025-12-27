@@ -26,15 +26,15 @@ namespace MetroAts {
     public enum SignalSWList {
         Noset = 0,
         TokyuATS = 1,
-        InDepot= 2,
-        Sotetsu = 3,
-        ATC = 4,
-        SeibuATS = 5,
-        Tobu = 6,
-        JR = 7,
-        WS_ATC = 8,
-        ATP = 9,
-        Odakyu = 10
+        InDepot = 3,
+        Sotetsu = 4,
+        ATC = 5,
+        SeibuATS = 6,
+        Tobu = 7,
+        JR = 8,
+        WS_ATC = 9,
+        ATP = 10,
+        Odakyu = 2
     }
 
     public enum AtsSoundControlInstruction {
@@ -51,15 +51,21 @@ namespace MetroAts {
         private LeverText leverText;
         private static bool isDoorOpen = false;
 
+        private static bool isSpacePressed = false;
+        private static bool isTASCenabled = false;
+
         public static int NowKey;
         public static int NowSignalSW;
         private static int NoneKeyPos;
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_SignalSW;
+        private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero;
+        private static int lastBrakeNotch, lastPowerNotch;
 
         //Infomation that should be readable by sub-plugins
         public KeyPosList KeyPos {  get { return Config.KeyPosLists[NowKey]; } }
         public SignalSWList SignalSWPos {  get { return Config.SignalSWLists[NowSignalSW]; } }
         public bool SubPluginEnabled { set; get; } = false;
+        public bool isATO_TASCenabled { get { return isTASCenabled; } }
 
         private static int Direction = 0; //0:未設定 1:上り 2:下り
         private static KeyPosList LineDef = KeyPosList.None;
@@ -75,6 +81,7 @@ namespace MetroAts {
             Native.AtsKeys.AnyKeyReleased += KeyUp;
             Native.VehicleSpecLoaded += SetVehicleSpec;
             Native.BeaconPassed += SetBeaconData;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
 
         public override void Dispose() {
@@ -89,6 +96,10 @@ namespace MetroAts {
             Direction = 0; //0:未設定 1:上り 2:下り
             LineDef = KeyPosList.None;
             isDoorOpen = false;
+            isSpacePressed = false;
+            isTASCenabled = false;
+            lastBrakeNotch = lastPowerNotch = 0;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
     }
 }

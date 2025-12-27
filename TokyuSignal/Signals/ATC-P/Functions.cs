@@ -18,6 +18,7 @@ namespace TokyuSignal {
             InitializeStartTime = TimeSpan.Zero;
             BrakeStartTime = TimeSpan.Zero;
             LastATCSpeed = 0;
+            ATCSpeed = 0;
             SignalAnn = false;
             inDepot = false;
 
@@ -72,6 +73,7 @@ namespace TokyuSignal {
         }
 
         public static void InitNow() {
+            ATC_Ding = AtsSoundControlInstruction.Play;
             ATCEnable = true;
             ATC_ATC = true;
         }

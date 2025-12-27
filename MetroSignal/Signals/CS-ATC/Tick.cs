@@ -75,7 +75,9 @@ namespace MetroSignal {
                         }
                         BrakeCommand = MetroSignal.vehicleSpec.BrakeNotches + 1;
                     } else {
+                        var lastATC_ATC = ATC_ATC;
                         ATC_ATC = true;
+                        if (!lastATC_ATC && ATC_ATC) ATC_Ding = AtsSoundControlInstruction.Play;
                         BrakeCommand = 0;
 
                         var lastinDepot = inDepot;
@@ -104,7 +106,7 @@ namespace MetroSignal {
                         if (CurrentSection.CurrentSignalIndex == 35 || CurrentSection.CurrentSignalIndex == 38) {
                             if (ORPPattern == SpeedPattern.inf) {
                                 ORPPattern = new SpeedPattern(0, NextSection.Location);
-                                LastATCSpeed = ATCSpeed;
+                                LastATCSpeed = ATCSpeed == 0 ? 35 : ATCSpeed;
                             }
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
                             if (!Config.ORPUseNeedle) {

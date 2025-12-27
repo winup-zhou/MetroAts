@@ -27,6 +27,7 @@ namespace SeibuSignal {
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
         public static int Panel_keyoutput = 1023;
+        public static int Panel_HandleOutputRefreshInterval = 0;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "SeibuSignal.ini")).FullName;
@@ -38,6 +39,7 @@ namespace SeibuSignal {
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);
                     ReadConfig("output", "key", ref Panel_keyoutput);
+                    ReadConfig("output", "handlerefreshinterval", ref Panel_HandleOutputRefreshInterval);
                 } catch (Exception ex) {
                     throw ex;
                 }
@@ -50,6 +52,8 @@ namespace SeibuSignal {
             Panel_poweroutput = 1023;
             Panel_brakeoutput = 1023;
             Panel_keyoutput = 1023;
+
+            Panel_HandleOutputRefreshInterval = 0;
         }
 
         //读取配置相关函数

@@ -43,6 +43,22 @@ namespace MetroPIAddon {
             var currentStation = MapStationList[MapStationList.Count - 1].Location - 25 < state.Location ? MapStationList[MapStationList.Count - 1] as Station :
                 MapStationList[pointer > 0 ? pointer - 1 : 0] as Station;
 
+            for (int i = OdometerBeacons.Count - 1; i >= 0; i--) {
+                if (OdometerBeacons[i].Location <= state.Location) {
+                    var targetBeacon = OdometerBeacons[i];
+                    if (lastOdometerBeacon != targetBeacon) {
+                        lastisOdometerPlus = isOdometerPlus;
+                        lastisOdometerHasMinus = isOdometerHasMinus;
+                        lastBaseOdometer = BaseOdometer;
+                        isOdometerPlus = Math.Abs(targetBeacon.SendData) % 10 > 0;
+                        isOdometerHasMinus = Math.Abs(targetBeacon.SendData) / 10 % 10 > 0;
+                        BaseOdometer = Convert.ToInt32(targetBeacon.SendData / 100) - (isOdometerPlus ? 1 : -1) * targetBeacon.Location;
+                        lastOdometerBeacon = targetBeacon;
+                    }
+                    break;
+                }
+            }
+
             if (FDmode == 0) {
                 panel[155] = 0;
                 panel[181] = panel[182] = 0;
@@ -217,6 +233,9 @@ namespace MetroPIAddon {
                 if (state.Time > DoorOpenTime + new TimeSpan(0, 0, 2)) {
                     panel[167] = CurrentSta;
                     panel[168] = panel[169] = 0;
+                    lastisOdometerPlus = isOdometerPlus;
+                    lastisOdometerHasMinus = isOdometerHasMinus;
+                    lastBaseOdometer = BaseOdometer;
                 }
                 if (state.Time > DoorOpenTime + new TimeSpan(0, 0, 10)) {
                     panel[62] = D(TrainNumber / 100, 3);
@@ -235,6 +254,24 @@ namespace MetroPIAddon {
                 } else {
                     panel[151] = panel[152] = lastTrainType;
                 }
+                var nowLocation = (int)(lastBaseOdometer + (lastisOdometerPlus ? 1 : -1) * state.Location);
+                if (lastisOdometerHasMinus) {
+                    panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
+                    //100km = 100000m
+                    panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
+                    panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
+                    panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
+                    panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
+                    panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
+                } else {
+                    panel[Config.odometer_Kmsymbol] = 0;
+                    //100km = 100000m
+                    panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
+                    panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
+                    panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
+                    panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
+                    panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
+                }
             } else {
                 if (state.Time > DoorClosedTime + new TimeSpan(0, 0, 10) && DoorClosedTime != TimeSpan.Zero) {
                     panel[167] = 0;
@@ -245,10 +282,27 @@ namespace MetroPIAddon {
                 if (UpdateRequested) {
                     panel[151] = panel[152] = lastTrainType;
                 } else {
-                    
                     panel[151] = panel[152] = TrainType;
                 }
-                    
+                var nowLocation = (int)(lastBaseOdometer + (lastisOdometerPlus ? 1 : -1) * state.Location);
+                if (lastisOdometerHasMinus) {
+                    panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
+                    //100km = 100000m
+                    panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
+                    panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
+                    panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
+                    panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
+                    panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
+                } else {
+                    panel[Config.odometer_Kmsymbol] = 0;
+                    //100km = 100000m
+                    panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
+                    panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
+                    panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
+                    panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
+                    panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
+                }
+                
             }
 
             if (Snowbrake && state.BcPressure < Config.SnowBrakePressure) {
@@ -266,7 +320,7 @@ namespace MetroPIAddon {
 
             if (Config.Current_abs) {
                 if (state.Speed < Config.MaxCurrentSpeed) {
-                    panel[Config.CurrentPanelIndex] = (int)Math.Abs((state.Speed / Config.MaxCurrentSpeed) * state.Current);
+                    panel[Config.CurrentPanelIndex] = (int)Math.Abs((0.25 + 0.75 * (state.Speed / Config.MaxCurrentSpeed)) * state.Current);
                 } else {
                     panel[Config.CurrentPanelIndex] = (int)Math.Abs(state.Current);
                 }
@@ -340,13 +394,15 @@ namespace MetroPIAddon {
             sound[13] = (int)Lamp_SW_off;
             sound[14] = (int)SnowBrake_on;
             sound[15] = (int)SnowBrake_off;
-            if (lastBrakeNotch != vehicleSpec.BrakeNotches + 1 && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && state.Speed > 7) {
+            if (lastBrakeNotch != vehicleSpec.BrakeNotches + 1 && AtsHandles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && state.Speed > 7) {
                 sound[27] = (int)AtsSoundControlInstruction.Play;
-            } else if (handles.BrakeNotch != vehicleSpec.BrakeNotches + 1) sound[27] = (int)AtsSoundControlInstruction.Continue;
-            lastBrakeNotch = handles.BrakeNotch;
+            } else if (AtsHandles.BrakeNotch != vehicleSpec.BrakeNotches + 1) sound[27] = (int)AtsSoundControlInstruction.Continue;
+            lastBrakeNotch = AtsHandles.BrakeNotch;
             sound[30] = (int)Tobu_DoorClosed;
             sound[31] = (int)Conductorbuzzer_Depart;
             sound[32] = (int)Door_poon;
+            sound[Config.depart_melody] = (int)OnBoardDepartMelody1;
+            sound[Config.depart_announce] = (int)OnBoardDepartMelody2;
 
             sound[90] = (int)Conductorbuzzer_Tokyu;
             sound[91] = (int)Conductorbuzzer_Odakyu;
@@ -354,7 +410,7 @@ namespace MetroPIAddon {
             sound[95] = (int)Conductorbuzzer_Test;
             sound[99] = (int)Driver_buzzer;
 
-            Tobu_DoorClosed = Conductorbuzzer_Tokyu = Conductorbuzzer_Tobu = Conductorbuzzer_Odakyu = Conductorbuzzer_Test = Lamp_SW_on = Lamp_SW_off = SnowBrake_on = SnowBrake_off = AtsSoundControlInstruction.Continue;
+            OnBoardDepartMelody2 = Tobu_DoorClosed = Conductorbuzzer_Tokyu = Conductorbuzzer_Tobu = Conductorbuzzer_Odakyu = Conductorbuzzer_Test = Lamp_SW_on = Lamp_SW_off = SnowBrake_on = SnowBrake_off = AtsSoundControlInstruction.Continue;
         }
     }
 }

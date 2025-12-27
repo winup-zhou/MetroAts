@@ -82,13 +82,13 @@ namespace TobuSignal {
                     break;
                 case 1:
                     if (e.SignalIndex == 0) SignalPattern = new SpeedPattern(15, state.Location + 180);
-                    else if (e.SignalIndex < 4 && e.SignalIndex > 0) SignalPattern = new SpeedPattern(60, state.Location + e.Distance);
-                    else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.MaxSpeed, state.Location);
+                    else if (e.SignalIndex < 3 && e.SignalIndex > 0) SignalPattern = new SpeedPattern(60, state.Location + e.Distance);
+                    else if (e.SignalIndex >= 3) SignalPattern = new SpeedPattern(Config.MaxSpeed, state.Location);
                     if (ATS_Confirm) ATS_Confirm = false;
                     break;
                 case 2:
-                    if (e.SignalIndex < 4) SignalPattern = new SpeedPattern(60, state.Location + 180);
-                    else if (e.SignalIndex == 4) SignalPattern = new SpeedPattern(Config.MaxSpeed, state.Location);
+                    if (e.SignalIndex < 3) SignalPattern = new SpeedPattern(60, state.Location + 180);
+                    else if (e.SignalIndex >= 3) SignalPattern = new SpeedPattern(Config.MaxSpeed, state.Location);
                     if (ATS_Confirm) ATS_Confirm = false;
                     break;
                 case 3:

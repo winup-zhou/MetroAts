@@ -32,6 +32,8 @@ namespace TobuSignal {
         private static bool StandAloneMode = true;
         private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
+        private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero;
+        private static int lastBrakeNotch, lastPowerNotch;
 
         public TobuSignal(PluginBuilder builder) : base(builder) {
             Config.Load();
@@ -49,6 +51,7 @@ namespace TobuSignal {
             BveHacker.ScenarioCreated += OnScenarioCreated;
 
             Plugins.AllPluginsLoaded += OnAllPluginsLoaded;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
 
         private void OnAllPluginsLoaded(object sender, EventArgs e) {
@@ -78,6 +81,8 @@ namespace TobuSignal {
             StandAloneMode = true;
             isDoorOpen = false;
             BrakeTriggered = false;
+            lastBrakeNotch = lastPowerNotch = 0;
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
         }
     }
 }

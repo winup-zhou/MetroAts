@@ -67,7 +67,9 @@ namespace SeibuSignal {
                         }
                         BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches + 1;
                     } else {
+                        var lastATC_ATC = ATC_ATC;
                         ATC_ATC = true;
+                        if (!lastATC_ATC && ATC_ATC) ATC_Ding = AtsSoundControlInstruction.Play;
                         BrakeCommand = 0;
 
                         var lastinDepot = inDepot;

@@ -17,26 +17,52 @@ namespace MetroPIAddon {
 
         private void Initialize(object sender, StartedEventArgs e) {
             var panel = Native.AtsPanelArray;
+            var state = Native.VehicleState;
+            if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
             isStopAnnounce = false;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
-                if (!StandAloneMode) {
-                    lastRadioChannel = RadioChannel;
-                    RadioChannel = (KeyPosList)corePlugin.KeyPos;
-                }
+                
                 Keyin = false;
-                panel[167] = CurrentSta;
-                panel[168] = panel[169] = 0;
-                panel[62] = D(TrainNumber / 100, 3);
-                panel[63] = D(TrainNumber / 100, 2);
-                panel[64] = D(TrainNumber / 100, 1);
-                panel[65] = D(TrainNumber / 100, 0);
-                panel[68] = TrainNumber % 100;
-                panel[151] = panel[152] = TrainType;
-                panel[153] = D(TrainRunningNumber, 1);
-                panel[154] = D(TrainRunningNumber, 0);
-                panel[172] = Destination;
-                UpdateRequested = false;
+                
             }
+            if (!StandAloneMode) {
+                lastRadioChannel = RadioChannel;
+                RadioChannel = (KeyPosList)corePlugin.KeyPos;
+            }
+            panel[167] = CurrentSta;
+            panel[168] = panel[169] = 0;
+            panel[62] = D(TrainNumber / 100, 3);
+            panel[63] = D(TrainNumber / 100, 2);
+            panel[64] = D(TrainNumber / 100, 1);
+            panel[65] = D(TrainNumber / 100, 0);
+            panel[68] = TrainNumber % 100;
+            panel[151] = panel[152] = TrainType;
+            panel[153] = D(TrainRunningNumber, 1);
+            panel[154] = D(TrainRunningNumber, 0);
+            panel[172] = Destination;
+            var nowLocation = (int)(BaseOdometer + (isOdometerPlus ? 1 : -1) * state.Location);
+            //100km = 100000m
+            if (isOdometerHasMinus) {
+                panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
+                //100km = 100000m
+                panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
+                panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
+                panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
+                panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
+                panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
+            } else {
+                panel[Config.odometer_Kmsymbol] = 0;
+                //100km = 100000m
+                panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
+                panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
+                panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
+                panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
+                panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
+            }
+            lastisOdometerPlus = isOdometerPlus;
+            lastisOdometerHasMinus = isOdometerHasMinus;
+            lastBaseOdometer = BaseOdometer;
+            UpdateRequested = false;
         }
 
         private void DoorOpened(object sender, EventArgs e) {
@@ -75,8 +101,8 @@ namespace MetroPIAddon {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
-            if (handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
-                if (!StandAloneMode) {
+            if (handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
+                if (!StandAloneMode && handles.ReverserPosition == ReverserPosition.N) {
                     var lastKeyPos = RadioChannel;
                     if (RadioChannelUpdateTime == TimeSpan.Zero) lastRadioChannel = RadioChannel;
                     if (lastKeyPos != (KeyPosList)corePlugin.KeyPos) {
@@ -84,9 +110,9 @@ namespace MetroPIAddon {
                         RadioChannelUpdateTime = state.Time + new TimeSpan(0, 0, 10);
                     }
                 }
-                if (StandAloneMode && e.KeyName == AtsKeyName.I) {
+                if (StandAloneMode && e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N) {
                     Keyin = false;
-                } else if (StandAloneMode && e.KeyName == AtsKeyName.J) {
+                } else if (StandAloneMode && e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N) {
                     Keyin = true;
                 } else if (e.KeyName == AtsKeyName.C1 && TrainType > 0) {
                     --TrainType;
@@ -99,12 +125,17 @@ namespace MetroPIAddon {
         }
 
         private void OnKeyUp(object sender, KeyEventArgs e) {
+            var state = Native.VehicleState;
             if (e.KeyCode == Config.DriverBuzzerKey) {
                 Driver_buzzer = AtsSoundControlInstruction.Stop;
+            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey) {
+                OnBoardDepartMelody1 = AtsSoundControlInstruction.Stop;
+                if(state.Speed == 0) OnBoardDepartMelody2 = AtsSoundControlInstruction.Play;
             }
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e) {
+            var state = Native.VehicleState;
             if (e.KeyCode == Config.DriverBuzzerKey) {
                 Driver_buzzer = AtsSoundControlInstruction.PlayLooping;
             } else if (e.KeyCode == Config.SnowBrakeKey) {
@@ -115,6 +146,9 @@ namespace MetroPIAddon {
                 if (InstrumentLight) Lamp_SW_off = AtsSoundControlInstruction.Play;
                 else Lamp_SW_on = AtsSoundControlInstruction.Play;
                 InstrumentLight = !InstrumentLight;
+            } else if (e.KeyCode == Config.OnBoardDepartMelodyKey && state.Speed == 0) {
+                OnBoardDepartMelody2 = AtsSoundControlInstruction.Stop;
+                OnBoardDepartMelody1 = AtsSoundControlInstruction.PlayLooping;
             }
         }
 
@@ -141,9 +175,12 @@ namespace MetroPIAddon {
                     CurrentSta = e.Optional / 1000;
                     NextSta = e.Optional % 1000;
                     break;
-                case 52://CCTV設定
+                case -52://CCTV設定
                     CCTVenable = e.Optional > 0;
                     break;
+                //case -53://キロ程設定
+                    
+                //    break;
                 case 14://連動表示灯
                     FDmode = e.Optional;
                     break;
@@ -226,12 +263,19 @@ namespace MetroPIAddon {
             FDOpenSound = MapSoundList[Config.FDOpenSounds[FDOpenSoundIndex]];
             FDCloseSound = MapSoundList[Config.FDCloseSounds[FDCloseSoundIndex]];
             vehicle = e.Scenario.Vehicle;
+            var BeaconList = e.Scenario.Map.Beacons;
+            for (int i = 0; i < BeaconList.Count; i++) {
+                var beacon = BeaconList[i] as Beacon;
+                if(beacon.Type == -53) OdometerBeacons.Add(beacon);
+            }
+            OdometerBeacons.Sort((a, b) => a.Location.CompareTo(b.Location));
         }
+
 
         static int[] pow10 = new int[] { 1, 10, 100, 1000, 10000, 100000, 1000000 };
         static int D(int src, int digit) {
             if (pow10[digit] > src) {
-                return 10;
+                return 0;
             } else if (digit == 0 && src == 0) {
                 return 0;
             } else {
