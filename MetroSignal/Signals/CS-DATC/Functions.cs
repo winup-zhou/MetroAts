@@ -18,7 +18,7 @@ namespace MetroSignal {
             LastATCSpeed = 0;
             inDepot = false;
 
-            M01SectionDistance = -25;
+            M01SectionEntrySpeed = 25;
 
             ATC_Ding = AtsSoundControlInstruction.Stop;
             ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
@@ -83,7 +83,7 @@ namespace MetroSignal {
                     if (ATCPattern != SpeedPattern.inf && ATCEnable) ATCPattern.Location = state.Location + e.Optional;
                     break;
                 case 31:
-                    if (ATCEnable && e.Optional > 25) M01SectionDistance = e.Optional;
+                    if (ATCEnable && e.Optional <= 35) M01SectionEntrySpeed = e.Optional % 5 == 0 ? e.Optional : 25;
                     break;
             }
         }

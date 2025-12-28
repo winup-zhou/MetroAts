@@ -50,7 +50,7 @@ namespace MetroPIAddon {
 
         private static bool Snowbrake = false, InstrumentLight = false;
         private static bool isStopAnnounce;
-        private static AtsSoundControlInstruction StopAnnounce, StopAnnounce_Confirmed, Tobu_DoorClosed, Door_poon,
+        private static AtsSoundControlInstruction OnBoardDepartMelody1, OnBoardDepartMelody2, StopAnnounce, StopAnnounce_Confirmed, Tobu_DoorClosed, Door_poon,
             Conductorbuzzer_Tokyu, Conductorbuzzer_Tobu, Conductorbuzzer_Odakyu, Conductorbuzzer_Test, Conductorbuzzer_Depart, Driver_buzzer, Lamp_SW_on, Lamp_SW_off, SnowBrake_on, SnowBrake_off;
         private static Sound FDOpenSound, FDCloseSound;
         private static int FDOpenSoundIndex, FDCloseSoundIndex;
@@ -64,6 +64,11 @@ namespace MetroPIAddon {
         private static bool CCTVenable = true;
         private static int Direction = 0; //0:未設定 1:上り 2:下り
         private static KeyPosList LineDef = KeyPosList.None, RadioChannel = KeyPosList.None, lastRadioChannel = KeyPosList.None;
+        private static double BaseOdometer = 0, lastBaseOdometer;
+        private static bool isOdometerPlus = true, lastisOdometerPlus;
+        private static bool isOdometerHasMinus = true, lastisOdometerHasMinus;
+        private static List<Beacon> OdometerBeacons = new List<Beacon>();
+        private static Beacon lastOdometerBeacon = new Beacon(-1, -1, -1, -1);
 
         public MetroPIAddon(PluginBuilder services) : base(services) {
             Config.Load();
@@ -131,6 +136,9 @@ namespace MetroPIAddon {
             Direction = 0; //0:未設定 1:上り 2:下り
             LineDef = KeyPosList.None;
             RadioChannelUpdateTime = TimeSpan.Zero;
+            BaseOdometer  = lastBaseOdometer = 0;
+            isOdometerHasMinus = isOdometerPlus = true;
+            OdometerBeacons.Clear();
         }
     }
 }

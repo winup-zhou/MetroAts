@@ -15,8 +15,10 @@ namespace MetroAts {
     public partial class MetroAts : AssemblyPluginBase {
 
         private void Initialize(object sender, StartedEventArgs e) {
+            lastHandleOutputRefreshTime = TimeSpan.Zero;
             var panel = Native.AtsPanelArray;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
+                isTASCenabled = false;
                 for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
                     if (Config.KeyPosLists[i] == KeyPosList.None) {
                         NoneKeyPos = NowKey = i;
@@ -41,7 +43,33 @@ namespace MetroAts {
                 case KeyPosList.Odakyu: panel[Config.Panel_keyoutput] = 7; break;
                 case KeyPosList.ToyoKosoku: panel[Config.Panel_keyoutput] = 8; break;
             }
-            panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
+            if (!Config.SignalSW_legacyoutput) {
+                panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
+            } else {
+                switch (Config.SignalSWLists[NowSignalSW]) {
+                    case SignalSWList.TokyuATS:
+                    case SignalSWList.Odakyu:
+                    case SignalSWList.Sotetsu:
+                    case SignalSWList.SeibuATS:
+                    case SignalSWList.Tobu:
+                    case SignalSWList.JR:
+                    case SignalSWList.ATP:
+                        panel[Config.Panel_SignalSWoutput] = 0;
+                        break;
+                    case SignalSWList.WS_ATC:
+                        panel[Config.Panel_SignalSWoutput] = 5;
+                        break;
+                    case SignalSWList.Noset:
+                        panel[Config.Panel_SignalSWoutput] = Config.KeyPosLists[NowKey] == KeyPosList.Tokyu ? 4 : 3;
+                        break;
+                    case SignalSWList.ATC:
+                        panel[Config.Panel_SignalSWoutput] = 1;
+                        break;
+                    case SignalSWList.InDepot:
+                        panel[Config.Panel_SignalSWoutput] = 2;
+                        break;
+                }
+            }
         }
         private void DoorOpened(object sender, EventArgs e) {
             isDoorOpen = true;
@@ -52,14 +80,18 @@ namespace MetroAts {
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
-            //throw new NotImplementedException();
+            if (e.KeyName == AtsKeyName.S) {
+                isSpacePressed = false;
+            }
         }
 
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
-            if (Math.Abs(state.Speed) == 0 && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
-                if (e.KeyName == AtsKeyName.I) {
+            if (Math.Abs(state.Speed) == 0) {
+                if (e.KeyName == AtsKeyName.S) {
+                    isSpacePressed = true;
+                } else if (e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey > 0) {
                         if (LineDef != KeyPosList.None && Config.EnforceKeyPos) {
                             for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
@@ -86,13 +118,13 @@ namespace MetroAts {
                                     break;
                                 }
                             }
-                        } else if(NowKey > 0 && !Config.EnforceKeyPos) {
+                        } else if (NowKey > 0 && !Config.EnforceKeyPos) {
                             NowKey--;
                             Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
                     }
-                    
-                } else if (e.KeyName == AtsKeyName.J) {
+
+                } else if (e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     if (Config.KeyPosLists[NowKey] == KeyPosList.None && NowKey < Config.KeyPosLists.Count - 1) {
                         if (LineDef != KeyPosList.None && Config.EnforceKeyPos) {
                             for (int i = 0; i < Config.KeyPosLists.Count; ++i) {
@@ -123,26 +155,42 @@ namespace MetroAts {
                             NowKey++;
                             Sound_Keyin = AtsSoundControlInstruction.Play;
                         }
-                            
+
                     }
-                } else if (e.KeyName == AtsKeyName.G) {
-                    if (Config.SignalSW_loop) {
-                        NowSignalSW = (NowSignalSW - 1) % Config.SignalSWLists.Count;
-                        if (NowSignalSW < 0) NowSignalSW += Config.SignalSWLists.Count;
-                        Sound_SignalSW = AtsSoundControlInstruction.Play;
-                    } else if (NowSignalSW > 0) {
-                        NowSignalSW--;
-                        Sound_SignalSW = AtsSoundControlInstruction.Play;
-                    }
-                } else if (e.KeyName == AtsKeyName.H) {
-                    if (Config.SignalSW_loop) {
-                        NowSignalSW = (NowSignalSW + 1) % Config.SignalSWLists.Count;
-                        Sound_SignalSW = AtsSoundControlInstruction.Play;
-                    } else if (NowSignalSW < Config.SignalSWLists.Count - 1) {
-                        NowSignalSW++;
-                        Sound_SignalSW = AtsSoundControlInstruction.Play;
+                } else {
+                    if (isSpacePressed && Config.atotascsw_enable) { //TASC
+                        if (e.KeyName == AtsKeyName.G && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
+                            var lastTASCenabled = isTASCenabled;
+                            isTASCenabled = false;
+                            if(lastTASCenabled != isTASCenabled) Sound_SignalSW = AtsSoundControlInstruction.Play;
+                        } else if (e.KeyName == AtsKeyName.H && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
+                            var lastTASCenabled = isTASCenabled;
+                            isTASCenabled = true;
+                            if (lastTASCenabled != isTASCenabled) Sound_SignalSW = AtsSoundControlInstruction.Play;
+                        }
+                    } else {
+                        if (e.KeyName == AtsKeyName.G && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
+                            if (Config.SignalSW_loop) {
+                                NowSignalSW = (NowSignalSW - 1) % Config.SignalSWLists.Count;
+                                if (NowSignalSW < 0) NowSignalSW += Config.SignalSWLists.Count;
+                                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            } else if (NowSignalSW > 0) {
+                                NowSignalSW--;
+                                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            }
+                        } else if (e.KeyName == AtsKeyName.H && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
+                            if (Config.SignalSW_loop) {
+                                NowSignalSW = (NowSignalSW + 1) % Config.SignalSWLists.Count;
+                                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            } else if (NowSignalSW < Config.SignalSWLists.Count - 1) {
+                                NowSignalSW++;
+                                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                            }
+                        }
                     }
                 }
+                
+                
             }
         }
 

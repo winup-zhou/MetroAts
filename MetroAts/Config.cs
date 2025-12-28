@@ -21,11 +21,16 @@ namespace MetroAts {
         public static List<KeyPosList> KeyPosLists = new List<KeyPosList>();
         public static List<SignalSWList> SignalSWLists = new List<SignalSWList>();
         public static bool SignalSW_loop = false;
+        public static bool SignalSW_legacyoutput = false;
+
+        public static bool atotascsw_enable = false;
 
         public static int Panel_brakeoutput = 1023;
         public static int Panel_poweroutput = 1023;
         public static int Panel_keyoutput = 1023;
         public static int Panel_SignalSWoutput = 1023;
+        public static int Panel_ATOTASCSWoutput = 1023;
+        public static int Panel_HandleOutputRefreshInterval = 0;
 
         public static bool EnforceKeyPos = false;
 
@@ -57,11 +62,16 @@ namespace MetroAts {
                     if (!SignalSWLists.Contains(SignalSWList.Noset)&&!SignalSWLists.Contains(SignalSWList.JR)) SignalSWLists.Add(SignalSWList.Noset);
 
                     ReadConfig("signalsw", "isloop", ref SignalSW_loop);
+                    ReadConfig("signalsw", "legacyoutput", ref SignalSW_legacyoutput);
+
+                    ReadConfig("atotascsw", "enable", ref atotascsw_enable);
 
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
+                    ReadConfig("output", "atotascsw", ref Panel_ATOTASCSWoutput);
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);
                     ReadConfig("output", "key", ref Panel_keyoutput);
+                    ReadConfig("output", "handlerefreshinterval", ref Panel_HandleOutputRefreshInterval);
                 } catch (Exception ex) {
                     throw ex;
                 }
@@ -72,12 +82,16 @@ namespace MetroAts {
             KeyPosLists.Clear();
             SignalSWLists.Clear();
             SignalSW_loop = false;
+            atotascsw_enable = false;
 
             Panel_brakeoutput = 1023;
             Panel_poweroutput = 1023;
             Panel_keyoutput = 1023;
             Panel_SignalSWoutput = 1023;
             EnforceKeyPos = false;
+
+            SignalSW_legacyoutput = false;
+            Panel_HandleOutputRefreshInterval = 0;
         }
 
         private static void ReadConfig(string Section, string Key, ref int Value) {

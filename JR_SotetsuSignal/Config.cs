@@ -31,6 +31,7 @@ namespace JR_SotetsuSignal {
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
         public static int Panel_keyoutput = 1023;
+        public static int Panel_HandleOutputRefreshInterval = 0;
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "JR_SotetsuSignal.ini")).FullName;
@@ -45,6 +46,7 @@ namespace JR_SotetsuSignal {
                     ReadConfig("output","power",ref Panel_poweroutput);
                     ReadConfig("output","brake",ref Panel_brakeoutput);
                     ReadConfig("output","key",ref Panel_keyoutput);
+                    ReadConfig("output", "handlerefreshinterval", ref Panel_HandleOutputRefreshInterval);
                 } catch (Exception ex) {
                     throw ex;
                 }
@@ -60,6 +62,8 @@ namespace JR_SotetsuSignal {
             Panel_poweroutput = 1023;
             Panel_brakeoutput = 1023;
             Panel_keyoutput = 1023;
+
+            Panel_HandleOutputRefreshInterval = 0;
         }
 
         //读取配置相关函数

@@ -1,6 +1,7 @@
 ﻿using BveEx.Extensions.Native;
 using BveEx.PluginHost.Plugins;
 using BveTypes.ClassWrappers;
+using MetroAts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -142,8 +143,16 @@ namespace TokyuSignal {
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
                 UpdatePanelAndSound(panel, sound);
-                panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
-                panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                if (state.Time.TotalMilliseconds - lastHandleOutputRefreshTime.TotalMilliseconds > Config.Panel_HandleOutputRefreshInterval) {
+                    lastHandleOutputRefreshTime = state.Time;
+                    lastBrakeNotch = AtsHandles.BrakeNotch;
+                    lastPowerNotch = AtsHandles.PowerNotch;
+                    panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
+                    panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                } else {
+                    panel[Config.Panel_poweroutput] = lastPowerNotch;
+                    panel[Config.Panel_brakeoutput] = lastBrakeNotch;
+                }
             } else {
                 if (StandAloneMode) {
                     if (!SignalEnable && Keyin && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
@@ -189,7 +198,21 @@ namespace TokyuSignal {
                 sound[272] = (int)Sound_SignalSW;
 
                 panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
-                panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
+                if (!Config.SignalSW_legacyoutput) {
+                    panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
+                } else {
+                    switch (Config.SignalSWLists[NowSignalSW]) {
+                        case SignalSWListStandAlone.TokyuATS:
+                            panel[Config.Panel_SignalSWoutput] = 0;
+                            break;
+                        case SignalSWListStandAlone.Noset:
+                            panel[Config.Panel_SignalSWoutput] = 4;
+                            break;
+                        case SignalSWListStandAlone.ATC:
+                            panel[Config.Panel_SignalSWoutput] = 1;
+                            break;
+                    }
+                }
             }
 
             //sound reset
