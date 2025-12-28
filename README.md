@@ -49,7 +49,7 @@ Twitter: @wup99925510
 #### メトロ·東葉
 - [x] 新CS-ATC
 - [x] WS-ATC
-- [ ] ~~CS-DATC~~ __暫定計画__
+- [ ] CS-DATC
 - [ ] ~~ATP~~ __暫定計画__
 #### 東急
 - [x] ATC-P
@@ -62,6 +62,6 @@ Twitter: @wup99925510
 - [ ] D-ATS-P
 ### その他
 - [x] メトロ総合プラグインとの互換性
-- [ ] ATO/TASCプラグインとの互換性
+- [x] ATO/TASCプラグインとの互換性 - [bve-autopilot-lib · MetroAtsBridge](https://github.com/winup-zhou/bve-autopilot-lib)
 
 その他の機能については検討中...
