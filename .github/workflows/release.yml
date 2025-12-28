@@ -71,7 +71,7 @@ jobs:
           RUN_ID=$(gh run list -w ${{ env.TARGET_WORKFLOW_FILE }} --repo "${{ env.TARGET_REPO }}" -L 1 --json databaseId | jq -r '.[0].databaseId')
           echo "LATEST_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
         shell: bash 
-      - name: Download a build artifact
+      - name: Download a build artifact from winup-zhou/bve-autopilot-lib
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.LATEST_RUN_ID }}
