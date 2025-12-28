@@ -32,6 +32,7 @@ jobs:
           find . -type f -name 'MetroAts.dll' | xargs mv --force --backup=numbered -t ./plugins/
           find . -type f -name '*Signal.dll' | xargs mv --force --backup=numbered -t ./plugins/
           find . -type f -name '*Addon.dll' | xargs mv --force --backup=numbered -t ./plugins/
+          find . -type f -name 'LICENSE' | xargs mv --force --backup=numbered -t ./plugins/
           rm plugins/*~
         shell: bash
       - name: Check assembly version
@@ -75,6 +76,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ env.LATEST_RUN_ID }}
+          path: plugins
           repository: ${{ env.TARGET_REPO }}
           github-token: ${{ secrets.ACCESS_TOKEN }}
       - name: Download a build artifact from winup-zhou/MetroAts
@@ -102,6 +104,5 @@ jobs:
            body: TODO New Release.
            draft: true
            prerelease: true
-           files: |
-             ./plugins/${{env.FILE_NAME}}.zip
-             LICENSE 
+           files: ./plugins/${{env.FILE_NAME}}.zip
+             
