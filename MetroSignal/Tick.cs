@@ -29,6 +29,7 @@ namespace MetroSignal {
 
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
             var nextSection = sectionManager.Sections[pointer] as Section;
+            var PreviousSection = sectionManager.Sections[pointer > 1 ? pointer - 2 : 0] as Section;
 
             if (SignalEnable) {
                 if (StandAloneMode) {

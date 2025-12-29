@@ -204,7 +204,8 @@ namespace TobuSignal {
                         if (lastATCTargetSpeed != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot || lastATC_X != ATC_X) {
                             ATC_Ding = AtsSoundControlInstruction.Play;
                             LastDingTime = state.Time;
-                            if ((state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) || currentSection.CurrentSignalIndex == 109) LastDingTime = TimeSpan.Zero;
+                            if ((state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) || currentSection.CurrentSignalIndex == 109) 
+                                LastDingTime = TimeSpan.Zero;
                         }
                         if (ATCTargetSpeed == 0 && state.Time.TotalMilliseconds - LastDingTime.TotalMilliseconds > 500 && LastDingTime != TimeSpan.Zero) {
                             ATC_Ding = AtsSoundControlInstruction.Play;
@@ -217,7 +218,9 @@ namespace TobuSignal {
 
                         //パターン接近
                         var lastATC_PatternApproach = ATC_PatternApproach;
-                        ATC_PatternApproach = ATCPatternSpeed - Math.Abs(state.Speed) < 5 && (ValidSections > 0 ? ATCPatternSpeed >= 0 : ATCPatternSpeed > 0);
+                        ATC_PatternApproach = (ATCPatternSpeed - Math.Abs(state.Speed) < 5 
+                            && (ValidSections > 0 ? ATCPatternSpeed >= 0 : ATCPatternSpeed > 0)
+                            && state.Time < ZeroTargetSpeedBrakeStartTime);
                         if (!lastATC_PatternApproach && ATC_PatternApproach)
                             ATC_PatternApproachBeep = AtsSoundControlInstruction.Play;
 

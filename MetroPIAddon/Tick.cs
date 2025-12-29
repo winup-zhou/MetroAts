@@ -238,10 +238,11 @@ namespace MetroPIAddon {
                     lastBaseOdometer = BaseOdometer;
                 }
                 if (state.Time > DoorOpenTime + new TimeSpan(0, 0, 10)) {
-                    panel[62] = D(TrainNumber / 100, 3);
-                    panel[63] = D(TrainNumber / 100, 2);
-                    panel[64] = D(TrainNumber / 100, 1);
-                    panel[65] = D(TrainNumber / 100, 0);
+                    panel[62] = D(TrainNumber / 100 % 10000, 3);
+                    panel[63] = D(TrainNumber / 100 % 10000, 2);
+                    panel[64] = D(TrainNumber / 100 % 10000, 1);
+                    panel[65] = D(TrainNumber / 100 % 10000, 0);
+                    panel[67] = TrainNumber / 1000000;
                     panel[68] = TrainNumber % 100;
                     panel[151] = panel[152] = TrainType;
                     panel[153] = D(TrainRunningNumber, 1);
