@@ -66,11 +66,15 @@ namespace OdakyuSignal {
         }
 
         public override void Dispose() {
+            Config.Dispose();
+
             Native.BeaconPassed -= BeaconPassed;
             Native.DoorOpened -= DoorOpened;
             Native.DoorClosed -= DoorClosed;
             Native.Started -= Initialize;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
+            Native.AtsKeys.AnyKeyPressed -= KeyDown;
+            Native.AtsKeys.AnyKeyReleased -= KeyUp;
 
             BveHacker.ScenarioCreated -= OnScenarioCreated;
 
