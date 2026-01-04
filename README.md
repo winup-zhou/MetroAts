@@ -1,9 +1,22 @@
 # MetroAts 地下鉄系ATC/Sプラグイン  
+
+MetroAtsはBveEXを利用して以下の機能を実現しています：
+
+- BVEが既に持つ軌道回路ベースの保安装置における他閉塞情報の連続受信を実現
+- 各鉄道事業者の保安装置プラグインをモジュール化
+- プラグイン間の通信を簡素化
+- 既存保安装置の動作挙動の改良
+- 最近導入された新たな保安装置の追加（開発中）
+- BVEのハンドル位置表示を活用し、キーおよび保安装置選択スイッチの位置を表示
+
 使用方法についてはWikiを参照されたい。
 [Wiki Page](https://github.com/winup-zhou/MetroAts/wiki)
 
-## Latest Develop Build
+## Latest Dev Build
 [![MSBuild](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml/badge.svg)](https://github.com/winup-zhou/MetroAts/actions/workflows/build.yml)
+
+## Latest Release
+[![GitHub Release](https://img.shields.io/github/v/release/winup-zhou/MetroAts)](https://github.com/winup-zhou/MetroAts/releases/latest)
 
 ## License
 [The MIT License](LICENSE)
@@ -36,7 +49,7 @@ Twitter: @wup99925510
 #### メトロ·東葉
 - [x] 新CS-ATC
 - [x] WS-ATC
-- [ ] ~~CS-DATC~~ __暫定計画__
+- [ ] CS-DATC
 - [ ] ~~ATP~~ __暫定計画__
 #### 東急
 - [x] ATC-P
@@ -49,6 +62,6 @@ Twitter: @wup99925510
 - [ ] D-ATS-P
 ### その他
 - [x] メトロ総合プラグインとの互換性
-- [ ] ATO/TASCプラグインとの互換性
+- [x] ATO/TASCプラグインとの互換性 - [bve-autopilot-lib · MetroAtsBridge](https://github.com/winup-zhou/bve-autopilot-lib)
 
 その他の機能については検討中...
