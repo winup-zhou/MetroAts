@@ -106,6 +106,8 @@ namespace MetroPIAddon {
             Native.DoorOpened -= DoorOpened;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
             Native.BeaconPassed -= SetBeaconData;
+            Native.AtsKeys.AnyKeyPressed -= KeyDown;
+            Native.AtsKeys.AnyKeyReleased -= KeyUp;
 
             BveHacker.ScenarioCreated -= ScenarioCreated;
             BveHacker.MainFormSource.KeyDown -= OnKeyDown;

@@ -69,6 +69,8 @@ namespace JR_SotetsuSignal {
             Native.DoorClosed -= DoorClosed;
             Native.Started -= Initialize;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
+            Native.AtsKeys.AnyKeyPressed -= KeyDown;
+            Native.AtsKeys.AnyKeyReleased -= KeyUp;
 
             BveHacker.ScenarioCreated -= OnScenarioCreated;
 

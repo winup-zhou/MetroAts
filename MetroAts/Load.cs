@@ -92,6 +92,8 @@ namespace MetroAts {
             Native.DoorOpened -= DoorOpened;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
             Native.BeaconPassed -= SetBeaconData;
+            Native.AtsKeys.AnyKeyPressed -= KeyDown;
+            Native.AtsKeys.AnyKeyReleased -= KeyUp;
 
             Direction = 0; //0:未設定 1:上り 2:下り
             LineDef = KeyPosList.None;
