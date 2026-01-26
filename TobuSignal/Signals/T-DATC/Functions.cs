@@ -18,6 +18,8 @@ namespace TobuSignal {
             ORPlamp = false;
             ATCPatternSpeed = 0;
             ATCTargetSpeed = 0;
+            NextMaxSpeed = -1;
+            ATCMaxSpeed = (int)Config.MaxSpeed;
             ValidSections = 0;
             EBUntilStop = false;
             ServiceBrake = false;
@@ -98,7 +100,7 @@ namespace TobuSignal {
             switch (e.Type) {
                 case 31:
                     ValidSections = 4;
-                    if (e.Optional < 4) {
+                    if (e.Optional >= 0 && e.Optional < 4) {
                         TrackPos = e.Optional;
                         TrackPosDisplayEndLocation = state.Location + e.Distance;
                     }
@@ -108,16 +110,20 @@ namespace TobuSignal {
                         StationPattern = new SpeedPattern(0, state.Location + e.Optional + 25);
                     break;
                 case 44:
-                    lastLimitPattern = LimitPattern;
                     if (ATCEnable) {
-                        LimitPatternSignalEndLocation = state.Location + e.Distance;
+                        lastLimitPattern = LimitPattern;
+                        LimitPatternSignalEndLocation = state.Location + e.Distance + 1;
                         LimitPattern = new SpeedPattern(e.Optional % 1000, state.Location + e.Optional / 1000, lastLimitPattern.AtLocation(state.Location, SignalPatternDec));
                         LimitPatternSignalTriggerLoc = state.Location;
-                    }
+                    }     
                     break;
-                case 45:
-                    if (ATCEnable)
+                case 45:            
+                    if (NextMaxSpeed == -1) {
+                        ATCMaxSpeed = (int)Math.Min(Config.MaxSpeed, e.Optional);
+                    } else {
                         LimitPatternEndLocation = state.Location + Config.TrainLength;
+                    }
+                    NextMaxSpeed = (int)Math.Min(Config.MaxSpeed, e.Optional);
                     break;
                 case 49:
                     if (ATCEnable)

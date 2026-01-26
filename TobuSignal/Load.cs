@@ -71,8 +71,8 @@ namespace TobuSignal {
             Native.DoorClosed -= DoorClosed;
             Native.Started -= Initialize;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
-            Native.AtsKeys.AnyKeyPressed -= KeyDown;
-            Native.AtsKeys.AnyKeyReleased -= KeyUp;
+            //Native.AtsKeys.AnyKeyPressed -= KeyDown;
+            //Native.AtsKeys.AnyKeyReleased -= KeyUp;
             Native.SignalUpdated -= SetSignal;
 
             BveHacker.ScenarioCreated -= OnScenarioCreated;
