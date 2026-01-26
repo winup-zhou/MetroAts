@@ -186,7 +186,7 @@ namespace TobuSignal {
                             ATCPatternSpeed = 0;
                             ATCTargetSpeed = 0;
                             ORPlamp = false;
-                        } else if (currentSection.CurrentSignalIndex == 109) {
+                        } else if (currentSection.CurrentSignalIndex == 109 || currentSection.CurrentSignalIndex == 149) {
                             ATCPatternSpeed = 0;
                             ATCTargetSpeed = 0;
                             ORPlamp = false;
@@ -204,7 +204,7 @@ namespace TobuSignal {
                         if (lastATCTargetSpeed != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot || lastATC_X != ATC_X) {
                             ATC_Ding = AtsSoundControlInstruction.Play;
                             LastDingTime = state.Time;
-                            if ((state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) || currentSection.CurrentSignalIndex == 109) 
+                            if ((state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) || currentSection.CurrentSignalIndex == 109 || currentSection.CurrentSignalIndex == 149) 
                                 LastDingTime = TimeSpan.Zero;
                         }
                         if (ATCTargetSpeed == 0 && state.Time.TotalMilliseconds - LastDingTime.TotalMilliseconds > 500 && LastDingTime != TimeSpan.Zero) {
@@ -252,12 +252,12 @@ namespace TobuSignal {
                             ATC_110 = ATCTargetSpeed == 110;
                         } else {
                             ATCNeedle = ATCTargetSpeed;
-                            if (currentSection.CurrentSignalIndex == 109) ATCNeedle_Disappear = true;
+                            if (currentSection.CurrentSignalIndex == 109 || currentSection.CurrentSignalIndex == 149) ATCNeedle_Disappear = true;
                             else ATCNeedle_Disappear = false;
                         }
 
                         //進行・停止
-                        ATC_Stop = ATCTargetSpeed == 0 || currentSection.CurrentSignalIndex == 109;
+                        ATC_Stop = ATCTargetSpeed == 0 || currentSection.CurrentSignalIndex == 109 || currentSection.CurrentSignalIndex == 149;
                         ATC_Proceed = ATCTargetSpeed > 0;
 
                         //駅停車
@@ -304,7 +304,7 @@ namespace TobuSignal {
                             BrakeCommand = 0;
                             BrakeStartTime = TimeSpan.Zero;
                         }
-                        if (currentSection.CurrentSignalIndex == 109 || ReverseStartLoc - state.Location > 50) {
+                        if (currentSection.CurrentSignalIndex == 109 || ReverseStartLoc - state.Location > 50 || currentSection.CurrentSignalIndex == 149) {
                             BrakeCommand = Math.Max(BrakeCommand, TobuSignal.vehicleSpec.BrakeNotches + 1);
                         } else {
                             if (ServiceBrake || (ValidSections < 1 && ATCTargetSpeed == 0) || (state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110)) {
