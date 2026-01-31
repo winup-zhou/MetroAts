@@ -378,6 +378,7 @@ namespace MetroPIAddon {
             }
 
             switch (LineDef) {
+                case KeyPosList.None: panel[Config.Panel_LineDefOutput] = 0; break;
                 case KeyPosList.Metro: panel[Config.Panel_LineDefOutput] = 1; break;
                 case KeyPosList.Tobu: panel[Config.Panel_LineDefOutput] = 2; break;
                 case KeyPosList.Tokyu: panel[Config.Panel_LineDefOutput] = 3; break;
@@ -387,6 +388,20 @@ namespace MetroPIAddon {
                 case KeyPosList.Odakyu: panel[Config.Panel_LineDefOutput] = 7; break;
                 case KeyPosList.ToyoKosoku: panel[Config.Panel_LineDefOutput] = 8; break;
             }
+
+            if (!StandAloneMode) {
+                switch (corePlugin.KeyPos) {
+                    case (MetroAts.KeyPosList)KeyPosList.Metro: panel[166] = 1; break;
+                    case (MetroAts.KeyPosList)KeyPosList.Tobu: panel[166] = 2; break;
+                    case (MetroAts.KeyPosList)KeyPosList.Tokyu: panel[166] = 3; break;
+                    case (MetroAts.KeyPosList)KeyPosList.Seibu: panel[166] = 4; break;
+                    case (MetroAts.KeyPosList)KeyPosList.Sotetsu: panel[166] = 5; break;
+                    case (MetroAts.KeyPosList)KeyPosList.JR: panel[166] = 6; break;
+                    case (MetroAts.KeyPosList)KeyPosList.Odakyu: panel[166] = 7; break;
+                    case (MetroAts.KeyPosList)KeyPosList.ToyoKosoku: panel[166] = 8; break;
+                }
+            }
+            
 
             sound[5] = (int)StopAnnounce;
             sound[6] = (int)StopAnnounce_Confirmed;
