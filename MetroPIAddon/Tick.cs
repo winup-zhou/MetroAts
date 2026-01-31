@@ -378,7 +378,6 @@ namespace MetroPIAddon {
             }
 
             switch (LineDef) {
-                case KeyPosList.None: panel[Config.Panel_LineDefOutput] = 0; break;
                 case KeyPosList.Metro: panel[Config.Panel_LineDefOutput] = 1; break;
                 case KeyPosList.Tobu: panel[Config.Panel_LineDefOutput] = 2; break;
                 case KeyPosList.Tokyu: panel[Config.Panel_LineDefOutput] = 3; break;
