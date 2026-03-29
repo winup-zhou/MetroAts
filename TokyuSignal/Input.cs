@@ -44,7 +44,7 @@ namespace TokyuSignal {
                     }
                 }
             }
-            UpdatePanelAndSound(panel, sound);
+            UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
 
         }
 
@@ -83,7 +83,7 @@ namespace TokyuSignal {
                     if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
                     panel[275] = 0;
                     panel[278] = 0;
-                    UpdatePanelAndSound(panel, sound);     
+                    UpdatePanelAndSound(panel, sound, state.Time);     
                 } else if (e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;

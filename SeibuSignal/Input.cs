@@ -35,7 +35,7 @@ namespace SeibuSignal {
                 Keyin = false;
                 SignalEnable = false;
             }
-            UpdatePanelAndSound(panel, sound);
+            UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
         }
 
         private void DoorOpened(object sender, EventArgs e) {
@@ -71,7 +71,7 @@ namespace SeibuSignal {
                     if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
                     panel[275] = 0;
                     panel[278] = 0;
-                    UpdatePanelAndSound(panel, sound);
+                    UpdatePanelAndSound(panel, sound, state.Time);
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;

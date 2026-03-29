@@ -110,7 +110,7 @@ namespace SeibuSignal {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
-                UpdatePanelAndSound(panel, sound);
+                UpdatePanelAndSound(panel, sound, state.Time);
                 if (state.Time.TotalMilliseconds - lastHandleOutputRefreshTime.TotalMilliseconds > Config.Panel_HandleOutputRefreshInterval) {
                     lastHandleOutputRefreshTime = state.Time;
                     lastBrakeNotch = AtsHandles.BrakeNotch;
@@ -158,38 +158,62 @@ namespace SeibuSignal {
             //handles.ReverserPosition = ReverserPosition.N;
         }
 
-        private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound) {
+        private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound, TimeSpan currentTime) {
             sound[273] = (int)Sound_ResetSW;
 
-            //panel
-            panel[287] = Convert.ToInt32(ATC.ATC_01);
-            panel[291] = Convert.ToInt32(ATC.ATC_25);
-            panel[294] = Convert.ToInt32(ATC.ATC_40);
-            panel[297] = Convert.ToInt32(ATC.ATC_55);
-            panel[301] = Convert.ToInt32(ATC.ATC_75);
-            panel[304] = Convert.ToInt32(ATC.ATC_90);
+            bool needRefresh = true;
+            if (Config.isLCD) {
+                if (currentTime.TotalMilliseconds - lastPanelOutputRefreshTime.TotalMilliseconds > Config.LCDRefreshInterval) {
+                    lastPanelOutputRefreshTime = currentTime;
+                    needRefresh = true;
+                } else {
+                    needRefresh = false;
+                }
+            }
 
-            panel[285] = Convert.ToInt32(ATC.ATC_Stop);
-            panel[286] = Convert.ToInt32(ATC.ATC_Proceed);
+            int[] panelIndices = new int[] {
+                287, 291, 294, 297, 301, 304,
+                285, 286, 284, 311, 310, 264, 275, 278, 271, 267, 281,
+                334, 335, 336, 337, 338
+            };
 
-            panel[284] = Convert.ToInt32(ATC.ATC_X);
+            int[] newPanelValues = new int[350];
+            newPanelValues[287] = Convert.ToInt32(ATC.ATC_01);
+            newPanelValues[291] = Convert.ToInt32(ATC.ATC_25);
+            newPanelValues[294] = Convert.ToInt32(ATC.ATC_40);
+            newPanelValues[297] = Convert.ToInt32(ATC.ATC_55);
+            newPanelValues[301] = Convert.ToInt32(ATC.ATC_75);
+            newPanelValues[304] = Convert.ToInt32(ATC.ATC_90);
 
-            panel[311] = ATC.ATCNeedle;
-            panel[310] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
+            newPanelValues[285] = Convert.ToInt32(ATC.ATC_Stop);
+            newPanelValues[286] = Convert.ToInt32(ATC.ATC_Proceed);
 
-            panel[264] = Convert.ToInt32(ATC.ATC_ATC);
-            if (ATC.ATCEnable) panel[275] = Convert.ToInt32(ATC.ATC_Depot);
-            if (ATC.ATCEnable && ATC.ATC_Noset) panel[278] = Convert.ToInt32(ATC.ATC_Noset);
-            panel[271] = Convert.ToInt32(ATC.ATC_ServiceBrake);
-            panel[267] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
-            panel[281] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
+            newPanelValues[284] = Convert.ToInt32(ATC.ATC_X);
 
-            panel[334] = Convert.ToInt32(SeibuATS.ATS_Power);
-            panel[335] = Convert.ToInt32(SeibuATS.ATS_EB);
-            panel[336] = Convert.ToInt32(SeibuATS.ATS_Stop);
-            panel[337] = Convert.ToInt32(SeibuATS.ATS_Confirm);
-            panel[338] = Convert.ToInt32(SeibuATS.ATS_Limit);
-            //panel[339] = Convert.ToInt32(SeibuATS.);
+            newPanelValues[311] = ATC.ATCNeedle;
+            newPanelValues[310] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
+
+            newPanelValues[264] = Convert.ToInt32(ATC.ATC_ATC);
+            newPanelValues[275] = ATC.ATCEnable ? Convert.ToInt32(ATC.ATC_Depot) : 0;
+            newPanelValues[278] = (ATC.ATCEnable && ATC.ATC_Noset) ? Convert.ToInt32(ATC.ATC_Noset) : 0;
+            newPanelValues[271] = Convert.ToInt32(ATC.ATC_ServiceBrake);
+            newPanelValues[267] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
+            newPanelValues[281] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
+
+            newPanelValues[334] = Convert.ToInt32(SeibuATS.ATS_Power);
+            newPanelValues[335] = Convert.ToInt32(SeibuATS.ATS_EB);
+            newPanelValues[336] = Convert.ToInt32(SeibuATS.ATS_Stop);
+            newPanelValues[337] = Convert.ToInt32(SeibuATS.ATS_Confirm);
+            newPanelValues[338] = Convert.ToInt32(SeibuATS.ATS_Limit);
+
+            foreach (var idx in panelIndices) {
+                if (needRefresh) {
+                    panel[idx] = newPanelValues[idx];
+                    lastPanelOutput[idx] = newPanelValues[idx];
+                } else {
+                    panel[idx] = lastPanelOutput[idx];
+                }
+            }
 
             sound[258] = (int)ATC.ATC_Ding;
             if (ATC.ATCEnable && ATC.ATC_Noset) { sound[256] = (int)ATC.ATC_WarningBell; }

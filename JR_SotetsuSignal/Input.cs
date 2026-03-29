@@ -39,7 +39,7 @@ namespace JR_SotetsuSignal {
                 SignalEnable = false;
                 sound[256] = (int)AtsSoundControlInstruction.Stop;
             }
-            UpdatePanelAndSound(panel, sound);
+            UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
         }
 
         private void DoorOpened(object sender, EventArgs e) {

@@ -27,6 +27,8 @@ namespace JR_SotetsuSignal {
 
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
         public static bool ORPUseNeedle = true;//1:pilotlamp 0:needle
+        public static bool isLCD = false;
+        public static int LCDRefreshInterval = 0;
 
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
@@ -39,6 +41,8 @@ namespace JR_SotetsuSignal {
                 try {
                     ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
                     ReadConfig("panel", "orpuseneedle", ref ORPUseNeedle);
+                    ReadConfig("panel", "islcd", ref isLCD);
+                    ReadConfig("panel", "lcdrefreshinterval", ref LCDRefreshInterval);
 
                     ReadConfig("ats", "snenable", ref SNEnable);
                     ReadConfig("ats", "ppowerlampalwayslight", ref PPowerAlwaysLight);

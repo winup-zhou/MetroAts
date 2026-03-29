@@ -92,7 +92,7 @@ namespace JR_SotetsuSignal {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
-                UpdatePanelAndSound(panel, sound);
+                UpdatePanelAndSound(panel, sound, state.Time);
                 if (state.Time.TotalMilliseconds - lastHandleOutputRefreshTime.TotalMilliseconds > Config.Panel_HandleOutputRefreshInterval) {
                     lastHandleOutputRefreshTime = state.Time;
                     lastBrakeNotch = AtsHandles.BrakeNotch; 
@@ -130,19 +130,42 @@ namespace JR_SotetsuSignal {
             Sound_Keyin = Sound_Keyout = Sound_ResetSW = AtsSoundControlInstruction.Continue;
         }
 
-        private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound) {
+        private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound, TimeSpan currentTime) {
             sound[273] = (int)Sound_ResetSW;
 
-            //panel
-            panel[256] = Convert.ToInt32(ATS_P.P_Power || Config.PPowerAlwaysLight);
-            panel[257] = Convert.ToInt32(ATS_P.P_PatternApproach);
-            panel[258] = Convert.ToInt32(ATS_P.P_BrakeActioned);
-            panel[259] = Convert.ToInt32(ATS_P.P_EBActioned);
-            panel[260] = Convert.ToInt32(ATS_P.P_BrakeOverride);
-            panel[261] = Convert.ToInt32(ATS_P.P_PEnable);
-            panel[262] = Convert.ToInt32(ATS_P.P_Fail);
-            panel[341] = Convert.ToInt32(ATS_SN.SN_Power);
-            panel[342] = Convert.ToInt32(ATS_SN.SN_Action);
+            bool needRefresh = true;
+            if (Config.isLCD) {
+                if (currentTime.TotalMilliseconds - lastPanelOutputRefreshTime.TotalMilliseconds > Config.LCDRefreshInterval) {
+                    lastPanelOutputRefreshTime = currentTime;
+                    needRefresh = true;
+                } else {
+                    needRefresh = false;
+                }
+            }
+
+            int[] panelIndices = new int[] {
+                256, 257, 258, 259, 260, 261, 262, 341, 342
+            };
+
+            int[] newPanelValues = new int[350];
+            newPanelValues[256] = Convert.ToInt32(ATS_P.P_Power || Config.PPowerAlwaysLight);
+            newPanelValues[257] = Convert.ToInt32(ATS_P.P_PatternApproach);
+            newPanelValues[258] = Convert.ToInt32(ATS_P.P_BrakeActioned);
+            newPanelValues[259] = Convert.ToInt32(ATS_P.P_EBActioned);
+            newPanelValues[260] = Convert.ToInt32(ATS_P.P_BrakeOverride);
+            newPanelValues[261] = Convert.ToInt32(ATS_P.P_PEnable);
+            newPanelValues[262] = Convert.ToInt32(ATS_P.P_Fail);
+            newPanelValues[341] = Convert.ToInt32(ATS_SN.SN_Power);
+            newPanelValues[342] = Convert.ToInt32(ATS_SN.SN_Action);
+
+            foreach (var idx in panelIndices) {
+                if (needRefresh) {
+                    panel[idx] = newPanelValues[idx];
+                    lastPanelOutput[idx] = newPanelValues[idx];
+                } else {
+                    panel[idx] = lastPanelOutput[idx];
+                }
+            }
 
             sound[258] = (int)ATS_P.P_Ding;
             sound[257] = (int)ATS_SN.SN_Chime;

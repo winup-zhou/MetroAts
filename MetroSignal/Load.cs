@@ -40,7 +40,8 @@ namespace MetroSignal {
         private static bool StandAloneMode = true;
         private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
-        private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero;
+        private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero, lastPanelOutputRefreshTime = TimeSpan.Zero;
+        private static readonly int[] lastPanelOutput = new int[350];
         private static int lastBrakeNotch, lastPowerNotch;
 
         public MetroSignal(PluginBuilder builder) : base(builder) {

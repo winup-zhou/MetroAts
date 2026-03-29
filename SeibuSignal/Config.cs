@@ -23,6 +23,8 @@ namespace SeibuSignal {
 
         //≈‰÷√œÓ
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
+        public static bool isLCD = false;
+        public static int LCDRefreshInterval = 0;
 
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
@@ -35,6 +37,8 @@ namespace SeibuSignal {
                 try {
                     //panel
                     ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
+                    ReadConfig("panel", "islcd", ref isLCD);
+                    ReadConfig("panel", "lcdrefreshinterval", ref LCDRefreshInterval);
 
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);

@@ -24,6 +24,9 @@ namespace MetroSignal {
         //≈‰÷√œÓ
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
         public static bool ORPUseNeedle = true;//1:pilotlamp 0:needle
+        public static bool isLCD = false;
+        public static int LCDRefreshInterval = 0;
+
         public static List<SignalSWListStandAlone> SignalSWLists = new List<SignalSWListStandAlone>();
 
         public static int Panel_poweroutput = 1023;
@@ -40,6 +43,8 @@ namespace MetroSignal {
                     //panel
                     ReadConfig("panel", "atclimituseneedle", ref ATCLimitUseNeedle);
                     ReadConfig("panel", "orpuseneedle", ref ORPUseNeedle);
+                    ReadConfig("panel", "islcd", ref isLCD);
+                    ReadConfig("panel", "lcdrefreshinterval", ref LCDRefreshInterval);
 
                     var SignalSWString = "";
                     ReadConfig("signalsw", "positions", ref SignalSWString);

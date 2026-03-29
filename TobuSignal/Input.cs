@@ -33,7 +33,7 @@ namespace TobuSignal {
                 Keyin = false;
                 SignalEnable = false;
                 sound[256] = (int)AtsSoundControlInstruction.Stop;
-                UpdatePanelAndSound(panel, sound);
+                UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
             }
         }
 
@@ -69,7 +69,7 @@ namespace TobuSignal {
                     T_DATC.ResetAll();
                     TSP_ATS.ResetAll();
                     sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    UpdatePanelAndSound(panel, sound);
+                    UpdatePanelAndSound(panel, sound, state.Time);
                 } else if (e.KeyName == AtsKeyName.J) {
                     Sound_Keyin = AtsSoundControlInstruction.Play;
                     Keyin = true;

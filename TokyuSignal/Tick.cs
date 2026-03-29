@@ -142,7 +142,7 @@ namespace TokyuSignal {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
                 }
-                UpdatePanelAndSound(panel, sound);
+                UpdatePanelAndSound(panel, sound, state.Time);
                 if (state.Time.TotalMilliseconds - lastHandleOutputRefreshTime.TotalMilliseconds > Config.Panel_HandleOutputRefreshInterval) {
                     lastHandleOutputRefreshTime = state.Time;
                     lastBrakeNotch = AtsHandles.BrakeNotch;
@@ -223,55 +223,82 @@ namespace TokyuSignal {
             //handles.ReverserPosition = ReverserPosition.N;
         }
 
-        private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound) {
+        private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound, TimeSpan currentTime) {
             sound[273] = (int)Sound_ResetSW;
 
-            //panel
-            panel[287] = Convert.ToInt32(ATC.ATC_01);
-            panel[288] = Convert.ToInt32(ATC.ATC_10);
-            panel[289] = Convert.ToInt32(ATC.ATC_15);
-            panel[290] = Convert.ToInt32(ATC.ATC_20);
-            panel[291] = Convert.ToInt32(ATC.ATC_25);
-            panel[292] = Convert.ToInt32(ATC.ATC_30);
-            panel[293] = Convert.ToInt32(ATC.ATC_35);
-            panel[294] = Convert.ToInt32(ATC.ATC_40);
-            panel[295] = Convert.ToInt32(ATC.ATC_45);
-            panel[296] = Convert.ToInt32(ATC.ATC_50);
-            panel[297] = Convert.ToInt32(ATC.ATC_55);
-            panel[298] = Convert.ToInt32(ATC.ATC_60);
-            panel[299] = Convert.ToInt32(ATC.ATC_65);
-            panel[300] = Convert.ToInt32(ATC.ATC_70);
-            panel[301] = Convert.ToInt32(ATC.ATC_75);
-            panel[302] = Convert.ToInt32(ATC.ATC_80);
-            panel[303] = Convert.ToInt32(ATC.ATC_85);
-            panel[304] = Convert.ToInt32(ATC.ATC_90);
-            panel[305] = Convert.ToInt32(ATC.ATC_95);
-            panel[306] = Convert.ToInt32(ATC.ATC_100);
-            panel[307] = Convert.ToInt32(ATC.ATC_105);
-            panel[308] = Convert.ToInt32(ATC.ATC_110);
+            bool needRefresh = true;
+            if (Config.isLCD) {
+                if (currentTime.TotalMilliseconds - lastPanelOutputRefreshTime.TotalMilliseconds > Config.LCDRefreshInterval) {
+                    lastPanelOutputRefreshTime = currentTime;
+                    needRefresh = true;
+                } else {
+                    needRefresh = false;
+                }
+            }
 
-            panel[285] = Convert.ToInt32(ATC.ATC_Stop);
-            panel[286] = Convert.ToInt32(ATC.ATC_Proceed);
+            // 需要刷新的 panel 项索引
+            int[] panelIndices = new int[] {
+                287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,
+                285,286,313,312,284,311,310,265,276,279,272,268,282,342,343,344,345,346
+            };
 
-            panel[313] = Convert.ToInt32(ATC.ATC_P);
-            panel[312] = Convert.ToInt32(ATC.ATC_SignalAnn);
-            panel[284] = Convert.ToInt32(ATC.ATC_X);
+            // 计算 panel 新值
+            int[] newPanelValues = new int[350];
+            newPanelValues[287] = Convert.ToInt32(ATC.ATC_01);
+            newPanelValues[288] = Convert.ToInt32(ATC.ATC_10);
+            newPanelValues[289] = Convert.ToInt32(ATC.ATC_15);
+            newPanelValues[290] = Convert.ToInt32(ATC.ATC_20);
+            newPanelValues[291] = Convert.ToInt32(ATC.ATC_25);
+            newPanelValues[292] = Convert.ToInt32(ATC.ATC_30);
+            newPanelValues[293] = Convert.ToInt32(ATC.ATC_35);
+            newPanelValues[294] = Convert.ToInt32(ATC.ATC_40);
+            newPanelValues[295] = Convert.ToInt32(ATC.ATC_45);
+            newPanelValues[296] = Convert.ToInt32(ATC.ATC_50);
+            newPanelValues[297] = Convert.ToInt32(ATC.ATC_55);
+            newPanelValues[298] = Convert.ToInt32(ATC.ATC_60);
+            newPanelValues[299] = Convert.ToInt32(ATC.ATC_65);
+            newPanelValues[300] = Convert.ToInt32(ATC.ATC_70);
+            newPanelValues[301] = Convert.ToInt32(ATC.ATC_75);
+            newPanelValues[302] = Convert.ToInt32(ATC.ATC_80);
+            newPanelValues[303] = Convert.ToInt32(ATC.ATC_85);
+            newPanelValues[304] = Convert.ToInt32(ATC.ATC_90);
+            newPanelValues[305] = Convert.ToInt32(ATC.ATC_95);
+            newPanelValues[306] = Convert.ToInt32(ATC.ATC_100);
+            newPanelValues[307] = Convert.ToInt32(ATC.ATC_105);
+            newPanelValues[308] = Convert.ToInt32(ATC.ATC_110);
 
-            panel[311] = ATC.ATCNeedle;
-            panel[310] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
+            newPanelValues[285] = Convert.ToInt32(ATC.ATC_Stop);
+            newPanelValues[286] = Convert.ToInt32(ATC.ATC_Proceed);
 
-            panel[265] = Convert.ToInt32(ATC.ATC_ATC);
-            if (ATC.ATCEnable) panel[276] = Convert.ToInt32(ATC.ATC_Depot);
-            if (ATC.ATCEnable && ATC.ATC_Noset) panel[279] = Convert.ToInt32(ATC.ATC_Noset);
-            panel[272] = Convert.ToInt32(ATC.ATC_ServiceBrake);
-            panel[268] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
-            panel[282] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
-            panel[342] = Convert.ToInt32(ATC.ATC_StationStop);
+            newPanelValues[313] = Convert.ToInt32(ATC.ATC_P);
+            newPanelValues[312] = Convert.ToInt32(ATC.ATC_SignalAnn);
+            newPanelValues[284] = Convert.ToInt32(ATC.ATC_X);
 
-            panel[343] = Convert.ToInt32(TokyuATS.ATS_TokyuATS);
-            panel[344] = Convert.ToInt32(TokyuATS.ATS_EB);
-            panel[345] = Convert.ToInt32(TokyuATS.ATS_WarnNormal);
-            panel[346] = Convert.ToInt32(TokyuATS.ATS_WarnTriggered);
+            newPanelValues[311] = ATC.ATCNeedle;
+            newPanelValues[310] = Convert.ToInt32(ATC.ATCNeedle_Disappear);
+
+            newPanelValues[265] = Convert.ToInt32(ATC.ATC_ATC);
+            newPanelValues[276] = ATC.ATCEnable ? Convert.ToInt32(ATC.ATC_Depot) : 0;
+            newPanelValues[279] = (ATC.ATCEnable && ATC.ATC_Noset) ? Convert.ToInt32(ATC.ATC_Noset) : 0;
+            newPanelValues[272] = Convert.ToInt32(ATC.ATC_ServiceBrake);
+            newPanelValues[268] = Convert.ToInt32(ATC.ATC_EmergencyBrake);
+            newPanelValues[282] = Convert.ToInt32(ATC.ATC_EmergencyOperation);
+            newPanelValues[342] = Convert.ToInt32(ATC.ATC_StationStop);
+
+            newPanelValues[343] = Convert.ToInt32(TokyuATS.ATS_TokyuATS);
+            newPanelValues[344] = Convert.ToInt32(TokyuATS.ATS_EB);
+            newPanelValues[345] = Convert.ToInt32(TokyuATS.ATS_WarnNormal);
+            newPanelValues[346] = Convert.ToInt32(TokyuATS.ATS_WarnTriggered);
+
+            // 刷新逻辑
+            foreach (var idx in panelIndices) {
+                if (needRefresh) {
+                    panel[idx] = newPanelValues[idx];
+                    lastPanelOutput[idx] = newPanelValues[idx];
+                } else {
+                    panel[idx] = lastPanelOutput[idx];
+                }
+            }
 
             sound[258] = (int)ATC.ATC_Ding;
             sound[259] = (int)ATC.ATC_ORPBeep;
