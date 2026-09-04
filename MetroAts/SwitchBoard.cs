@@ -4,7 +4,7 @@ namespace MetroAts {
     // ============================================================
     // 钥匙位置 (KeyPosList) 与信号开关位置 (SignalSWList) 逻辑集中管理。
     // - 档位步进（I/J 钥匙、G/H 信号开关、Space+TASC）
-    // - 安全位复位（场景开始 / 紧急制动）
+    // - 默认位复位（场景开始 / 紧急制动）
     // - 显示文本与面板输出的映射（消除原分散在 Tick/Input 中的重复 switch）
     // ============================================================
     public partial class MetroAts {
@@ -73,19 +73,19 @@ namespace MetroAts {
         }
 
         /// <summary>
-        /// 场景启动 / 紧急制动时复位到安全位：钥匙归到拔出位(None)、
-        /// 信号开关归到本车的单一安全档位（Config.SafeSignalSW，见 ResolveSafeSignalSW：
+        /// 场景启动 / 紧急制动时复位到默认位：钥匙归到拔出位(None)、
+        /// 信号开关归到本车的单一默认档位（Config.DefaultSignalSW，见 ResolveDefaultSignalSW：
         /// 默认 Noset；对 JR 兼任非设的车自动/显式回退到 JR），并关闭 ATO/TASC。
         /// </summary>
-        private void ResetPositionsToSafe() {
+        private void ResetPositionsToDefault() {
             isTASCenabled = false;
             int noneIndex = NoneKeyIndex();
             if (noneIndex >= 0) {
                 NowKey = noneIndex;
             }
-            int safeIndex = Config.SignalSWLists.IndexOf(Config.SafeSignalSW);
-            if (safeIndex >= 0) {
-                NowSignalSW = safeIndex;
+            int defaultIndex = Config.SignalSWLists.IndexOf(Config.DefaultSignalSW);
+            if (defaultIndex >= 0) {
+                NowSignalSW = defaultIndex;
             }
         }
 

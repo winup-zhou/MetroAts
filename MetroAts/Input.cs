@@ -18,7 +18,7 @@ namespace MetroAts {
             lastHandleOutputRefreshTime = TimeSpan.Zero;
             var panel = Native.AtsPanelArray;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
-                ResetPositionsToSafe();
+                ResetPositionsToDefault();
             }
             WriteKeyPosToPanel(panel);
             WriteSignalSWToPanel(panel);
