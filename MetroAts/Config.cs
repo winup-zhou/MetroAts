@@ -23,6 +23,9 @@ namespace MetroAts {
         public static bool SignalSW_loop = false;
         public static bool SignalSW_legacyoutput = false;
 
+        /// <summary>安全档位（复位目标档）。由 [signalsw]safe 显式指定；未指定时按 ResolveSafeSignalSW 自动解析。</summary>
+        public static SignalSWList SafeSignalSW = SignalSWList.Noset;
+
         public static bool atotascsw_enable = false;
 
         public static int Panel_brakeoutput = 1023;
@@ -64,6 +67,8 @@ namespace MetroAts {
                     ReadConfig("signalsw", "isloop", ref SignalSW_loop);
                     ReadConfig("signalsw", "legacyoutput", ref SignalSW_legacyoutput);
 
+                    SafeSignalSW = ResolveSafeSignalSW();
+
                     ReadConfig("atotascsw", "enable", ref atotascsw_enable);
 
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
@@ -78,10 +83,34 @@ namespace MetroAts {
             } else throw new BveFileLoadException("Unable to find configuration file: MetroAtsConfig.ini", "MetroAts");
         }
 
+        /// <summary>
+        /// 解析本车的"安全档位"（复位目标，恒为单一档位，而非并列候选）。
+        /// 优先级：1) [signalsw]safe 显式指定且存在于档位列表；
+        ///         2) 列表含 Noset → Noset（常规：非设档独立存在）；
+        ///         3) 列表仅含 JR（JR 兼任非设的车）→ JR；
+        ///         4) 均不含 → Noset（调用侧在列表中找不到时保持原位不动）。
+        /// </summary>
+        private static SignalSWList ResolveSafeSignalSW() {
+            string configured = "";
+            ReadConfig("signalsw", "default", ref configured);
+            if (!string.IsNullOrEmpty(configured)) {
+                try {
+                    SignalSWList parsed = (SignalSWList)Enum.Parse(typeof(SignalSWList), configured, true);
+                    if (SignalSWLists.Contains(parsed)) return parsed;
+                } catch (Exception) {
+                    // 无效配置值 → 回退到自动解析
+                }
+            }
+            if (SignalSWLists.Contains(SignalSWList.Noset)) return SignalSWList.Noset;
+            if (SignalSWLists.Contains(SignalSWList.JR)) return SignalSWList.JR; // JR-非设同位情形的车
+            return SignalSWList.Noset;
+        }
+
         public static void Dispose() {
             KeyPosLists.Clear();
             SignalSWLists.Clear();
             SignalSW_loop = false;
+            SafeSignalSW = SignalSWList.Noset;
             atotascsw_enable = false;
 
             Panel_brakeoutput = 1023;

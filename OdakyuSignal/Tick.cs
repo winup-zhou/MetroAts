@@ -27,15 +27,36 @@ namespace OdakyuSignal {
             }
 
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
+            var nextSection = sectionManager.Sections[pointer] as Section;
+
+            // 信号切换分派：钥匙/档位归属由核心仲裁，激活状态据此翻转
+            corePlugin.Arbitrate(this);
 
             if (SignalEnable) {
-                if (StandAloneMode) {
-                    
-                } else {
-                    if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
+                if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
 
-                }
-                if (!StandAloneMode) {
+                // 车载 OM-ATS / D-ATS-P 手动·自动切换开关（ATS_SW）：
+                //   Auto    = 自动（OM/D 均启用，各自按地上子工作）
+                //   OM_ATS  = 手动固定 OM-ATS
+                //   D_ATS_P = 手动固定 D-ATS-P
+                bool omEnabled = ATS_Switch != ATS_SW.D_ATS_P;
+                bool dEnabled = ATS_Switch != ATS_SW.OM_ATS;
+                if (omEnabled && !OM_ATS.ATSEnable) OM_ATS.Init(state.Time);
+                else if (!omEnabled && OM_ATS.ATSEnable) OM_ATS.Disable();
+                if (dEnabled && !D_ATS_P.ATSEnable) D_ATS_P.Init(state.Time);
+                else if (!dEnabled && D_ATS_P.ATSEnable) D_ATS_P.Disable();
+
+                if (OM_ATS.ATSEnable) OM_ATS.Tick(state);
+                if (D_ATS_P.ATSEnable) D_ATS_P.Tick(state, currentSection, nextSection, handles);
+
+                int brake = 0;
+                if (OM_ATS.ATSEnable) brake = Math.Max(brake, OM_ATS.BrakeCommand);
+                if (D_ATS_P.ATSEnable) brake = Math.Max(brake, D_ATS_P.BrakeCommand);
+                if (brake > 0) {
+                    if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                        AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, brake);
+                    else AtsHandles.BrakeNotch = brake;
+                    BrakeTriggered = true;
                 }
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;
@@ -44,29 +65,26 @@ namespace OdakyuSignal {
                 UpdatePanelAndSound(panel, sound);
                 panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
                 panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
-            } else {
-                if (StandAloneMode) {
-
-                } else {
-
-                }
             }
-            if (StandAloneMode) {
-                var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
-                leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
-                leverText.Text = $"キー:{(Keyin ? "入" : "切")} \n{description}";
-                if (isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
-                sound[270] = (int)Sound_Keyin;
-                sound[271] = (int)Sound_Keyout;
-                panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
-            }
-
-            //sound reset
-            Sound_Keyin = Sound_Keyout = Sound_ResetSW = AtsSoundControlInstruction.Continue;
+            // 非激活：启用/去启用已由 corePlugin.Arbitrate(this) 管理（Activate/Deactivate）
         }
 
         private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound) {
-
+            // 接口定义（Google Sheets: MetroAts 预留接口）Panel 端子：
+            //   347=OM-ATS  348=D-ATS-P  349=パターン接近  350=動作  351=速度注意
+            //   352=無信号  353=P非設     354=非常運転      355=EB    356=P地上子
+            panel[347] = OM_ATS.ATSEnable ? 1 : 0;
+            panel[348] = D_ATS_P.ATSEnable ? 1 : 0;
+            panel[349] = D_ATS_P.ATS_PatternApproach ? 1 : 0;
+            panel[350] = (OM_ATS.ATS_Triggered || D_ATS_P.ATS_Triggered) ? 1 : 0;
+            panel[351] = (OM_ATS.ATS_SpeedCaution || D_ATS_P.ATS_SpeedCaution) ? 1 : 0;
+            panel[352] = D_ATS_P.ATS_NoSignal ? 1 : 0;
+            panel[353] = D_ATS_P.ATS_Noset ? 1 : 0;
+            panel[354] = (OM_ATS.ATS_EmergencyOperation || D_ATS_P.ATS_EmergencyOperation) ? 1 : 0;
+            panel[355] = (OM_ATS.ATS_EmergencyOperation || D_ATS_P.EB_NeedConfirm || D_ATS_P.ATS_EmergencyOperation) ? 1 : 0;
+            panel[356] = D_ATS_P.ATS_Pbeacon ? 1 : 0;
+            // 小田急声道端子暂未在接口定义中提供，避免与既有声道冲突故不写 sound
+            _ = sound;
         }
     }
 }

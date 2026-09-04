@@ -33,28 +33,14 @@ namespace TokyuSignal {
             panel[278] = 0;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
-                Keyin = false;
                 SignalEnable = false;
-                if (StandAloneMode) {
-                    for (int i = 0; i < Config.SignalSWLists.Count; ++i) {
-                        if (Config.SignalSWLists[i] == SignalSWListStandAlone.Noset) {
-                            NowSignalSW = i;
-                            break;
-                        }
-                    }
-                }
             }
             UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
 
         }
 
         private void DoorOpened(object sender, EventArgs e) {
-            isDoorOpen = true;
             if (ATC.ATCEnable) ATC.DoorOpened();
-        }
-
-        private void DoorClosed(object sender, EventArgs e) {
-            isDoorOpen = false;
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
@@ -64,36 +50,11 @@ namespace TokyuSignal {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
-            var panel = Native.AtsPanelArray;
-            var sound = Native.AtsSoundArray;
             if (e.KeyName == AtsKeyName.B1) {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
                 TokyuATS.ResetBrake(state, handles);
             } else if (e.KeyName == AtsKeyName.S) {
                 TokyuATS.ResetWarn();
-            }
-            if (StandAloneMode) {
-                if (e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
-                    Sound_Keyout = AtsSoundControlInstruction.Play;
-                    Keyin = false;
-                    BrakeTriggered = false;
-                    SignalEnable = false;
-                    ATC.ResetAll();
-                    TokyuATS.ResetAll();
-                    if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    panel[275] = 0;
-                    panel[278] = 0;
-                    UpdatePanelAndSound(panel, sound, state.Time);     
-                } else if (e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
-                    Sound_Keyin = AtsSoundControlInstruction.Play;
-                    Keyin = true;
-                } else if (e.KeyName == AtsKeyName.G && NowSignalSW > 0 && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
-                    NowSignalSW--;
-                    Sound_SignalSW = AtsSoundControlInstruction.Play;
-                } else if (e.KeyName == AtsKeyName.H && NowSignalSW < Config.SignalSWLists.Count - 1 && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
-                    NowSignalSW++;
-                    Sound_SignalSW = AtsSoundControlInstruction.Play;
-                }
             }
         }
 

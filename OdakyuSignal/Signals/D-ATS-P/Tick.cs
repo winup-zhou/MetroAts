@@ -36,7 +36,12 @@ namespace OdakyuSignal {
                         ValidDataFromBeacon--;
                     lastcurrentSectionLocation = currentSection.Location;
 
-                    SignalPattern.Location = NextSection.Location - 25;
+                    // 现实模型：信号現示由轨道电路连续传输（上方每帧依 NextSection.CurrentSignalIndex 设定目标速度），
+                    // “到下一信号机的距离”则由 22 号 P 地上子在信号机 20m 手前读取并写入 SignalPattern.Location。
+                    // 因此这里不再每帧覆盖 Location；仅当地上子数据失效（有效闭塞耗尽）时以 section 位置兜底，
+                    // 避免照查终点失真导致失控。
+                    if (ValidDataFromBeacon <= 0)
+                        SignalPattern.Location = NextSection.Location - 25;
 
                     ATS_Pbeacon = ValidDataFromBeacon > 0;
 

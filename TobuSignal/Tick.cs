@@ -30,6 +30,9 @@ namespace TobuSignal {
 
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
+            // 信号切换分派：钥匙/档位归属由核心仲裁，激活状态据此翻转
+            corePlugin.Arbitrate(this);
+
             if (SignalEnable) {
                 if (currentSection.CurrentSignalIndex > 4 && Config.EnableATC) {
                     //T-DATC
@@ -70,19 +73,11 @@ namespace TobuSignal {
                         }
                     }
                 }
-                if (currentSection.CurrentSignalIndex >= 109 && currentSection.CurrentSignalIndex != 134 && currentSection.CurrentSignalIndex < 149 && !StandAloneMode)
+                if (currentSection.CurrentSignalIndex >= 109 && currentSection.CurrentSignalIndex != 134 && currentSection.CurrentSignalIndex < 149)
                     sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu ?
                         (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
-                if (!StandAloneMode) {
-                    if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
-                    if (corePlugin.KeyPos != MetroAts.KeyPosList.Tobu || corePlugin.SignalSWPos != MetroAts.SignalSWList.Tobu) {
-                        BrakeTriggered = false;
-                        SignalEnable = false;
-                        T_DATC.ResetAll();
-                        TSP_ATS.ResetAll();
-                        sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    }          
-                }
+                if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
+                // 去启用（key/sw 移出合法集）已由上方 corePlugin.Arbitrate(this) 的 Deactivate 管理
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
@@ -99,31 +94,11 @@ namespace TobuSignal {
                     panel[Config.Panel_brakeoutput] = lastBrakeNotch;
                 }
             } else {
-                if (!StandAloneMode) {
-                    Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Tobu;
-                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.Tobu) && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
-                        SignalEnable = true;
-                } else {
-                    if (!SignalEnable && Keyin && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
-                        SignalEnable = true;
-                    AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
-                    AtsHandles.ReverserPosition = ReverserPosition.N;
-                }
+                // 启用/去启用已由上方 corePlugin.Arbitrate(this) 管理（Activate/Deactivate）
             }
-
-            if (StandAloneMode) {
-                var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
-                leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
-                leverText.Text = $"キー:{(Keyin ? "入" : "切")} \n{description}";
-                if (isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
-                sound[270] = (int)Sound_Keyin;
-                sound[271] = (int)Sound_Keyout;
-                panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
-            }
-            
 
             //sound reset
-            Sound_Keyin = Sound_Keyout = Sound_ResetSW = Sound_Switchover = AtsSoundControlInstruction.Continue;
+            Sound_ResetSW = Sound_Switchover = AtsSoundControlInstruction.Continue;
 
             //handles.PowerNotch = 0;
             //handles.BrakeNotch = 0;

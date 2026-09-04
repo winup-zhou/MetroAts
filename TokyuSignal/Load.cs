@@ -1,4 +1,5 @@
 ﻿using BveEx.Extensions.Native;
+using BveEx.PluginHost;
 using BveEx.PluginHost.Plugins;
 using BveTypes.ClassWrappers;
 using System;
@@ -16,26 +17,16 @@ namespace TokyuSignal {
         Continue = 2        // Continue
     }
 
-    public enum SignalSWListStandAlone {
-        Noset = 0,
-        ATC = 4,
-        TokyuATS = 1
-    }
     public partial class TokyuSignal : AssemblyPluginBase {
         private readonly INative Native;
         public static VehicleSpec vehicleSpec;
         public static SectionManager sectionManager;
 
-        private LeverText leverText;
         private CorePlugin corePlugin;
 
-        private static AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW, Sound_SignalSW;
+        private static AtsSoundControlInstruction Sound_ResetSW;
 
         private static bool SignalEnable = false;
-        private static bool Keyin = false;
-        public static int NowSignalSW;
-        private static bool StandAloneMode = true;
-        private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
         private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero, lastPanelOutputRefreshTime = TimeSpan.Zero;
         private static readonly int[] lastPanelOutput = new int[350];
@@ -47,7 +38,6 @@ namespace TokyuSignal {
             Native = Extensions.GetExtension<INative>();
             Native.BeaconPassed += BeaconPassed;
             Native.DoorOpened += DoorOpened;
-            Native.DoorClosed += DoorClosed;
             Native.Started += Initialize;
             Native.AtsKeys.AnyKeyPressed += KeyDown;
             Native.AtsKeys.AnyKeyReleased += KeyUp;
@@ -61,12 +51,10 @@ namespace TokyuSignal {
         }
 
         private void OnAllPluginsLoaded(object sender, EventArgs e) {
-            try {
-                corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin;
-                StandAloneMode = false;
-            } catch (Exception ex) {
-                StandAloneMode = true;
-            }
+            // MetroAts 核心为必需依赖：未加载则无法安全运行，直接报错（不再支持独立模式）
+            corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin
+                ?? throw new BveFileLoadException("未找到 MetroAts 核心插件 (MetroAtsCore)。TokyuSignal 需要 MetroAts 核心插件。", "TokyuSignal");
+            corePlugin.RegisterDevice(this);
         }
 
         public override void Dispose() {
@@ -74,7 +62,6 @@ namespace TokyuSignal {
 
             Native.BeaconPassed -= BeaconPassed;
             Native.DoorOpened -= DoorOpened;
-            Native.DoorClosed -= DoorClosed;
             Native.Started -= Initialize;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
             //Native.AtsKeys.AnyKeyPressed -= KeyDown;
@@ -85,11 +72,9 @@ namespace TokyuSignal {
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
 
+            if (corePlugin != null) corePlugin.UnregisterDevice(this);
+
             SignalEnable = false;
-            Keyin = false;
-            NowSignalSW = 0;
-            StandAloneMode = true;
-            isDoorOpen = false;
             BrakeTriggered = false;
             lastBrakeNotch = lastPowerNotch = 0;
             lastHandleOutputRefreshTime = TimeSpan.Zero;

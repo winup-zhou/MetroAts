@@ -27,66 +27,35 @@ namespace JR_SotetsuSignal {
             }
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
+            // 信号切换分派：钥匙/档位归属由核心仲裁，激活状态据此翻转
+            corePlugin.Arbitrate(this);
+
             if (SignalEnable) {
-                if (StandAloneMode) {
-                    if (!ATS_P.ATSEnable) ATS_P.Init(state.Time);
-                    if (!ATS_SN.ATSEnable && Config.SNEnable) ATS_SN.Init(state.Time);
-                    if (ATS_P.P_PEnable) ATS_SN.ResetAll();
-                    if (ATS_P.ATSEnable) {
-                        ATS_P.Tick(state);
-                        if (ATS_P.BrakeCommand > 0) {
-                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
-                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_P.BrakeCommand);
-                            else AtsHandles.BrakeNotch = ATS_P.BrakeCommand;
-                            BrakeTriggered = true;
-                        }
+                if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
+                if (!ATS_P.ATSEnable) ATS_P.Init(state.Time);
+                if (!ATS_SN.ATSEnable && Config.SNEnable) ATS_SN.Init(state.Time);
+                if (ATS_P.P_PEnable) ATS_SN.ResetAll();
+                if (ATS_P.ATSEnable) {
+                    ATS_P.Tick(state);
+                    if (ATS_P.BrakeCommand > 0) {
+                        if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                            AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_P.BrakeCommand);
+                        else AtsHandles.BrakeNotch = ATS_P.BrakeCommand;
+                        BrakeTriggered = true;
                     }
-                    if (ATS_SN.ATSEnable) {
-                        ATS_SN.Tick(state);
-                        if (ATS_SN.BrakeCommand > 0) {
-                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
-                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_SN.BrakeCommand);
-                            else AtsHandles.BrakeNotch = ATS_SN.BrakeCommand;
-                            BrakeTriggered = true;
-                        }
-                    }
-                } else {
-                    if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
-                    if (!ATS_P.ATSEnable) ATS_P.Init(state.Time);
-                    if (!ATS_SN.ATSEnable && Config.SNEnable) ATS_SN.Init(state.Time);
-                    if (ATS_P.P_PEnable) ATS_SN.ResetAll();
-                    if (ATS_P.ATSEnable) {
-                        ATS_P.Tick(state);
-                        if (ATS_P.BrakeCommand > 0) {
-                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
-                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_P.BrakeCommand);
-                            else AtsHandles.BrakeNotch = ATS_P.BrakeCommand;
-                            BrakeTriggered = true;
-                        }
-                    }
-                    if (ATS_SN.ATSEnable) {
-                        ATS_SN.Tick(state);
-                        if (ATS_SN.BrakeCommand > 0) {
-                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
-                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_SN.BrakeCommand);
-                            else AtsHandles.BrakeNotch = ATS_SN.BrakeCommand;
-                            BrakeTriggered = true;
-                        }
+                }
+                if (ATS_SN.ATSEnable) {
+                    ATS_SN.Tick(state);
+                    if (ATS_SN.BrakeCommand > 0) {
+                        if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
+                            AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, ATS_SN.BrakeCommand);
+                        else AtsHandles.BrakeNotch = ATS_SN.BrakeCommand;
+                        BrakeTriggered = true;
                     }
                 }
                 if ((currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49)
                     || (currentSection.CurrentSignalIndex >= 50 && currentSection.CurrentSignalIndex <= 54)) {
                     sound[256] = (int)AtsSoundControlInstruction.PlayLooping;
-                }
-                if (!StandAloneMode) {
-                    if (!(corePlugin.KeyPos == MetroAts.KeyPosList.JR || corePlugin.KeyPos == MetroAts.KeyPosList.Sotetsu)
-                        || (corePlugin.SignalSWPos != MetroAts.SignalSWList.JR && corePlugin.SignalSWPos != MetroAts.SignalSWList.Sotetsu)) {
-                        BrakeTriggered = false;
-                        SignalEnable = false;
-                        ATS_P.ResetAll();
-                        ATS_SN.ResetAll();
-                        sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    }
                 }
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;
@@ -104,30 +73,11 @@ namespace JR_SotetsuSignal {
                     panel[Config.Panel_brakeoutput] = lastBrakeNotch;
                 }
             } else {
-                if (StandAloneMode) {
-                    if (!SignalEnable && Keyin)
-                        SignalEnable = true;
-                    AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
-                    AtsHandles.ReverserPosition = ReverserPosition.N;
-                } else {
-                    Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.JR || corePlugin.KeyPos == MetroAts.KeyPosList.Sotetsu;
-                    if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.JR || corePlugin.SignalSWPos == MetroAts.SignalSWList.Sotetsu))
-                        SignalEnable = true;
-                }
-
-            }
-            if (StandAloneMode) {
-                var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
-                leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
-                leverText.Text = $"キー:{(Keyin ? "入" : "切")} \n{description}";
-                if (isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
-                sound[270] = (int)Sound_Keyin;
-                sound[271] = (int)Sound_Keyout;
-                panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
+                // 启用/去启用已由上方 corePlugin.Arbitrate(this) 管理（Activate/Deactivate）
             }
 
             //sound reset
-            Sound_Keyin = Sound_Keyout = Sound_ResetSW = AtsSoundControlInstruction.Continue;
+            Sound_ResetSW = AtsSoundControlInstruction.Continue;
         }
 
         private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound, TimeSpan currentTime) {

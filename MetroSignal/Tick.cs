@@ -31,54 +31,10 @@ namespace MetroSignal {
             var nextSection = sectionManager.Sections[pointer] as Section;
             var PreviousSection = sectionManager.Sections[pointer > 1 ? pointer - 2 : 0] as Section;
 
+            // 信号切换分派：钥匙/档位归属由核心仲裁，激活状态据此翻转
+            corePlugin.Arbitrate(this);
+
             if (SignalEnable) {
-                if (StandAloneMode) {
-                    if (Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.WS_ATC) {
-                        if (!WS_ATC.ATCEnable) WS_ATC.Init(state.Time);
-                        if (CS_ATC.ATCEnable) CS_ATC.ResetAll();
-                    } else if (Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.ATC) {
-                        if (!CS_ATC.ATCEnable) CS_ATC.Init(state.Time);
-                        if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
-                    }
-                    if (CS_ATC.ATCEnable) {
-                        CS_ATC.Tick(state, currentSection, nextSection, handles, Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset, Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.InDepot);
-                        if (CS_ATC.BrakeCommand > 0) {
-                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
-                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, CS_ATC.BrakeCommand);
-                            else AtsHandles.BrakeNotch = CS_ATC.BrakeCommand;
-                            BrakeTriggered = true;
-                        }
-                        if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
-                    }
-                    if (WS_ATC.ATCEnable) {
-                        WS_ATC.Tick(state, currentSection, Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset);
-                        if (WS_ATC.BrakeCommand > 0) {
-                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
-                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, WS_ATC.BrakeCommand);
-                            else AtsHandles.BrakeNotch = WS_ATC.BrakeCommand;
-                            BrakeTriggered = true;
-                        }
-                        if (CS_ATC.ATCEnable) CS_ATC.ResetAll();
-                    }
-                    panel[274] = Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.InDepot ? 1 : 0;
-                    panel[277] = Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset ? 1 : 0;
-                    if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49) {
-                        if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
-                        if (!CS_ATC.ATCEnable && (Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.InDepot
-                            || Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset)) CS_ATC.Init(state.Time);
-                        sound[256] = ((Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.InDepot && currentSection.CurrentSignalIndex >= 38 && currentSection.CurrentSignalIndex <= 48)
-                        || Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.ATC) ? (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
-                    } else if (currentSection.CurrentSignalIndex >= 50 && currentSection.CurrentSignalIndex <= 54) {
-                        if (CS_ATC.ATCEnable) CS_ATC.ResetAll();
-                        if (!WS_ATC.ATCEnable &&
-                            (Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset)) WS_ATC.Init(state.Time);
-                        sound[256] = Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.WS_ATC ? (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
-                    } else if (Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.InDepot || Config.SignalSWLists[NowSignalSW] == SignalSWListStandAlone.Noset) {
-                        if (CS_ATC.ATCEnable) CS_ATC.ResetAll();
-                        if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
-                        sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    }
-                } else {
                     if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                     if (corePlugin.SignalSWPos == MetroAts.SignalSWList.WS_ATC) {
                         if (!WS_ATC.ATCEnable) WS_ATC.Init(state.Time);
@@ -129,24 +85,6 @@ namespace MetroSignal {
                         if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
                         sound[256] = (int)AtsSoundControlInstruction.Stop;
                     }
-                }
-                if (!StandAloneMode) {
-                    if (!(corePlugin.KeyPos == MetroAts.KeyPosList.Metro || corePlugin.KeyPos == MetroAts.KeyPosList.ToyoKosoku) ||
-                        (corePlugin.SignalSWPos != MetroAts.SignalSWList.InDepot
-                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.Noset
-                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.ATC
-                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.ATP
-                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.WS_ATC
-                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.JR)) {
-                        BrakeTriggered = false;
-                        SignalEnable = false;
-                        WS_ATC.ResetAll();
-                        CS_ATC.ResetAll();
-                        if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-                        panel[274] = 0;
-                        panel[277] = 0;
-                    }
-                }
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
@@ -163,84 +101,11 @@ namespace MetroSignal {
                     panel[Config.Panel_brakeoutput] = lastBrakeNotch;
                 }
             } else {
-                if (StandAloneMode) {
-                    if (!SignalEnable && Keyin && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
-                        SignalEnable = true;
-                    AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
-                    AtsHandles.ReverserPosition = ReverserPosition.N;
-                    if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    panel[275] = 0;
-                    panel[278] = 0;
-                } else {
-                    Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Metro || corePlugin.KeyPos == MetroAts.KeyPosList.ToyoKosoku;
-                    if (!SignalEnable && Keyin &&
-                        (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.JR
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.WS_ATC
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.ATP)
-                        && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
-                        SignalEnable = true;
-                }
-
-            }
-            if (StandAloneMode) {
-                var SignalSWText = "";
-                switch (Config.SignalSWLists[NowSignalSW]) {
-                    case SignalSWListStandAlone.Noset:
-                        SignalSWText = "非設";
-                        break;
-                    case SignalSWListStandAlone.InDepot:
-                        SignalSWText = "構内";
-                        break;
-                    case SignalSWListStandAlone.ATC:
-                        SignalSWText = "ATC";
-                        break;
-                    case SignalSWListStandAlone.WS_ATC:
-                        SignalSWText = "WS-ATC";
-                        break;
-                    case SignalSWListStandAlone.ATP:
-                        SignalSWText = "ATP";
-                        break;
-                    default:
-                        SignalSWText = "無効";
-                        break;
-                }
-                var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
-                leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
-                leverText.Text = $"キー:{(Keyin ? "入" : "切")} 保安:{SignalSWText}\n{description}";
-                if (isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
-                sound[270] = (int)Sound_Keyin;
-                sound[271] = (int)Sound_Keyout;
-                sound[272] = (int)Sound_SignalSW;
-
-                panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
-                if (!Config.SignalSW_legacyoutput) {
-                    panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
-                } else {
-                    switch (Config.SignalSWLists[NowSignalSW]) {
-                        case SignalSWListStandAlone.ATP:
-                            panel[Config.Panel_SignalSWoutput] = 0;
-                            break;
-                        case SignalSWListStandAlone.WS_ATC:
-                            panel[Config.Panel_SignalSWoutput] = 5;
-                            break;
-                        case SignalSWListStandAlone.Noset:
-                            panel[Config.Panel_SignalSWoutput] = 3;
-                            break;
-                        case SignalSWListStandAlone.ATC:
-                            panel[Config.Panel_SignalSWoutput] = 1;
-                            break;
-                        case SignalSWListStandAlone.InDepot:
-                            panel[Config.Panel_SignalSWoutput] = 2;
-                            break;
-                    }
-                }
+                // 启用/去启用已由上方 corePlugin.Arbitrate(this) 管理（Activate/Deactivate）
             }
 
             //sound reset
-            Sound_Keyin = Sound_Keyout = Sound_ResetSW = Sound_SignalSW = AtsSoundControlInstruction.Continue;
+            Sound_ResetSW = AtsSoundControlInstruction.Continue;
             //handles.PowerNotch = 0;
             //handles.BrakeNotch = 0;
             //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;

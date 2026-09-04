@@ -1,0 +1,7 @@
+{
+    "python.analysis.extraPaths": [
+        "C:\\Users\\31668\\.kendryte\\k230_canmv_stubs\\8f620e570e90363678bd2fb9fdb22f4e16ba8fbf"
+    ],
+    "python.analysis.stubPath": "C:\\Users\\31668\\.kendryte\\k230_canmv_pylance\\2442a2dd0acc795d\\typings",
+    "dotnet.preferCSharpExtension": true
+}

@@ -21,13 +21,11 @@ namespace MetroSignal {
         public static string path;
         private const int buffer_size = 4096;
 
-        //ÅäÖÃÏî
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
         public static bool ORPUseNeedle = true;//1:pilotlamp 0:needle
         public static bool isLCD = false;
         public static int LCDRefreshInterval = 0;
-
-        public static List<SignalSWListStandAlone> SignalSWLists = new List<SignalSWListStandAlone>();
 
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
@@ -46,13 +44,6 @@ namespace MetroSignal {
                     ReadConfig("panel", "islcd", ref isLCD);
                     ReadConfig("panel", "lcdrefreshinterval", ref LCDRefreshInterval);
 
-                    var SignalSWString = "";
-                    ReadConfig("signalsw", "positions", ref SignalSWString);
-                    foreach (var i in SignalSWString.Split(',')) {
-                        SignalSWLists.Add((SignalSWListStandAlone)Enum.Parse(typeof(SignalSWListStandAlone), i, true));
-                    }
-                    if (!SignalSWLists.Contains(SignalSWListStandAlone.Noset))
-                        SignalSWLists.Add(SignalSWListStandAlone.Noset);
                     ReadConfig("signalsw", "legacyoutput", ref SignalSW_legacyoutput);
 
                     ReadConfig("output", "power", ref Panel_poweroutput);
@@ -69,7 +60,6 @@ namespace MetroSignal {
         public static void Dispose() {
             ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
             ORPUseNeedle = true;//1:pilotlamp 0:needle
-            SignalSWLists.Clear();
 
             Panel_poweroutput = 1023;
             Panel_brakeoutput = 1023;
@@ -80,7 +70,7 @@ namespace MetroSignal {
             SignalSW_legacyoutput = false;
         }
 
-        //¶ÁÈ¡ÅäÖÃÏà¹Øº¯Êý
+        //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øºï¿½ï¿½ï¿½
         private static void ReadConfig(string Section, string Key, ref int Value) {
             var OriginalVal = Value;
             var RetVal = new StringBuilder(buffer_size);

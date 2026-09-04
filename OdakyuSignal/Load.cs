@@ -1,4 +1,5 @@
 ﻿using BveEx.Extensions.Native;
+using BveEx.PluginHost;
 using BveEx.PluginHost.Plugins;
 using BveTypes.ClassWrappers;
 using System;
@@ -27,16 +28,12 @@ namespace OdakyuSignal {
         public static VehicleSpec vehicleSpec;
         public static SectionManager sectionManager;
 
-        private LeverText leverText;
         private CorePlugin corePlugin;
 
         private static ATS_SW ATS_Switch = ATS_SW.Auto;
-        private static AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW;
+        private static AtsSoundControlInstruction Sound_ResetSW;
 
         private static bool SignalEnable = false;
-        private static bool Keyin = false;
-        private static bool StandAloneMode = true;
-        private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
 
         public OdakyuSignal(PluginBuilder builder) : base(builder) {
@@ -45,7 +42,6 @@ namespace OdakyuSignal {
             Native = Extensions.GetExtension<INative>();
             Native.BeaconPassed += BeaconPassed;
             Native.DoorOpened += DoorOpened;
-            Native.DoorClosed += DoorClosed;
             Native.Started += Initialize;
             Native.AtsKeys.AnyKeyPressed += KeyDown;
             Native.AtsKeys.AnyKeyReleased += KeyUp;
@@ -57,12 +53,10 @@ namespace OdakyuSignal {
         }
 
         private void OnAllPluginsLoaded(object sender, EventArgs e) {
-            try {
-                corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin;
-                StandAloneMode = false;
-            } catch (Exception ex) {
-                StandAloneMode = true;
-            }
+            // MetroAts 核心为必需依赖：未加载则无法安全运行，直接报错（不再支持独立模式）
+            corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin
+                ?? throw new BveFileLoadException("未找到 MetroAts 核心插件 (MetroAtsCore)。OdakyuSignal 需要 MetroAts 核心插件。", "OdakyuSignal");
+            corePlugin.RegisterDevice(this);
         }
 
         public override void Dispose() {
@@ -70,7 +64,6 @@ namespace OdakyuSignal {
 
             Native.BeaconPassed -= BeaconPassed;
             Native.DoorOpened -= DoorOpened;
-            Native.DoorClosed -= DoorClosed;
             Native.Started -= Initialize;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
             //Native.AtsKeys.AnyKeyPressed -= KeyDown;
@@ -79,6 +72,11 @@ namespace OdakyuSignal {
             BveHacker.ScenarioCreated -= OnScenarioCreated;
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
+
+            if (corePlugin != null) corePlugin.UnregisterDevice(this);
+
+            SignalEnable = false;
+            BrakeTriggered = false;
         }
     }
 }

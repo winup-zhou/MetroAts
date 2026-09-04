@@ -28,20 +28,10 @@ namespace SeibuSignal {
 
             var currentSection = sectionManager.Sections[pointer == 0 ? 0 : pointer - 1] as Section;
 
+            // 信号切换分派：钥匙/档位归属由核心仲裁，激活状态据此翻转
+            corePlugin.Arbitrate(this);
+
             if (SignalEnable) {
-                if (StandAloneMode) {
-                    if (SeibuATS.ATSEnable) {
-                        SeibuATS.Tick(state, sectionManager);
-                        if (SeibuATS.BrakeCommand > 0) {
-                            if (AtsHandles.BrakeNotch < vehicleSpec.BrakeNotches + 2)
-                                AtsHandles.BrakeNotch = Math.Max(AtsHandles.BrakeNotch, SeibuATS.BrakeCommand);
-                            else AtsHandles.BrakeNotch = SeibuATS.BrakeCommand;
-                            BrakeTriggered = true;
-                        }
-                    } else {
-                        SeibuATS.Init(state.Time);
-                    }
-                } else {
                     if (!corePlugin.SubPluginEnabled) corePlugin.SubPluginEnabled = true;
                     if (corePlugin.SignalSWPos == MetroAts.SignalSWList.SeibuATS) {
                         if (!SeibuATS.ATSEnable) SeibuATS.Init(state.Time);
@@ -91,21 +81,6 @@ namespace SeibuSignal {
                         if (ATC.ATCEnable) ATC.ResetAll();
                         sound[256] = (int)AtsSoundControlInstruction.Stop;
                     }
-                }
-                if (!StandAloneMode) {
-                    if (corePlugin.KeyPos != MetroAts.KeyPosList.Seibu || (corePlugin.SignalSWPos != MetroAts.SignalSWList.InDepot
-                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.Noset
-                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.ATC
-                        && corePlugin.SignalSWPos != MetroAts.SignalSWList.SeibuATS)) {
-                        BrakeTriggered = false;
-                        SignalEnable = false;
-                        SeibuATS.ResetAll();
-                        ATC.ResetAll();
-                        if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-                        panel[275] = 0;
-                        panel[278] = 0;
-                    }
-                }
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;
                     if (handles.PowerNotch == 0) BrakeTriggered = false;
@@ -122,36 +97,11 @@ namespace SeibuSignal {
                     panel[Config.Panel_brakeoutput] = lastBrakeNotch;
                 }
             } else {
-                if (StandAloneMode) {
-                    if (!SignalEnable && Keyin)
-                        SignalEnable = true;
-                    AtsHandles.BrakeNotch = vehicleSpec.BrakeNotches + 1;
-                    AtsHandles.ReverserPosition = ReverserPosition.N;
-                    if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    panel[275] = 0;
-                    panel[278] = 0;
-                } else {
-                    Keyin = corePlugin.KeyPos == MetroAts.KeyPosList.Seibu;
-                    if (!SignalEnable && Keyin && corePlugin.SignalSWPos == MetroAts.SignalSWList.SeibuATS)
-                        SignalEnable = true;
-                    else if (!SignalEnable && Keyin && (corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset)
-                        && handles.BrakeNotch != vehicleSpec.BrakeNotches + 1)
-                        SignalEnable = true;
-                }
-            }
-            if (StandAloneMode) {
-                var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
-                leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
-                leverText.Text = $"キー:{(Keyin ? "入" : "切")} \n{description}";
-                if (isDoorOpen) AtsHandles.ReverserPosition = ReverserPosition.N;
-                sound[270] = (int)Sound_Keyin;
-                sound[271] = (int)Sound_Keyout;
-                panel[Config.Panel_keyoutput] = Convert.ToInt32(Keyin);
+                // 启用/去启用已由上方 corePlugin.Arbitrate(this) 管理（Activate/Deactivate）
             }
 
             //sound reset
-            Sound_Keyin = Sound_Keyout = Sound_ResetSW = AtsSoundControlInstruction.Continue;
+            Sound_ResetSW = AtsSoundControlInstruction.Continue;
             //handles.PowerNotch = 0;
             //handles.BrakeNotch = 0;
             //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;

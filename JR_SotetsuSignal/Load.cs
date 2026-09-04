@@ -1,4 +1,5 @@
 ﻿using BveEx.Extensions.Native;
+using BveEx.PluginHost;
 using BveEx.PluginHost.Plugins;
 using BveTypes.ClassWrappers;
 using System;
@@ -21,15 +22,11 @@ namespace JR_SotetsuSignal {
         public static VehicleSpec vehicleSpec;
         public static SectionManager sectionManager;
 
-        private LeverText leverText;
         private CorePlugin corePlugin;
 
-        private static AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_ResetSW;
+        private static AtsSoundControlInstruction Sound_ResetSW;
 
         private static bool SignalEnable = false;
-        private static bool Keyin = false;
-        private static bool StandAloneMode = true;
-        private static bool isDoorOpen = false;
         private static bool BrakeTriggered = false;
         private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero, lastPanelOutputRefreshTime = TimeSpan.Zero;
         private static readonly int[] lastPanelOutput = new int[350];
@@ -41,7 +38,6 @@ namespace JR_SotetsuSignal {
             Native = Extensions.GetExtension<INative>();
             Native.BeaconPassed += BeaconPassed;
             Native.DoorOpened += DoorOpened;
-            Native.DoorClosed += DoorClosed;
             Native.Started += Initialize;
             Native.AtsKeys.AnyKeyPressed += KeyDown;
             Native.AtsKeys.AnyKeyReleased += KeyUp;
@@ -54,12 +50,10 @@ namespace JR_SotetsuSignal {
         }
 
         private void OnAllPluginsLoaded(object sender, EventArgs e) {
-            try {
-                corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin;
-                StandAloneMode = false;
-            } catch (Exception ex) {
-                StandAloneMode = true;
-            }
+            // MetroAts 核心为必需依赖：未加载则无法安全运行，直接报错（不再支持独立模式）
+            corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin
+                ?? throw new BveFileLoadException("未找到 MetroAts 核心插件 (MetroAtsCore)。JR_SotetsuSignal 需要 MetroAts 核心插件。", "JR_SotetsuSignal");
+            corePlugin.RegisterDevice(this);
         }
 
         public override void Dispose() {
@@ -67,7 +61,6 @@ namespace JR_SotetsuSignal {
 
             Native.BeaconPassed -= BeaconPassed;
             Native.DoorOpened -= DoorOpened;
-            Native.DoorClosed -= DoorClosed;
             Native.Started -= Initialize;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
             //Native.AtsKeys.AnyKeyPressed -= KeyDown;
@@ -77,10 +70,9 @@ namespace JR_SotetsuSignal {
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
 
+            if (corePlugin != null) corePlugin.UnregisterDevice(this);
+
             SignalEnable = false;
-            Keyin = false;
-            StandAloneMode = true;
-            isDoorOpen = false;
             BrakeTriggered = false;
             lastBrakeNotch = lastPowerNotch = 0;
             lastHandleOutputRefreshTime = TimeSpan.Zero;

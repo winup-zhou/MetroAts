@@ -56,7 +56,6 @@ namespace MetroAts {
 
         public static int NowKey;
         public static int NowSignalSW;
-        private static int NoneKeyPos;
         private AtsSoundControlInstruction Sound_Keyin, Sound_Keyout, Sound_SignalSW;
         private static TimeSpan lastHandleOutputRefreshTime = TimeSpan.Zero;
         private static int lastBrakeNotch, lastPowerNotch;

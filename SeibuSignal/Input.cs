@@ -32,7 +32,6 @@ namespace SeibuSignal {
             panel[278] = 0;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
-                Keyin = false;
                 SignalEnable = false;
             }
             UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
@@ -40,11 +39,6 @@ namespace SeibuSignal {
 
         private void DoorOpened(object sender, EventArgs e) {
             if(SeibuATS.ATSEnable)SeibuATS.DoorOpened();
-            isDoorOpen = true;
-        }
-
-        private void DoorClosed(object sender, EventArgs e) {
-            isDoorOpen = false;
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
@@ -52,30 +46,11 @@ namespace SeibuSignal {
         }
 
         private void KeyDown(object sender, AtsKeyEventArgs e) {
-            var panel = Native.AtsPanelArray;
-            var sound = Native.AtsSoundArray;
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
                 SeibuATS.ConfirmEB(state, handles);
-            }
-            if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
-                if (e.KeyName == AtsKeyName.I) {
-                    Sound_Keyout = AtsSoundControlInstruction.Play;
-                    Keyin = false;
-                    BrakeTriggered = false;
-                    SignalEnable = false;
-                    SeibuATS.ResetAll();
-                    ATC.ResetAll();
-                    if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-                    panel[275] = 0;
-                    panel[278] = 0;
-                    UpdatePanelAndSound(panel, sound, state.Time);
-                } else if (e.KeyName == AtsKeyName.J) {
-                    Sound_Keyin = AtsSoundControlInstruction.Play;
-                    Keyin = true;
-                }
             }
         }
 

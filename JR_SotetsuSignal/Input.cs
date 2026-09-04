@@ -33,9 +33,8 @@ namespace JR_SotetsuSignal {
             var sound = Native.AtsSoundArray;
             ATS_P.ResetAll();
             ATS_SN.ResetAll();
-            if (e.DefaultBrakePosition == BrakePosition.Emergency && !StandAloneMode) {
+            if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
-                Keyin = false;
                 SignalEnable = false;
                 sound[256] = (int)AtsSoundControlInstruction.Stop;
             }
@@ -43,14 +42,9 @@ namespace JR_SotetsuSignal {
         }
 
         private void DoorOpened(object sender, EventArgs e) {
-            isDoorOpen = true;
             var state = Native.VehicleState;
             if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
             if (ATS_P.ATSEnable) ATS_P.DoorOpened(state);
-        }
-
-        private void DoorClosed(object sender, EventArgs e) {
-            isDoorOpen = false;
         }
 
         private void KeyUp(object sender, AtsKeyEventArgs e) {
@@ -62,7 +56,6 @@ namespace JR_SotetsuSignal {
         private void KeyDown(object sender, AtsKeyEventArgs e) {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
-            var sound = Native.AtsSoundArray;
             if (e.KeyName == AtsKeyName.B1) {
                 Sound_ResetSW = AtsSoundControlInstruction.Play;
                 if (ATS_P.ATSEnable && state.Speed == 0) ATS_P.ResetBrake(handles);
@@ -73,19 +66,6 @@ namespace JR_SotetsuSignal {
                 if (ATS_SN.ATSEnable) ATS_SN.ResetWarn(handles);
             } else if (e.KeyName == AtsKeyName.B2) {
                 if (ATS_P.ATSEnable && state.Speed == 0) ATS_P.BrakeOverride(state);
-            }
-            if (StandAloneMode && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && handles.ReverserPosition == ReverserPosition.N) {
-                if (e.KeyName == AtsKeyName.I) {
-                    Sound_Keyout = AtsSoundControlInstruction.Play;
-                    Keyin = false;
-                    BrakeTriggered = false;
-                    SignalEnable = false;
-                    sound[256] = (int)AtsSoundControlInstruction.Stop;
-
-                } else if (e.KeyName == AtsKeyName.J) {
-                    Sound_Keyin = AtsSoundControlInstruction.Play;
-                    Keyin = true;
-                }
             }
         }
 
