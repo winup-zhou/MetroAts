@@ -1,4 +1,6 @@
 using BveEx.Extensions.Native;
+using BveEx.PluginHost.Plugins;
+using BveTypes.ClassWrappers;
 using System.Collections.Generic;
 using MetroAts;
 
@@ -27,8 +29,16 @@ namespace SeibuSignal {
         public bool IsBraking => BrakeTriggered;
 
         public void Activate(KeyPosList key, SignalSWList sw) {
-            // 只做启用翻转；SeibuATS/ATC 的 Init 惰性初始化保留在 Tick 内（档位切换逻辑不变）。
-            if (!SignalEnable) SignalEnable = true;
+            // 与既有逻辑一致：
+            // - SeibuATS 档：插入钥匙即激活（无 EB 门控）。
+            // - ATC/InDepot/Noset 档：需制动脱离 EB 位(EB=BrakeNotches+1) 才投入。
+            // 条件未满足时保持待命（IsActive=false），Arbitrate 会在后续帧再次调用本方法。
+            if (SignalEnable) return;
+            if (sw != SignalSWList.SeibuATS) {
+                var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
+                if (handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) return;
+            }
+            SignalEnable = true;
         }
 
         public void Deactivate(KeyPosList key) {

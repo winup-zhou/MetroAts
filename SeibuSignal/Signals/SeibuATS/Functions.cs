@@ -43,10 +43,10 @@ namespace SeibuSignal {
             EBType = EBTypes.Normal;
         }
 
-        public static void DoorOpened() {
-            if (StopPattern != SpeedPattern.inf) StopPattern = SpeedPattern.inf;
-        }
-
+        /// <summary>
+        /// 停车防护（停止パターン）的消去已完全由 Tick 内"速度 &lt; 7km/h 即消去"处理（现实逻辑），
+        /// 不再依赖开门事件。
+        /// </summary>
         public static void BeaconPassed(VehicleState state, BeaconPassedEventArgs e) {
             switch (e.Type) {//1 2 5 8 20
                 case 1:

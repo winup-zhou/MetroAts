@@ -28,6 +28,25 @@ namespace MetroAts {
         }
 
         /// <summary>
+        /// 当前 ATO 是否可用（供 MetroAtsBridge 等外部插件读取）。
+        /// 判定：1) 当前钥匙位（线路）在 <see cref="Config.ATOKeyPosLists"/> 白名单内
+        /// （缺省仅 Metro，可用 <c>[atotascsw]atokeys</c> 覆盖扩展，如 <c>Metro,Tokyu</c>）；
+        /// 2) 存在处于激活状态且实现 <see cref="IATOStatusProvider"/> 的设备上报 ATO 可用。
+        /// 由 ATC 设备（MetroSignal / TokyuSignal）在其内部按“ATC 有效且不在非设/构内位置”上报，
+        /// 替代 bridge 此前读取 ATC 面板灯端子(panel 263/274 等)的耦合方式。
+        /// </summary>
+        public bool IsATOAvailable {
+            get {
+                if (!Config.ATOKeyPosLists.Contains(KeyPos)) return false;
+                foreach (var entry in signalDevices) {
+                    if (entry.Device.IsActive && entry.Device is IATOStatusProvider provider && provider.IsATOAvailable)
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        /// <summary>
         /// 注册一个信号设备。重复注册同一实例会被忽略。
         /// </summary>
         /// <param name="device">待注册的信号设备。</param>

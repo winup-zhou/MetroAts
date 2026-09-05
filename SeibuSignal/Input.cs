@@ -37,10 +37,6 @@ namespace SeibuSignal {
             UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
         }
 
-        private void DoorOpened(object sender, EventArgs e) {
-            if(SeibuATS.ATSEnable)SeibuATS.DoorOpened();
-        }
-
         private void KeyUp(object sender, AtsKeyEventArgs e) {
             //throw new NotImplementedException();
         }

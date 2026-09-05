@@ -72,6 +72,11 @@ namespace SeibuSignal {
                     BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches + 1;
                 } else {
                     ATS_Power = true;
+                    // 停车防护（停止パターン）：速度低于 7km/h 即自动消去（现实逻辑，无需等待开门）。
+                    // 但若已因超速进入"须停稳确认"的 EB（CannotReleaseUntilStop），
+                    // 模式必须保留到 B1 确认（ConfirmEB）为止，不能仅凭低速解除。
+                    if (Math.Abs(state.Speed) < 7 && EBType != EBTypes.CannotReleaseUntilStop)
+                        if (StopPattern != SpeedPattern.inf) StopPattern = SpeedPattern.inf;
                     //if (state.Location > B2MonitorSectionLocation) B2MonitorSectionLocation = sectionManager.LasSection.Location;
                     if (CurrentSection.CurrentSignalIndex >= 9 && CurrentSection.CurrentSignalIndex < 49 && CurrentSection.CurrentSignalIndex != 34) {
                         B1Speed = B2Speed = 30;

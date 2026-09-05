@@ -28,6 +28,12 @@ namespace MetroAts {
 
         public static bool atotascsw_enable = false;
 
+        /// <summary>
+        /// 允许使用 ATO 的钥匙位（线路）白名单。由 [atotascsw]atokeys 指定（逗号分隔），
+        /// 缺省仅 Metro（地铁）。用于决定核心 IsATOAvailable 是否认可设备上报的 ATO 可用状态。
+        /// </summary>
+        public static List<KeyPosList> ATOKeyPosLists = new List<KeyPosList>();
+
         public static int Panel_brakeoutput = 1023;
         public static int Panel_poweroutput = 1023;
         public static int Panel_keyoutput = 1023;
@@ -71,6 +77,17 @@ namespace MetroAts {
 
                     ReadConfig("atotascsw", "enable", ref atotascsw_enable);
 
+                    var ATOKeysString = "";
+                    ReadConfig("atotascsw", "atokeys", ref ATOKeysString);
+                    ATOKeyPosLists.Clear();
+                    if (string.IsNullOrWhiteSpace(ATOKeysString)) {
+                        ATOKeyPosLists.Add(KeyPosList.Metro); // 缺省：仅地铁可用
+                    } else {
+                        foreach (var i in ATOKeysString.Split(',')) {
+                            ATOKeyPosLists.Add((KeyPosList)Enum.Parse(typeof(KeyPosList), i, true));
+                        }
+                    }
+
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
                     ReadConfig("output", "atotascsw", ref Panel_ATOTASCSWoutput);
                     ReadConfig("output", "power", ref Panel_poweroutput);
@@ -112,6 +129,8 @@ namespace MetroAts {
             SignalSW_loop = false;
             DefaultSignalSW = SignalSWList.Noset;
             atotascsw_enable = false;
+            ATOKeyPosLists.Clear();
+            ATOKeyPosLists.Add(KeyPosList.Metro);
 
             Panel_brakeoutput = 1023;
             Panel_poweroutput = 1023;

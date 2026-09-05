@@ -37,7 +37,6 @@ namespace SeibuSignal {
 
             Native = Extensions.GetExtension<INative>();
             Native.BeaconPassed += BeaconPassed;
-            Native.DoorOpened += DoorOpened;
             Native.Started += Initialize;
             Native.AtsKeys.AnyKeyPressed += KeyDown;
             Native.AtsKeys.AnyKeyReleased += KeyUp;
@@ -60,7 +59,6 @@ namespace SeibuSignal {
             Config.Dispose();
 
             Native.BeaconPassed -= BeaconPassed;
-            Native.DoorOpened -= DoorOpened;
             Native.Started -= Initialize;
             Native.VehicleSpecLoaded -= SetVehicleSpec;
             //Native.AtsKeys.AnyKeyPressed -= KeyDown;
