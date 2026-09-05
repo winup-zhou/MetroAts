@@ -41,6 +41,18 @@ namespace MetroAts {
         public static int Panel_ATOTASCSWoutput = 1023;
         public static int Panel_HandleOutputRefreshInterval = 0;
 
+        // 声音输出端子映射（[output] 段可覆盖）：Keyin/Keyout/SignalSW 声音默认 270/271/272
+        public static readonly OutputIndexMap SoundMap = new OutputIndexMap();
+
+        /// <summary>
+        /// 是否仍向 BVE 物理面板数组写入（钥匙/信号开关/ATO-TASC/手柄等面板输出）。
+        /// 默认 true；INI [output]writepanel = false 时仅保留状态暴露、不写物理面板。
+        /// </summary>
+        public static bool PanelWriteEnabled = true;
+
+        /// <summary>是否仍向 BVE 物理声音数组写入（[output]writesound，默认 true）。</summary>
+        public static bool SoundWriteEnabled = true;
+
         public static bool EnforceKeyPos = false;
 
         public static void Load() {
@@ -94,6 +106,17 @@ namespace MetroAts {
                     ReadConfig("output", "brake", ref Panel_brakeoutput);
                     ReadConfig("output", "key", ref Panel_keyoutput);
                     ReadConfig("output", "handlerefreshinterval", ref Panel_HandleOutputRefreshInterval);
+
+                    // 声音端子默认值：钥匙入 270 / 钥匙出 271 / 信号开关 272（可由 [output] 段覆盖）
+                    SoundMap.RegisterDefault("keyin", 270);
+                    SoundMap.RegisterDefault("keyout", 271);
+                    SoundMap.RegisterDefault("signalsw_sound", 272);
+                    SoundMap.Override(OutputIndexMap.ReadSection(path, "output", SoundMap.Index.Keys));
+
+                    // 是否仍写入 BVE 物理 panel/sound（仅暴露状态）
+                    ReadConfig("output", "writepanel", ref PanelWriteEnabled);
+                    ReadConfig("output", "writesound", ref SoundWriteEnabled);
+                    SoundMap.SoundWriteEnabled = SoundWriteEnabled;
                 } catch (Exception ex) {
                     throw ex;
                 }
@@ -140,6 +163,7 @@ namespace MetroAts {
 
             SignalSW_legacyoutput = false;
             Panel_HandleOutputRefreshInterval = 0;
+            SoundMap.Clear();
         }
 
         private static void ReadConfig(string Section, string Key, ref int Value) {

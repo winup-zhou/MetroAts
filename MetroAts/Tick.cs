@@ -22,12 +22,13 @@ namespace MetroAts {
             string KeyText = KeyDisplayText();
             string SignalSWText = SignalSWDisplayText();
 
-            var TASCstate = isTASCenabled ? "ATO/TASC" : "手動";
+            // 運転表示：手動 / ATO/TASC；模式以独立字段 モード 显示（平常/回復/遅速）
+            string TASCstate = isTASCenabled ? "ATO/TASC" : "手動";
 
             var description = BveHacker.Scenario.Vehicle.Instruments.Cab.GetDescriptionText();
             leverText = (LeverText)BveHacker.MainForm.Assistants.Items.First(item => item is LeverText);
             if(Config.atotascsw_enable)
-                leverText.Text = $"キー:{KeyText} 保安:{SignalSWText} 運転:{TASCstate}\n{description}";
+                leverText.Text = $"キー:{KeyText} 保安:{SignalSWText} 運転:{TASCstate} モード:{AtoModeText()}\n{description}";
             else
                 leverText.Text = $"キー:{KeyText} 保安:{SignalSWText}\n{description}";
 
@@ -43,24 +44,40 @@ namespace MetroAts {
                     lastHandleOutputRefreshTime = state.Time;
                     lastBrakeNotch = AtsHandles.BrakeNotch;
                     lastPowerNotch = AtsHandles.PowerNotch;
-                    panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
-                    panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                    if (Config.PanelWriteEnabled) {
+                        panel[Config.Panel_poweroutput] = AtsHandles.PowerNotch;
+                        panel[Config.Panel_brakeoutput] = AtsHandles.BrakeNotch;
+                    }
                 } else {
-                    panel[Config.Panel_poweroutput] = lastPowerNotch;
-                    panel[Config.Panel_brakeoutput] = lastBrakeNotch;
+                    if (Config.PanelWriteEnabled) {
+                        panel[Config.Panel_poweroutput] = lastPowerNotch;
+                        panel[Config.Panel_brakeoutput] = lastBrakeNotch;
+                    }
                 }
             }
             
             WriteKeyPosToPanel(panel);
 
-            panel[Config.Panel_ATOTASCSWoutput] = Convert.ToInt32(isTASCenabled);
+            if (Config.PanelWriteEnabled)
+                panel[Config.Panel_ATOTASCSWoutput] = Convert.ToInt32(isTASCenabled);
             WriteSignalSWToPanel(panel);
 
-            sound[270] = (int)Sound_Keyin;
-            sound[271] = (int)Sound_Keyout;
-            sound[272] = (int)Sound_SignalSW;
+            Config.SoundMap.WriteSound(sound, "keyin", (int)Sound_Keyin);
+            Config.SoundMap.WriteSound(sound, "keyout", (int)Sound_Keyout);
+            Config.SoundMap.WriteSound(sound, "signalsw_sound", (int)Sound_SignalSW);
 
-            Sound_Keyin = Sound_Keyout = Sound_SignalSW = AtsSoundControlInstruction.Continue;
+            // 平行状态暴露（供其它 BveEX 插件经核心注册表只读查询）
+            int keyState = Config.KeyPosLists[NowKey] == KeyPosList.None ? 0 :
+                (KeyPanelOutputs.TryGetValue(KeyPos, out int kv) ? kv : 0);
+            UpdateCorePanelStates(
+                keyState,
+                Config.SignalSW_legacyoutput ? SignalSWLegacyOutput(KeyPos, SignalSWPos) : (int)SignalSWPos,
+                Convert.ToInt32(isTASCenabled),
+                lastPowerNotch, lastBrakeNotch);
+            CorePanelStates["ato_mode"] = ATORunningModeValue;
+            UpdateCoreSoundStates((int)Sound_Keyin, (int)Sound_Keyout, (int)Sound_SignalSW);
+
+            Sound_Keyin = Sound_Keyout = Sound_SignalSW = SoundPlayMode.Continue;
         }
     }
 }

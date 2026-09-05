@@ -21,12 +21,16 @@ namespace OdakyuSignal {
         public static string path;
         private const int buffer_size = 4096;
 
-        //������
+        //������
         public static bool ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
 
         public static int Panel_poweroutput = 1023;
         public static int Panel_brakeoutput = 1023;
         public static int Panel_keyoutput = 1023;
+
+        // 输出端子映射（逻辑键→端子号，[output] 段可覆盖）与平行状态记录
+        public static readonly MetroAts.OutputIndexMap PanelMap = new MetroAts.OutputIndexMap();
+        public static readonly MetroAts.OutputIndexMap SoundMap = new MetroAts.OutputIndexMap();
 
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "OdakyuSignal.ini")).FullName;
@@ -38,11 +42,45 @@ namespace OdakyuSignal {
                     ReadConfig("output", "power", ref Panel_poweroutput);
                     ReadConfig("output", "brake", ref Panel_brakeoutput);
                     ReadConfig("output", "key", ref Panel_keyoutput);
+
+                    RegisterOutputDefaults();
+                    PanelMap.Override(MetroAts.OutputIndexMap.ReadSection(path, "output", PanelMap.Index.Keys));
+                    SoundMap.Override(MetroAts.OutputIndexMap.ReadSection(path, "output", SoundMap.Index.Keys));
+
+                    // 是否仍写入 BVE 物理 panel/sound（仅保留状态暴露）
+                    bool outputWritePanel = true, outputWriteSound = true;
+                    ReadConfig("output", "writepanel", ref outputWritePanel);
+                    ReadConfig("output", "writesound", ref outputWriteSound);
+                    PanelMap.PanelWriteEnabled = outputWritePanel;
+                    SoundMap.SoundWriteEnabled = outputWriteSound;
                 } catch (Exception ex) {
                     throw ex;
                 }
             } else throw new BveFileLoadException("Unable to find configuration file: OdakyuSignal.ini","OdakyuSignal");
         }
+
+        /// <summary>注册本插件全部面板灯逻辑键与默认端子号（与硬编码默认一致）。</summary>
+        private static void RegisterOutputDefaults() {
+            // 面板端子（Google Sheets: MetroAts 预留接口）：
+            //   347=OM-ATS  348=D-ATS-P  349=パターン接近  350=動作  351=速度注意
+            //   352=無信号  353=P非設     354=非常運転      355=EB    356=P地上子
+            RegisterPanel("OM_ATS", 347);
+            RegisterPanel("D_ATS_P", 348);
+            RegisterPanel("ATS_PatternApproach", 349);
+            RegisterPanel("ATS_Triggered", 350);
+            RegisterPanel("ATS_SpeedCaution", 351);
+            RegisterPanel("ATS_NoSignal", 352);
+            RegisterPanel("ATS_Noset", 353);
+            RegisterPanel("ATS_EmergencyOperation", 354);
+            RegisterPanel("EB", 355);
+            RegisterPanel("ATS_Pbeacon", 356);
+
+            // 声音：接口端子暂未定义、本插件不输出实音；仅初始化/复位时对通用警告声道做静音停止
+            RegisterSound("Warning", 256);
+        }
+
+        private static void RegisterPanel(string key, int defaultIndex) { PanelMap.RegisterDefault(key, defaultIndex); }
+        private static void RegisterSound(string key, int defaultIndex) { SoundMap.RegisterDefault(key, defaultIndex); }
 
         public static void Dispose() {
             ATCLimitUseNeedle = true; //1:pilotlamp 0:needle
@@ -50,11 +88,14 @@ namespace OdakyuSignal {
             Panel_poweroutput = 1023;
             Panel_brakeoutput = 1023;
             Panel_keyoutput = 1023;
+
+            PanelMap.Clear();
+            SoundMap.Clear();
         }
 
 
 
-        //��ȡ������غ���
+        //��ȡ������غ���
         private static void ReadConfig(string Section, string Key, ref int Value) {
             var OriginalVal = Value;
             var RetVal = new StringBuilder(buffer_size);

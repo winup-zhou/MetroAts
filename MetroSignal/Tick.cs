@@ -64,26 +64,28 @@ namespace MetroSignal {
                         }
                         if (CS_ATC.ATCEnable) CS_ATC.ResetAll();
                     }
-                    if (!CS_ATC.ATCEnable) panel[274] = corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot ? 1 : 0;
-                    panel[277] = (corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset || corePlugin.SignalSWPos == MetroAts.SignalSWList.JR) ? 1 : 0;
+                    if (!CS_ATC.ATCEnable) Config.PanelMap.WritePanel(panel, "ATC_Depot", corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot ? 1 : 0);
+                    Config.PanelMap.WritePanel(panel, "ATC_Noset", (corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset || corePlugin.SignalSWPos == MetroAts.SignalSWList.JR) ? 1 : 0);
                     if (currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49) {
                         if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
                         if (!CS_ATC.ATCEnable && (corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot
                             || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset
                             || corePlugin.SignalSWPos == MetroAts.SignalSWList.JR))
                             CS_ATC.Init(state.Time);
-                        sound[256] = ((corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot && currentSection.CurrentSignalIndex >= 38 && currentSection.CurrentSignalIndex <= 48)
-                        || corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC) ? (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
+                        Config.SoundMap.WriteSound(sound, "Warning",
+                            ((corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot && currentSection.CurrentSignalIndex >= 38 && currentSection.CurrentSignalIndex <= 48)
+                            || corePlugin.SignalSWPos == MetroAts.SignalSWList.ATC) ? (int)SoundPlayMode.Stop : (int)SoundPlayMode.PlayLooping);
                     } else if (currentSection.CurrentSignalIndex >= 50 && currentSection.CurrentSignalIndex <= 54) {
                         if (CS_ATC.ATCEnable) CS_ATC.ResetAll();
                         if (!WS_ATC.ATCEnable &&
                             (corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset
                             || corePlugin.SignalSWPos == MetroAts.SignalSWList.JR)) WS_ATC.Init(state.Time);
-                        sound[256] = corePlugin.SignalSWPos == MetroAts.SignalSWList.WS_ATC ? (int)AtsSoundControlInstruction.Stop : (int)AtsSoundControlInstruction.PlayLooping;
+                        Config.SoundMap.WriteSound(sound, "Warning",
+                            corePlugin.SignalSWPos == MetroAts.SignalSWList.WS_ATC ? (int)SoundPlayMode.Stop : (int)SoundPlayMode.PlayLooping);
                     } else if (corePlugin.SignalSWPos == MetroAts.SignalSWList.InDepot || corePlugin.SignalSWPos == MetroAts.SignalSWList.Noset) {
                         if (CS_ATC.ATCEnable) CS_ATC.ResetAll();
                         if (WS_ATC.ATCEnable) WS_ATC.ResetAll();
-                        sound[256] = (int)AtsSoundControlInstruction.Stop;
+                        Config.SoundMap.WriteSound(sound, "Warning", (int)SoundPlayMode.Stop);
                     }
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;
@@ -105,7 +107,7 @@ namespace MetroSignal {
             }
 
             //sound reset
-            Sound_ResetSW = AtsSoundControlInstruction.Continue;
+            Sound_ResetSW = SoundPlayMode.Continue;
             //handles.PowerNotch = 0;
             //handles.BrakeNotch = 0;
             //handles.ConstantSpeedMode = ConstantSpeedMode.Continue;
@@ -113,7 +115,7 @@ namespace MetroSignal {
         }
 
         private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound, TimeSpan currentTime) {
-            sound[273] = (int)Sound_ResetSW;
+            Config.SoundMap.WriteSound(sound, "ResetSW", (int)Sound_ResetSW);
 
             bool needRefresh = true;
             if (Config.isLCD) {
@@ -125,69 +127,72 @@ namespace MetroSignal {
                 }
             }
 
-            int[] panelIndices = new int[] {
-                287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,
-                285,286,313,312,284,314,311,310,263,274,277,270,266,280,340
-            };
-
+            // 面板值仍按"内置默认端子号"作为槽位计算（与既有语义一致），
+            // 末端写面板时经 PanelMap 映射到"实际（可被 [output] 覆盖的）端子号"，并记录平行状态。
             int[] newPanelValues = new int[350];
-            newPanelValues[287] = Convert.ToInt32(CS_ATC.ATC_01);
-            newPanelValues[288] = Convert.ToInt32(CS_ATC.ATC_10);
-            newPanelValues[289] = Convert.ToInt32(CS_ATC.ATC_15);
-            newPanelValues[290] = Convert.ToInt32(CS_ATC.ATC_20);
-            newPanelValues[291] = Convert.ToInt32(CS_ATC.ATC_25);
-            newPanelValues[292] = Convert.ToInt32(CS_ATC.ATC_30);
-            newPanelValues[293] = Convert.ToInt32(CS_ATC.ATC_35);
-            newPanelValues[294] = Convert.ToInt32(CS_ATC.ATC_40);
-            newPanelValues[295] = Convert.ToInt32(CS_ATC.ATC_45);
-            newPanelValues[296] = Convert.ToInt32(CS_ATC.ATC_50);
-            newPanelValues[297] = Convert.ToInt32(CS_ATC.ATC_55);
-            newPanelValues[298] = Convert.ToInt32(CS_ATC.ATC_60);
-            newPanelValues[299] = Convert.ToInt32(CS_ATC.ATC_65);
-            newPanelValues[300] = Convert.ToInt32(CS_ATC.ATC_70);
-            newPanelValues[301] = Convert.ToInt32(CS_ATC.ATC_75);
-            newPanelValues[302] = Convert.ToInt32(CS_ATC.ATC_80);
-            newPanelValues[303] = Convert.ToInt32(CS_ATC.ATC_85);
-            newPanelValues[304] = Convert.ToInt32(CS_ATC.ATC_90);
-            newPanelValues[305] = Convert.ToInt32(CS_ATC.ATC_95);
-            newPanelValues[306] = Convert.ToInt32(CS_ATC.ATC_100);
-            newPanelValues[307] = Convert.ToInt32(CS_ATC.ATC_105);
-            newPanelValues[308] = Convert.ToInt32(CS_ATC.ATC_110);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_01")] = Convert.ToInt32(CS_ATC.ATC_01);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_10")] = Convert.ToInt32(CS_ATC.ATC_10);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_15")] = Convert.ToInt32(CS_ATC.ATC_15);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_20")] = Convert.ToInt32(CS_ATC.ATC_20);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_25")] = Convert.ToInt32(CS_ATC.ATC_25);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_30")] = Convert.ToInt32(CS_ATC.ATC_30);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_35")] = Convert.ToInt32(CS_ATC.ATC_35);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_40")] = Convert.ToInt32(CS_ATC.ATC_40);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_45")] = Convert.ToInt32(CS_ATC.ATC_45);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_50")] = Convert.ToInt32(CS_ATC.ATC_50);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_55")] = Convert.ToInt32(CS_ATC.ATC_55);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_60")] = Convert.ToInt32(CS_ATC.ATC_60);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_65")] = Convert.ToInt32(CS_ATC.ATC_65);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_70")] = Convert.ToInt32(CS_ATC.ATC_70);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_75")] = Convert.ToInt32(CS_ATC.ATC_75);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_80")] = Convert.ToInt32(CS_ATC.ATC_80);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_85")] = Convert.ToInt32(CS_ATC.ATC_85);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_90")] = Convert.ToInt32(CS_ATC.ATC_90);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_95")] = Convert.ToInt32(CS_ATC.ATC_95);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_100")] = Convert.ToInt32(CS_ATC.ATC_100);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_105")] = Convert.ToInt32(CS_ATC.ATC_105);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_110")] = Convert.ToInt32(CS_ATC.ATC_110);
 
-            newPanelValues[285] = Convert.ToInt32(CS_ATC.ATC_Stop);
-            newPanelValues[286] = Convert.ToInt32(CS_ATC.ATC_Proceed);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_Stop")] = Convert.ToInt32(CS_ATC.ATC_Stop);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_Proceed")] = Convert.ToInt32(CS_ATC.ATC_Proceed);
 
-            newPanelValues[313] = Convert.ToInt32(CS_ATC.ATC_P);
-            newPanelValues[312] = Convert.ToInt32(CS_ATC.ATC_SignalAnn);
-            newPanelValues[284] = Convert.ToInt32(CS_ATC.ATC_X);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_P")] = Convert.ToInt32(CS_ATC.ATC_P);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_SignalAnn")] = Convert.ToInt32(CS_ATC.ATC_SignalAnn);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_X")] = Convert.ToInt32(CS_ATC.ATC_X);
 
-            newPanelValues[314] = CS_ATC.ORPNeedle;
-            newPanelValues[311] = CS_ATC.ATCNeedle;
-            newPanelValues[310] = Convert.ToInt32(CS_ATC.ATCNeedle_Disappear);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ORPNeedle")] = CS_ATC.ORPNeedle;
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATCNeedle")] = CS_ATC.ATCNeedle;
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATCNeedle_Disappear")] = Convert.ToInt32(CS_ATC.ATCNeedle_Disappear);
 
-            newPanelValues[263] = Convert.ToInt32(CS_ATC.ATC_ATC);
-            newPanelValues[274] = CS_ATC.ATCEnable ? Convert.ToInt32(CS_ATC.ATC_Depot) : 0;
-            newPanelValues[277] = (CS_ATC.ATCEnable && CS_ATC.ATC_Noset) || (WS_ATC.ATCEnable && WS_ATC.ATC_Noset)
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_ATC")] = Convert.ToInt32(CS_ATC.ATC_ATC);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_Depot")] = CS_ATC.ATCEnable ? Convert.ToInt32(CS_ATC.ATC_Depot) : 0;
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_Noset")] = (CS_ATC.ATCEnable && CS_ATC.ATC_Noset) || (WS_ATC.ATCEnable && WS_ATC.ATC_Noset)
                 ? Convert.ToInt32(CS_ATC.ATC_Noset || WS_ATC.ATC_Noset) : 0;
-            newPanelValues[270] = Convert.ToInt32(CS_ATC.ATC_ServiceBrake || WS_ATC.ATC_ServiceBrake);
-            newPanelValues[266] = Convert.ToInt32(CS_ATC.ATC_EmergencyBrake || WS_ATC.ATC_EmergencyBrake);
-            newPanelValues[280] = Convert.ToInt32(CS_ATC.ATC_EmergencyOperation);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_ServiceBrake")] = Convert.ToInt32(CS_ATC.ATC_ServiceBrake || WS_ATC.ATC_ServiceBrake);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_EmergencyBrake")] = Convert.ToInt32(CS_ATC.ATC_EmergencyBrake || WS_ATC.ATC_EmergencyBrake);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_EmergencyOperation")] = Convert.ToInt32(CS_ATC.ATC_EmergencyOperation);
 
-            newPanelValues[340] = Convert.ToInt32(WS_ATC.ATC_WSATC);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("ATC_WSATC")] = Convert.ToInt32(WS_ATC.ATC_WSATC);
 
-            foreach (var idx in panelIndices) {
-                if (needRefresh) {
-                    panel[idx] = newPanelValues[idx];
-                    lastPanelOutput[idx] = newPanelValues[idx];
-                } else {
-                    panel[idx] = lastPanelOutput[idx];
+            foreach (var key in Config.PanelMap.Index.Keys) {
+                int defIdx = Config.PanelMap.DefaultIndexOf(key);
+                int actualIdx = Config.PanelMap.IndexOf(key);
+                int value = needRefresh ? newPanelValues[defIdx] : lastPanelOutput[defIdx];
+                Config.PanelMap.Record(key, value);
+                if (actualIdx >= 0 && actualIdx < panel.Count) {
+                    if (needRefresh) {
+                        panel[actualIdx] = newPanelValues[defIdx];
+                        lastPanelOutput[defIdx] = newPanelValues[defIdx];
+                    } else {
+                        panel[actualIdx] = lastPanelOutput[defIdx];
+                    }
                 }
             }
 
-            sound[258] = (int)CS_ATC.ATC_Ding;
-            sound[259] = (int)CS_ATC.ATC_ORPBeep;
-            if (CS_ATC.ATCEnable && CS_ATC.ATC_Noset) { sound[256] = (int)CS_ATC.ATC_WarningBell; }
-            sound[261] = (int)CS_ATC.ATC_EmergencyOperationAnnounce;
+            Config.SoundMap.WriteSound(sound, "Ding", (int)CS_ATC.ATC_Ding);
+            Config.SoundMap.WriteSound(sound, "ORPBeep", (int)CS_ATC.ATC_ORPBeep);
+            if (CS_ATC.ATCEnable && CS_ATC.ATC_Noset) Config.SoundMap.WriteSound(sound, "Warning", (int)CS_ATC.ATC_WarningBell);
+            Config.SoundMap.WriteSound(sound, "EmergencyOperationAnnounce", (int)CS_ATC.ATC_EmergencyOperationAnnounce);
         }
     }
 }

@@ -10,12 +10,6 @@ using System.Threading.Tasks;
 using CorePlugin = MetroAts.MetroAts;
 
 namespace MetroSignal {
-    public enum AtsSoundControlInstruction {
-        Stop = -10000,      // Stop
-        Play = 1,           // Play Once
-        PlayLooping = 0,    // Play Repeatedly
-        Continue = 2        // Continue
-    }
 
     public partial class MetroSignal : AssemblyPluginBase {
         private readonly INative Native;
@@ -24,7 +18,7 @@ namespace MetroSignal {
 
         private CorePlugin corePlugin;
 
-        private static AtsSoundControlInstruction Sound_ResetSW;
+        private static SoundPlayMode Sound_ResetSW;
 
         private static bool SignalEnable = false;
         private static bool BrakeTriggered = false;
@@ -53,6 +47,7 @@ namespace MetroSignal {
             corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin
                 ?? throw new BveFileLoadException("未找到 MetroAts 核心插件 (MetroAtsCore)。MetroSignal 需要 MetroAts 核心插件。", "MetroSignal");
             corePlugin.RegisterDevice(this);
+            corePlugin.RegisterPluginStateProvider(this);
         }
 
         public override void Dispose() {
@@ -68,7 +63,10 @@ namespace MetroSignal {
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
 
-            if (corePlugin != null) corePlugin.UnregisterDevice(this);
+            if (corePlugin != null) {
+                corePlugin.UnregisterDevice(this);
+                corePlugin.UnregisterPluginStateProvider(this);
+            }
 
             SignalEnable = false;
             BrakeTriggered = false;

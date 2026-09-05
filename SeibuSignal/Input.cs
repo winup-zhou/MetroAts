@@ -27,9 +27,9 @@ namespace SeibuSignal {
             var sound = Native.AtsSoundArray;
             SeibuATS.ResetAll();
             ATC.ResetAll();
-            if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
-            panel[275] = 0;
-            panel[278] = 0;
+            Config.SoundMap.WriteSound(sound, "Warning", (int)SoundPlayMode.Stop);
+            Config.PanelMap.WritePanel(panel, "ATC_Depot", 0);
+            Config.PanelMap.WritePanel(panel, "ATC_Noset", 0);
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
                 SignalEnable = false;
@@ -45,7 +45,7 @@ namespace SeibuSignal {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
-                Sound_ResetSW = AtsSoundControlInstruction.Play;
+                Sound_ResetSW = SoundPlayMode.Play;
                 SeibuATS.ConfirmEB(state, handles);
             }
         }

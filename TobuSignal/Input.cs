@@ -31,7 +31,7 @@ namespace TobuSignal {
             if (e.DefaultBrakePosition == BveTypes.ClassWrappers.BrakePosition.Emergency) {
                 BrakeTriggered = false;
                 SignalEnable = false;
-                sound[256] = (int)AtsSoundControlInstruction.Stop;
+                Config.SoundMap.WriteSound(sound, "Warning", (int)SoundPlayMode.Stop);
                 UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
             }
         }
@@ -49,7 +49,7 @@ namespace TobuSignal {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
-                Sound_ResetSW = AtsSoundControlInstruction.Play;
+                Sound_ResetSW = SoundPlayMode.Play;
                 if (TSP_ATS.ATSEnable) TSP_ATS.ResetBrake(state, handles);
             }
         }

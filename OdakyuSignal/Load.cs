@@ -16,13 +16,6 @@ namespace OdakyuSignal {
         D_ATS_P = 2
     }
 
-    public enum AtsSoundControlInstruction {
-        Stop = -10000,      // Stop
-        Play = 1,           // Play Once
-        PlayLooping = 0,    // Play Repeatedly
-        Continue = 2        // Continue
-    }
-
     public partial class OdakyuSignal : AssemblyPluginBase {
         private readonly INative Native;
         public static VehicleSpec vehicleSpec;
@@ -31,7 +24,7 @@ namespace OdakyuSignal {
         private CorePlugin corePlugin;
 
         private static ATS_SW ATS_Switch = ATS_SW.Auto;
-        private static AtsSoundControlInstruction Sound_ResetSW;
+        private static SoundPlayMode Sound_ResetSW;
 
         private static bool SignalEnable = false;
         private static bool BrakeTriggered = false;
@@ -57,6 +50,7 @@ namespace OdakyuSignal {
             corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin
                 ?? throw new BveFileLoadException("未找到 MetroAts 核心插件 (MetroAtsCore)。OdakyuSignal 需要 MetroAts 核心插件。", "OdakyuSignal");
             corePlugin.RegisterDevice(this);
+            corePlugin.RegisterPluginStateProvider(this);
         }
 
         public override void Dispose() {
@@ -73,7 +67,10 @@ namespace OdakyuSignal {
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
 
-            if (corePlugin != null) corePlugin.UnregisterDevice(this);
+            if (corePlugin != null) {
+                corePlugin.UnregisterDevice(this);
+                corePlugin.UnregisterPluginStateProvider(this);
+            }
 
             SignalEnable = false;
             BrakeTriggered = false;

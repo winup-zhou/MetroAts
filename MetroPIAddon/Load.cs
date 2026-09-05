@@ -26,13 +26,6 @@ namespace MetroPIAddon {
         Odakyu = 8
     }
 
-    public enum AtsSoundControlInstruction {
-        Stop = -10000,      // Stop
-        Play = 1,           // Play Once
-        PlayLooping = 0,    // Play Repeatedly
-        Continue = 2        // Continue
-    }
-
     [Plugin(PluginType.VehiclePlugin)]
     public partial class MetroPIAddon : AssemblyPluginBase {
         private readonly INative Native;
@@ -50,7 +43,7 @@ namespace MetroPIAddon {
 
         private static bool Snowbrake = false, InstrumentLight = false;
         private static bool isStopAnnounce;
-        private static AtsSoundControlInstruction OnBoardDepartMelody1, OnBoardDepartMelody2, StopAnnounce, StopAnnounce_Confirmed, Tobu_DoorClosed, Door_poon,
+        private static SoundPlayMode OnBoardDepartMelody1, OnBoardDepartMelody2, StopAnnounce, StopAnnounce_Confirmed, Tobu_DoorClosed, Door_poon,
             Conductorbuzzer_Tokyu, Conductorbuzzer_Tobu, Conductorbuzzer_Odakyu, Conductorbuzzer_Test, Conductorbuzzer_Depart, Driver_buzzer, Lamp_SW_on, Lamp_SW_off, SnowBrake_on, SnowBrake_off;
         private static Sound FDOpenSound, FDCloseSound;
         private static int FDOpenSoundIndex, FDCloseSoundIndex;
@@ -96,6 +89,9 @@ namespace MetroPIAddon {
             } catch (Exception ex) {
                 StandAloneMode = true;
             }
+            // 核心存在时把本插件平行状态注册进核心注册表（供其它插件只读查询）；
+            // 核心缺失时以 StandAloneMode 后备运行，输出仍经同一 Config.PanelMap/SoundMap（Config.Load 已注册）。
+            if (corePlugin != null) corePlugin.RegisterPluginStateProvider(this);
         }
 
         public override void Dispose() {
@@ -114,6 +110,10 @@ namespace MetroPIAddon {
             BveHacker.MainFormSource.KeyUp -= OnKeyUp;
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
+
+            if (corePlugin != null) {
+                corePlugin.UnregisterPluginStateProvider(this);
+            }
 
             isDoorOpen = false;
             StandAloneMode = false;

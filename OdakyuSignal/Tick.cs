@@ -70,19 +70,20 @@ namespace OdakyuSignal {
         }
 
         private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound) {
-            // 接口定义（Google Sheets: MetroAts 预留接口）Panel 端子：
+            // 面板值经 PanelMap 映射到"实际（可被 [output] 段覆盖的）端子号"，并记录平行状态。
+            // 接口定义（Google Sheets: MetroAts 预留接口）默认端子：
             //   347=OM-ATS  348=D-ATS-P  349=パターン接近  350=動作  351=速度注意
             //   352=無信号  353=P非設     354=非常運転      355=EB    356=P地上子
-            panel[347] = OM_ATS.ATSEnable ? 1 : 0;
-            panel[348] = D_ATS_P.ATSEnable ? 1 : 0;
-            panel[349] = D_ATS_P.ATS_PatternApproach ? 1 : 0;
-            panel[350] = (OM_ATS.ATS_Triggered || D_ATS_P.ATS_Triggered) ? 1 : 0;
-            panel[351] = (OM_ATS.ATS_SpeedCaution || D_ATS_P.ATS_SpeedCaution) ? 1 : 0;
-            panel[352] = D_ATS_P.ATS_NoSignal ? 1 : 0;
-            panel[353] = D_ATS_P.ATS_Noset ? 1 : 0;
-            panel[354] = (OM_ATS.ATS_EmergencyOperation || D_ATS_P.ATS_EmergencyOperation) ? 1 : 0;
-            panel[355] = (OM_ATS.ATS_EmergencyOperation || D_ATS_P.EB_NeedConfirm || D_ATS_P.ATS_EmergencyOperation) ? 1 : 0;
-            panel[356] = D_ATS_P.ATS_Pbeacon ? 1 : 0;
+            Config.PanelMap.WritePanel(panel, "OM_ATS", OM_ATS.ATSEnable ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "D_ATS_P", D_ATS_P.ATSEnable ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "ATS_PatternApproach", D_ATS_P.ATS_PatternApproach ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "ATS_Triggered", (OM_ATS.ATS_Triggered || D_ATS_P.ATS_Triggered) ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "ATS_SpeedCaution", (OM_ATS.ATS_SpeedCaution || D_ATS_P.ATS_SpeedCaution) ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "ATS_NoSignal", D_ATS_P.ATS_NoSignal ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "ATS_Noset", D_ATS_P.ATS_Noset ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "ATS_EmergencyOperation", (OM_ATS.ATS_EmergencyOperation || D_ATS_P.ATS_EmergencyOperation) ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "EB", (OM_ATS.ATS_EmergencyOperation || D_ATS_P.EB_NeedConfirm || D_ATS_P.ATS_EmergencyOperation) ? 1 : 0);
+            Config.PanelMap.WritePanel(panel, "ATS_Pbeacon", D_ATS_P.ATS_Pbeacon ? 1 : 0);
             // 小田急声道端子暂未在接口定义中提供，避免与既有声道冲突故不写 sound
             _ = sound;
         }

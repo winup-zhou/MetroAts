@@ -47,6 +47,7 @@
     <Compile Include="DeviceContract.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Load.cs" />
+    <Compile Include="PluginState.cs" />
     <Compile Include="Signals\T-DATC\Functions.cs" />
     <Compile Include="Signals\T-DATC\Tick.cs" />
     <Compile Include="Signals\TSP-ATS\Functions.cs" />

@@ -36,10 +36,10 @@ namespace TobuSignal {
 
             BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 
-            ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_PatternApproachBeep = AtsSoundControlInstruction.Stop;
-            ATC_StationStopAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
+            ATC_Ding = SoundPlayMode.Stop;
+            ATC_PatternApproachBeep = SoundPlayMode.Stop;
+            ATC_StationStopAnnounce = SoundPlayMode.Stop;
+            ATC_EmergencyOperationAnnounce = SoundPlayMode.Stop;
 
             ATC_01 = false;
             ATC_10 = false;
@@ -144,10 +144,10 @@ namespace TobuSignal {
 
             BrakeCommand = TobuSignal.vehicleSpec.BrakeNotches + 1;
 
-            ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_PatternApproachBeep = AtsSoundControlInstruction.Stop;
-            ATC_StationStopAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
+            ATC_Ding = SoundPlayMode.Stop;
+            ATC_PatternApproachBeep = SoundPlayMode.Stop;
+            ATC_StationStopAnnounce = SoundPlayMode.Stop;
+            ATC_EmergencyOperationAnnounce = SoundPlayMode.Stop;
 
             ATC_01 = false;
             ATC_10 = false;

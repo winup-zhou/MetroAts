@@ -21,8 +21,8 @@ namespace SeibuSignal {
             ATS_Stop = false;
             ATS_Confirm = false;
 
-            ATS_StopAnnounce = AtsSoundControlInstruction.Stop;
-            ATS_EBAnnounce = AtsSoundControlInstruction.Stop;
+            ATS_StopAnnounce = SoundPlayMode.Stop;
+            ATS_EBAnnounce = SoundPlayMode.Stop;
 
             B1Pattern = SpeedPattern.inf;
             B2Pattern = SpeedPattern.inf;
@@ -100,8 +100,8 @@ namespace SeibuSignal {
             ATS_Stop = false;
             ATS_Confirm = false;
 
-            ATS_StopAnnounce = AtsSoundControlInstruction.Stop;
-            ATS_EBAnnounce = AtsSoundControlInstruction.Stop;
+            ATS_StopAnnounce = SoundPlayMode.Stop;
+            ATS_EBAnnounce = SoundPlayMode.Stop;
         }
     }
 }

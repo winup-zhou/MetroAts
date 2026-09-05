@@ -18,8 +18,8 @@ namespace JR_SotetsuSignal {
             SN_Power = false;
             SN_Action = false;
 
-            SN_WarningBell = AtsSoundControlInstruction.Stop;
-            SN_Chime = AtsSoundControlInstruction.Stop;
+            SN_WarningBell = SoundPlayMode.Stop;
+            SN_Chime = SoundPlayMode.Stop;
         }
 
         public static void Init(TimeSpan time) {
@@ -33,21 +33,21 @@ namespace JR_SotetsuSignal {
                     if (e.SignalIndex == 0) {
                         EB = true;
                         Warn = true;
-                        SN_Chime = AtsSoundControlInstruction.PlayLooping;
+                        SN_Chime = SoundPlayMode.PlayLooping;
                     }
                     break;
                 case 0:
                     if (e.SignalIndex == 0) {
                         WarnStartTime = state.Time;
                         Warn = true;
-                        SN_Chime = AtsSoundControlInstruction.PlayLooping;
+                        SN_Chime = SoundPlayMode.PlayLooping;
                     }
                     break;
                 case 9:
                     if (state.Speed > e.Optional) {
                         EB = true;
                         Warn = true;
-                        SN_Chime = AtsSoundControlInstruction.PlayLooping;
+                        SN_Chime = SoundPlayMode.PlayLooping;
                     }
                     break;
             }
@@ -67,8 +67,8 @@ namespace JR_SotetsuSignal {
         }
 
         public static void ResetChime() {
-            if (SN_Chime == AtsSoundControlInstruction.PlayLooping)
-                SN_Chime = AtsSoundControlInstruction.Stop;
+            if (SN_Chime == SoundPlayMode.PlayLooping)
+                SN_Chime = SoundPlayMode.Stop;
         }
 
         public static void Disable() {
@@ -77,8 +77,8 @@ namespace JR_SotetsuSignal {
             SN_Power = false;
             SN_Action = false;
 
-            SN_WarningBell = AtsSoundControlInstruction.Stop;
-            SN_Chime = AtsSoundControlInstruction.Stop;
+            SN_WarningBell = SoundPlayMode.Stop;
+            SN_Chime = SoundPlayMode.Stop;
         }
     }
 }

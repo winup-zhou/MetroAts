@@ -45,18 +45,13 @@ namespace TokyuSignal {
         }
 
         public void Deactivate(KeyPosList key) {
-            // 与既有去激活动作一致：整体复位 + 清音 + 清面板灯(276/279)
+            // 与既有去激活动作一致：整体复位 + 整体清音 + 清全部面板灯（避免钥匙拔出后遗留灯/音）
             BrakeTriggered = false;
             SignalEnable = false;
             ATC.ResetAll();
             TokyuATS.ResetAll();
-            if (Native.AtsSoundArray != null && Native.AtsSoundArray.Count > 256
-                && Native.AtsSoundArray[256] != (int)AtsSoundControlInstruction.Stop)
-                Native.AtsSoundArray[256] = (int)AtsSoundControlInstruction.Stop;
-            if (Native.AtsPanelArray != null) {
-                Native.AtsPanelArray[276] = 0;
-                Native.AtsPanelArray[279] = 0;
-            }
+            Config.SoundMap.ClearAllSound(Native.AtsSoundArray);
+            Config.PanelMap.ClearAllPanel(Native.AtsPanelArray);
         }
 
         public void OnKeyPosChanged(KeyPosList newKey) {

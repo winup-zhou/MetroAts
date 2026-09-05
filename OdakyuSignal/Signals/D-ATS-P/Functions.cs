@@ -51,10 +51,10 @@ namespace OdakyuSignal {
             EB_NeedConfirm = false;
             ATS_Pbeacon = false;
 
-            WarnBell = AtsSoundControlInstruction.Stop;
-            PatternApproach = AtsSoundControlInstruction.Stop;
-            EB_buzzer = AtsSoundControlInstruction.Stop;
-            SpeedCaution_buzzer = AtsSoundControlInstruction.Stop;
+            WarnBell = SoundPlayMode.Stop;
+            PatternApproach = SoundPlayMode.Stop;
+            EB_buzzer = SoundPlayMode.Stop;
+            SpeedCaution_buzzer = SoundPlayMode.Stop;
         }
 
         public static void BeaconPassed(VehicleState state, BeaconPassedEventArgs e) {
@@ -90,7 +90,7 @@ namespace OdakyuSignal {
                         var monitorSpeed = Math.Min(SignalPattern.AtLocation(state.Location, -3.3), LimitPattern.AtLocation(state.Location, -3.3));
                         if (Math.Abs(state.Speed) > monitorSpeed) {
                             ATS_SpeedCaution = true;
-                            SpeedCaution_buzzer = AtsSoundControlInstruction.PlayLooping;
+                            SpeedCaution_buzzer = SoundPlayMode.PlayLooping;
                             NeedConfirm = true; // 进入 EB 需确认流程
                             LastEBResetTime = state.Time;
                         }
@@ -104,11 +104,11 @@ namespace OdakyuSignal {
             LastEBResetTime = state?.Time ?? TimeSpan.Zero;
             if (NeedConfirm) {
                 NeedConfirm = false;
-                WarnBell = AtsSoundControlInstruction.Stop;
+                WarnBell = SoundPlayMode.Stop;
             }
             if (EB_NeedConfirm) {
                 EB_NeedConfirm = false;
-                EB_buzzer = AtsSoundControlInstruction.Stop;
+                EB_buzzer = SoundPlayMode.Stop;
             }
             BrakeCommand = 0;
             ATS_Triggered = false;

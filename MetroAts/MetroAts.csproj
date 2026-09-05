@@ -46,11 +46,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="CoreState.cs" />
     <Compile Include="DeviceArbiter.cs" />
     <Compile Include="IATOStatusProvider.cs" />
+    <Compile Include="IPluginStateProvider.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="ISignalDevice.cs" />
     <Compile Include="Load.cs" />
+    <Compile Include="OutputIndexMap.cs" />
+    <Compile Include="PluginStateRegistry.cs" />
     <Compile Include="SwitchBoard.cs" />
     <Compile Include="Tick.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

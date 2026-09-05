@@ -26,17 +26,17 @@ namespace JR_SotetsuSignal {
         //panel
         public static bool P_Power, P_PatternApproach, P_BrakeActioned, P_EBActioned, P_BrakeOverride, P_PEnable, P_Fail;
         //SN_Power, SN_Action;
-        public static AtsSoundControlInstruction P_Ding; //SN_WarningBell, SN_Chime;
+        public static SoundPlayMode P_Ding; //SN_WarningBell, SN_Chime;
 
         public static void Tick(VehicleState state) {
-            P_Ding = AtsSoundControlInstruction.Continue;
+            P_Ding = SoundPlayMode.Continue;
             if (ATSEnable) {
                 P_Power = true;
                 if (state.Time.TotalMilliseconds - InitStartTime.TotalMilliseconds < 3000) {
                     P_Fail = true;
                     P_PEnable = false;
                     BrakeCommand = JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1;
-                    P_Ding = AtsSoundControlInstruction.Play;
+                    P_Ding = SoundPlayMode.Play;
                 } else {
                     BrakeCommand = 0;
                     P_Fail = false;
@@ -105,7 +105,7 @@ namespace JR_SotetsuSignal {
                             || lastPEBActioned != P_EBActioned
                             || lastP_PEnable != P_PEnable
                             || lastP_BrakeOverride != P_BrakeOverride)
-                            P_Ding = AtsSoundControlInstruction.Play;
+                            P_Ding = SoundPlayMode.Play;
 
                         lastP_PEnable = P_PEnable;
                         lastP_BrakeOverride = P_BrakeOverride;

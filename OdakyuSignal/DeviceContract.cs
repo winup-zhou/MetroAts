@@ -27,15 +27,13 @@ namespace OdakyuSignal {
         }
 
         public void Deactivate(KeyPosList key) {
-            // 整体复位：清信号逻辑 + 清接口端子（347..356）
+            // 整体复位：清信号逻辑 + 清全部面板/声音端子（经 PanelMap/SoundMap 落到实际端子）
             BrakeTriggered = false;
             SignalEnable = false;
             OM_ATS.ResetAll();
             D_ATS_P.ResetAll();
-            if (Native.AtsPanelArray != null) {
-                for (int i = 347; i <= 356; i++)
-                    if (i < Native.AtsPanelArray.Count) Native.AtsPanelArray[i] = 0;
-            }
+            Config.PanelMap.ClearAllPanel(Native.AtsPanelArray);
+            Config.SoundMap.ClearAllSound(Native.AtsSoundArray);
         }
 
         public void OnKeyPosChanged(KeyPosList newKey) {

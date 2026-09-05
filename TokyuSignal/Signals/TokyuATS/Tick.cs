@@ -15,7 +15,7 @@ namespace TokyuSignal {
         public static int BrakeCommand = 0;
         public static bool ATSEnable = false;
         public static bool ATS_TokyuATS, ATS_EB, ATS_WarnNormal, ATS_WarnTriggered;
-        public static AtsSoundControlInstruction ATS_EBBell, ATS_WarnBell;
+        public static SoundPlayMode ATS_EBBell, ATS_WarnBell;
 
         public static void Tick(VehicleState state) {
             if (ATSEnable) {
@@ -26,8 +26,8 @@ namespace TokyuSignal {
                 ATS_WarnTriggered = Warn;
                 ATS_EB = EB;
                 BrakeCommand = EB ? TokyuSignal.vehicleSpec.BrakeNotches + 1 : 0;
-                ATS_EBBell = EB ? AtsSoundControlInstruction.PlayLooping : AtsSoundControlInstruction.Stop;
-                ATS_WarnBell = Warn ? AtsSoundControlInstruction.PlayLooping : AtsSoundControlInstruction.Stop;
+                ATS_EBBell = EB ? SoundPlayMode.PlayLooping : SoundPlayMode.Stop;
+                ATS_WarnBell = Warn ? SoundPlayMode.PlayLooping : SoundPlayMode.Stop;
             } else {
                 Disable();
             }

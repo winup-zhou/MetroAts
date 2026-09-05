@@ -28,11 +28,11 @@ namespace MetroSignal {
             ATC_50, ATC_55, ATC_60, ATC_65, ATC_70, ATC_75, ATC_80, ATC_85, ATC_90, ATC_95, ATC_100, ATC_105, ATC_110, ATC_Stop, ATC_Proceed,
             ATC_P, ATC_ATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_Noset, ATC_TempLimit, ATCNeedle_Disappear;
         public static int ORPNeedle, ATCNeedle;
-        public static AtsSoundControlInstruction ATC_Ding, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
+        public static SoundPlayMode ATC_Ding, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
 
         public static void Tick(VehicleState state, Section CurrentSection, Section NextSection, HandleSet handles, bool Noset, bool InDepot) {
             if (ATCEnable) {
-                ATC_Ding = AtsSoundControlInstruction.Continue;
+                ATC_Ding = SoundPlayMode.Continue;
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == MetroSignal.vehicleSpec.BrakeNotches + 1;
 
@@ -46,7 +46,7 @@ namespace MetroSignal {
                     } else {
                         ATC_Noset = false;
                         ATC_Depot = false;
-                        if (!ATC_X) ATC_Ding = AtsSoundControlInstruction.Play;
+                        if (!ATC_X) ATC_Ding = SoundPlayMode.Play;
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = false;
                         if (!Config.ATCLimitUseNeedle) {
@@ -80,18 +80,18 @@ namespace MetroSignal {
 
                         var lastinDepot = inDepot;
                         inDepot = CurrentSection.CurrentSignalIndex >= 138 && CurrentSection.CurrentSignalIndex <= 148;
-                        if (lastinDepot != inDepot) ATC_Ding = AtsSoundControlInstruction.Play;
+                        if (lastinDepot != inDepot) ATC_Ding = SoundPlayMode.Play;
 
                         if (Noset) {
                             ATC_Noset = true;
-                            ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
+                            ATC_WarningBell = SoundPlayMode.PlayLooping;
                         } else {
                             ATC_Noset = false;
-                            ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
+                            ATC_WarningBell = SoundPlayMode.PlayLooping;
                         }
 
-                        if (ATC_WarningBell == AtsSoundControlInstruction.PlayLooping && !Noset)
-                            ATC_WarningBell = AtsSoundControlInstruction.Stop;
+                        if (ATC_WarningBell == SoundPlayMode.PlayLooping && !Noset)
+                            ATC_WarningBell = SoundPlayMode.Stop;
 
                         var lastATC_X = ATC_X;
                         if (ATC_X) {
@@ -130,7 +130,7 @@ namespace MetroSignal {
                             ATCSpeed = 0;
                         }
 
-                        if ((lastATC_X != ATC_X || lastATCSpeed != ATCSpeed) && !inDepot) ATC_Ding = AtsSoundControlInstruction.Play;
+                        if ((lastATC_X != ATC_X || lastATCSpeed != ATCSpeed) && !inDepot) ATC_Ding = SoundPlayMode.Play;
 
                         ATC_Depot = inDepot;
 

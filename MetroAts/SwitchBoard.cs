@@ -1,3 +1,4 @@
+using BveEx.Extensions.Native;
 using System.Collections.Generic;
 
 namespace MetroAts {
@@ -105,11 +106,11 @@ namespace MetroAts {
                         int target = KeyIndex(LineDef);
                         if (target >= 0 && NowKey > target) {
                             NowKey = target;
-                            Sound_Keyin = AtsSoundControlInstruction.Play;
+                            Sound_Keyin = SoundPlayMode.Play;
                         }
                     } else {
                         NowKey--;
-                        Sound_Keyin = AtsSoundControlInstruction.Play;
+                        Sound_Keyin = SoundPlayMode.Play;
                     }
                 } else {
                     if (NowKey >= count - 1) return; // 已在最右，无可升
@@ -117,11 +118,11 @@ namespace MetroAts {
                         int target = KeyIndex(LineDef);
                         if (target >= 0 && NowKey < target) {
                             NowKey = target;
-                            Sound_Keyin = AtsSoundControlInstruction.Play;
+                            Sound_Keyin = SoundPlayMode.Play;
                         }
                     } else {
                         NowKey++;
-                        Sound_Keyin = AtsSoundControlInstruction.Play;
+                        Sound_Keyin = SoundPlayMode.Play;
                     }
                 }
                 return;
@@ -132,18 +133,18 @@ namespace MetroAts {
             if (dir < 0) {
                 if (NowKey > noneIndex) {
                     NowKey = noneIndex; // 退回到拔出位
-                    Sound_Keyout = AtsSoundControlInstruction.Play;
+                    Sound_Keyout = SoundPlayMode.Play;
                 } else if (NowKey > 0 && !Config.EnforceKeyPos) {
                     NowKey--;
-                    Sound_Keyin = AtsSoundControlInstruction.Play;
+                    Sound_Keyin = SoundPlayMode.Play;
                 }
             } else {
                 if (NowKey < noneIndex) {
                     NowKey = noneIndex; // 退回到拔出位
-                    Sound_Keyout = AtsSoundControlInstruction.Play;
+                    Sound_Keyout = SoundPlayMode.Play;
                 } else if (NowKey < count - 1 && !Config.EnforceKeyPos) {
                     NowKey++;
-                    Sound_Keyin = AtsSoundControlInstruction.Play;
+                    Sound_Keyin = SoundPlayMode.Play;
                 }
             }
         }
@@ -160,12 +161,12 @@ namespace MetroAts {
             if (Config.SignalSW_loop) {
                 NowSignalSW = (NowSignalSW + dir) % count;
                 if (NowSignalSW < 0) NowSignalSW += count;
-                Sound_SignalSW = AtsSoundControlInstruction.Play;
+                Sound_SignalSW = SoundPlayMode.Play;
             } else {
                 int target = NowSignalSW + dir;
                 if (target >= 0 && target < count) {
                     NowSignalSW = target;
-                    Sound_SignalSW = AtsSoundControlInstruction.Play;
+                    Sound_SignalSW = SoundPlayMode.Play;
                 }
             }
         }
@@ -174,16 +175,18 @@ namespace MetroAts {
         private void ToggleTASC(bool enable) {
             if (isTASCenabled == enable) return;
             isTASCenabled = enable;
-            Sound_SignalSW = AtsSoundControlInstruction.Play;
+            Sound_SignalSW = SoundPlayMode.Play;
         }
 
         // ---------- 面板输出（供 Initialize / Tick 共用，保证两处永远一致）----------
         private void WriteKeyPosToPanel(IList<int> panel) {
+            if (!Config.PanelWriteEnabled) return;
             int value;
             panel[Config.Panel_keyoutput] = KeyPanelOutputs.TryGetValue(KeyPos, out value) ? value : 0;
         }
 
         private void WriteSignalSWToPanel(IList<int> panel) {
+            if (!Config.PanelWriteEnabled) return;
             if (!Config.SignalSW_legacyoutput) {
                 panel[Config.Panel_SignalSWoutput] = (int)Config.SignalSWLists[NowSignalSW];
             } else {

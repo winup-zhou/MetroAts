@@ -54,18 +54,15 @@ namespace MetroSignal {
         }
 
         public void Deactivate(KeyPosList key) {
-            // 与既有去激活动作一致：整体复位 + 清音 + 清面板灯(274/277)
+            // 与既有去激活动作一致：整体复位 + 整体清音 + 清全部面板灯。
+            // 拔出钥匙后本设备不再刷新面板，因此必须把本设备注册的全部面板/声音端子归零，
+            // 避免上一个设备遗留的灯/音残留（端子经 PanelMap/SoundMap 映射，重映射后仍正确）。
             BrakeTriggered = false;
             SignalEnable = false;
             WS_ATC.ResetAll();
             CS_ATC.ResetAll();
-            if (Native.AtsSoundArray != null && Native.AtsSoundArray.Count > 256
-                && Native.AtsSoundArray[256] != (int)AtsSoundControlInstruction.Stop)
-                Native.AtsSoundArray[256] = (int)AtsSoundControlInstruction.Stop;
-            if (Native.AtsPanelArray != null) {
-                Native.AtsPanelArray[274] = 0;
-                Native.AtsPanelArray[277] = 0;
-            }
+            Config.SoundMap.ClearAllSound(Native.AtsSoundArray);
+            Config.PanelMap.ClearAllPanel(Native.AtsPanelArray);
         }
 
         public void OnKeyPosChanged(KeyPosList newKey) {

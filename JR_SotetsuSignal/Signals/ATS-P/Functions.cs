@@ -37,7 +37,7 @@ namespace JR_SotetsuSignal {
             P_PEnable = false;
             P_Fail = false;
 
-            P_Ding = AtsSoundControlInstruction.Stop;
+            P_Ding = SoundPlayMode.Stop;
         }
 
         public static void SwitchToSN() {
@@ -168,7 +168,7 @@ namespace JR_SotetsuSignal {
             P_PEnable = false;
             P_Fail = false;
 
-            P_Ding = AtsSoundControlInstruction.Stop; ;
+            P_Ding = SoundPlayMode.Stop; ;
         }
 
         private static double CalculatePattern1(double Location) {

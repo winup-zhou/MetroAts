@@ -29,37 +29,15 @@ namespace MetroPIAddon {
                 lastRadioChannel = RadioChannel;
                 RadioChannel = (KeyPosList)corePlugin.KeyPos;
             }
-            panel[167] = CurrentSta;
-            panel[168] = panel[169] = 0;
-            panel[62] = D(TrainNumber / 100 % 10000, 3);
-            panel[63] = D(TrainNumber / 100 % 10000, 2);
-            panel[64] = D(TrainNumber / 100 % 10000, 1);
-            panel[65] = D(TrainNumber / 100 % 10000, 0);
-            panel[67] = TrainNumber / 1000000;
-            panel[68] = TrainNumber % 100;
-            panel[151] = panel[152] = TrainType;
-            panel[153] = D(TrainRunningNumber, 1);
-            panel[154] = D(TrainRunningNumber, 0);
-            panel[172] = Destination;
+            Config.PanelMap.WritePanel(panel, "station_stop", CurrentSta);
+            Config.PanelMap.WritePanel(panel, "station_current", 0);
+            Config.PanelMap.WritePanel(panel, "station_next", 0);
+            WriteTrainNumberDisplay(panel);
+            Config.PanelMap.WritePanel(panel, "traintype", TrainType);
+            Config.PanelMap.WritePanel(panel, "traintype_sub", TrainType);
             var nowLocation = (int)(BaseOdometer + (isOdometerPlus ? 1 : -1) * state.Location);
             //100km = 100000m
-            if (isOdometerHasMinus) {
-                panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
-                //100km = 100000m
-                panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
-                panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
-                panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
-                panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
-                panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
-            } else {
-                panel[Config.odometer_Kmsymbol] = 0;
-                //100km = 100000m
-                panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
-                panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
-                panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
-                panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
-                panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
-            }
+            WriteOdometer(panel, isOdometerHasMinus, nowLocation);
             lastisOdometerPlus = isOdometerPlus;
             lastisOdometerHasMinus = isOdometerHasMinus;
             lastBaseOdometer = BaseOdometer;
@@ -71,7 +49,7 @@ namespace MetroPIAddon {
             if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
             isDoorOpen = true;
             isStopAnnounce = false;
-            Door_poon = AtsSoundControlInstruction.PlayLooping;
+            Door_poon = SoundPlayMode.PlayLooping;
             DoorOpenTime = state.Time;
             DoorClosedTime = TimeSpan.Zero;
         }
@@ -80,17 +58,17 @@ namespace MetroPIAddon {
             var state = Native.VehicleState;
             if (state is null) state = new VehicleState(0, 0, TimeSpan.Zero, 0, 0, 0, 0, 0, 0);
             isDoorOpen = false;
-            Door_poon = AtsSoundControlInstruction.Stop;
+            Door_poon = SoundPlayMode.Stop;
             DoorClosedTime = state.Time;
             DoorOpenTime = TimeSpan.Zero;
             NeedConductorBuzzer = true;
             if (StandAloneMode) {
                 if (Config.StandAloneKey == KeyPosList.Tobu) {
-                    Tobu_DoorClosed = AtsSoundControlInstruction.Play;
+                    Tobu_DoorClosed = SoundPlayMode.Play;
                 }
             } else {
                 if (corePlugin.KeyPos == MetroAts.KeyPosList.Tobu) {
-                    Tobu_DoorClosed = AtsSoundControlInstruction.Play;
+                    Tobu_DoorClosed = SoundPlayMode.Play;
                 }
             }
         }
@@ -128,28 +106,28 @@ namespace MetroPIAddon {
         private void OnKeyUp(object sender, KeyEventArgs e) {
             var state = Native.VehicleState;
             if (e.KeyCode == Config.DriverBuzzerKey) {
-                Driver_buzzer = AtsSoundControlInstruction.Stop;
+                Driver_buzzer = SoundPlayMode.Stop;
             } else if (e.KeyCode == Config.OnBoardDepartMelodyKey) {
-                OnBoardDepartMelody1 = AtsSoundControlInstruction.Stop;
-                if(state.Speed == 0) OnBoardDepartMelody2 = AtsSoundControlInstruction.Play;
+                OnBoardDepartMelody1 = SoundPlayMode.Stop;
+                if(state.Speed == 0) OnBoardDepartMelody2 = SoundPlayMode.Play;
             }
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e) {
             var state = Native.VehicleState;
             if (e.KeyCode == Config.DriverBuzzerKey) {
-                Driver_buzzer = AtsSoundControlInstruction.PlayLooping;
+                Driver_buzzer = SoundPlayMode.PlayLooping;
             } else if (e.KeyCode == Config.SnowBrakeKey) {
-                if (Snowbrake) SnowBrake_off = AtsSoundControlInstruction.Play;
-                else SnowBrake_on = AtsSoundControlInstruction.Play;
+                if (Snowbrake) SnowBrake_off = SoundPlayMode.Play;
+                else SnowBrake_on = SoundPlayMode.Play;
                 Snowbrake = !Snowbrake;
             } else if (e.KeyCode == Config.InstrumentLightKey) {
-                if (InstrumentLight) Lamp_SW_off = AtsSoundControlInstruction.Play;
-                else Lamp_SW_on = AtsSoundControlInstruction.Play;
+                if (InstrumentLight) Lamp_SW_off = SoundPlayMode.Play;
+                else Lamp_SW_on = SoundPlayMode.Play;
                 InstrumentLight = !InstrumentLight;
             } else if (e.KeyCode == Config.OnBoardDepartMelodyKey && state.Speed == 0) {
-                OnBoardDepartMelody2 = AtsSoundControlInstruction.Stop;
-                OnBoardDepartMelody1 = AtsSoundControlInstruction.PlayLooping;
+                OnBoardDepartMelody2 = SoundPlayMode.Stop;
+                OnBoardDepartMelody1 = SoundPlayMode.PlayLooping;
             }
         }
 
@@ -211,16 +189,16 @@ namespace MetroPIAddon {
                 case 41://定点音鳴動
                     switch (e.Optional) {
                         case 0://Tokyu
-                            Conductorbuzzer_Tokyu = AtsSoundControlInstruction.Play;
+                            Conductorbuzzer_Tokyu = SoundPlayMode.Play;
                             break;
                         case 1://Odakyu
-                            Conductorbuzzer_Odakyu = AtsSoundControlInstruction.Play;
+                            Conductorbuzzer_Odakyu = SoundPlayMode.Play;
                             break;
                         case 2://Tobu
-                            Conductorbuzzer_Tobu = AtsSoundControlInstruction.Play;
+                            Conductorbuzzer_Tobu = SoundPlayMode.Play;
                             break;
                         case 5://Test
-                            Conductorbuzzer_Test = AtsSoundControlInstruction.Play;
+                            Conductorbuzzer_Test = SoundPlayMode.Play;
                             break;
                     }
                     break;

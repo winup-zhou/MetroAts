@@ -36,7 +36,7 @@ namespace JR_SotetsuSignal {
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
                 SignalEnable = false;
-                sound[256] = (int)AtsSoundControlInstruction.Stop;
+                Config.SoundMap.WriteSound(sound, "Warning", (int)SoundPlayMode.Stop);
             }
             UpdatePanelAndSound(panel, sound, TimeSpan.Zero);
         }
@@ -57,7 +57,7 @@ namespace JR_SotetsuSignal {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
-                Sound_ResetSW = AtsSoundControlInstruction.Play;
+                Sound_ResetSW = SoundPlayMode.Play;
                 if (ATS_P.ATSEnable && state.Speed == 0) ATS_P.ResetBrake(handles);
                 if (ATS_SN.ATSEnable) ATS_SN.ResetBrake(handles);
             } else if (e.KeyName == AtsKeyName.A1) {

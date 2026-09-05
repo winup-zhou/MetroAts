@@ -27,16 +27,16 @@ namespace TokyuSignal {
             ATC_P, ATC_ATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_StationStop,
             ATC_SignalAnn, ATC_Noset, ATC_TempLimit, ATCNeedle_Disappear;
         public static int ATCNeedle;
-        public static AtsSoundControlInstruction ATC_Ding, ATC_ORPBeep, ATC_SignalAnnBeep, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
+        public static SoundPlayMode ATC_Ding, ATC_ORPBeep, ATC_SignalAnnBeep, ATC_EmergencyOperationAnnounce, ATC_WarningBell;
 
         public static void Tick(VehicleState state, Section CurrentSection, Section NextSection, HandleSet handles, bool Noset) {
             if (ATCEnable) {
-                ATC_SignalAnnBeep = ATC_Ding = AtsSoundControlInstruction.Continue;
+                ATC_SignalAnnBeep = ATC_Ding = SoundPlayMode.Continue;
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == TokyuSignal.vehicleSpec.BrakeNotches + 1;
 
                 if (CurrentSection.CurrentSignalIndex <= 9 || CurrentSection.CurrentSignalIndex == 34 || CurrentSection.CurrentSignalIndex >= 49) {
-                    ATC_ORPBeep = AtsSoundControlInstruction.Stop;
+                    ATC_ORPBeep = SoundPlayMode.Stop;
                     if (Noset) {
                         ATC_Noset = true;
                         ATC_Depot = false;
@@ -44,7 +44,7 @@ namespace TokyuSignal {
                     } else {
                         ATC_Noset = false;
                         ATC_Depot = false;
-                        if (!ATC_X) ATC_Ding = AtsSoundControlInstruction.Play;
+                        if (!ATC_X) ATC_Ding = SoundPlayMode.Play;
                         ATC_X = true;
                         ATC_Stop = ATC_Proceed = false;
                         if (!Config.ATCLimitUseNeedle) {
@@ -72,29 +72,29 @@ namespace TokyuSignal {
                             ATCNeedle_Disappear = true;
                         }
                         BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches + 1;
-                        ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
+                        ATC_WarningBell = SoundPlayMode.PlayLooping;
                     } else {
                         ATC_ATC = true;
                         BrakeCommand = 0;
 
                         var lastinDepot = inDepot;
                         inDepot = CurrentSection.CurrentSignalIndex >= 38 && CurrentSection.CurrentSignalIndex <= 48;
-                        if (lastinDepot != inDepot) ATC_Ding = AtsSoundControlInstruction.Play;
+                        if (lastinDepot != inDepot) ATC_Ding = SoundPlayMode.Play;
 
                         if (Noset) {
                             ATC_Noset = true;
-                            ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
+                            ATC_WarningBell = SoundPlayMode.PlayLooping;
                         } else {
                             ATC_Noset = false;
-                            ATC_WarningBell = AtsSoundControlInstruction.PlayLooping;
+                            ATC_WarningBell = SoundPlayMode.PlayLooping;
                         }
 
-                        if (ATC_WarningBell == AtsSoundControlInstruction.PlayLooping && !Noset)
-                            ATC_WarningBell = AtsSoundControlInstruction.Stop;
+                        if (ATC_WarningBell == SoundPlayMode.PlayLooping && !Noset)
+                            ATC_WarningBell = SoundPlayMode.Stop;
 
                         if (ATC_X) {
                             ATC_X = false;
-                            ATC_Ding = AtsSoundControlInstruction.Play;
+                            ATC_Ding = SoundPlayMode.Play;
                         }
 
                         var lastATCSpeed = ATCSpeed;
@@ -107,12 +107,12 @@ namespace TokyuSignal {
                             }
                             ORPSpeed = Math.Min(ORPPattern.AtLocation(state.Location, ORPPatternDec), LastATCSpeed);
 
-                            if (ORPSpeed - Math.Abs(state.Speed) < 5 || ORPSpeed == 7.5) ATC_ORPBeep = AtsSoundControlInstruction.PlayLooping;
-                            else ATC_ORPBeep = AtsSoundControlInstruction.Stop;
+                            if (ORPSpeed - Math.Abs(state.Speed) < 5 || ORPSpeed == 7.5) ATC_ORPBeep = SoundPlayMode.PlayLooping;
+                            else ATC_ORPBeep = SoundPlayMode.Stop;
                         } else {
                             ORPPattern = SpeedPattern.inf;
-                            if (ATC_ORPBeep == AtsSoundControlInstruction.PlayLooping)
-                                ATC_ORPBeep = AtsSoundControlInstruction.Stop;
+                            if (ATC_ORPBeep == SoundPlayMode.PlayLooping)
+                                ATC_ORPBeep = SoundPlayMode.Stop;
                         }
 
                         ATCSpeed = ATCLimits[CurrentSection.CurrentSignalIndex] < 0 ? -1 : ATCLimits[CurrentSection.CurrentSignalIndex];
@@ -122,13 +122,13 @@ namespace TokyuSignal {
                             ATCSpeed = 0;
                         }
 
-                        if (lastATCSpeed != ATCSpeed && !inDepot) ATC_Ding = AtsSoundControlInstruction.Play;
+                        if (lastATCSpeed != ATCSpeed && !inDepot) ATC_Ding = SoundPlayMode.Play;
                         ATC_Depot = inDepot;
                         ATC_StationStop = StationPattern != SpeedPattern.inf;
 
                         var lastAnn = SignalAnn;
                         SignalAnn = ATCSpeed > (ATCLimits[NextSection.CurrentSignalIndex] < 0 ? 0 : ATCLimits[NextSection.CurrentSignalIndex]) && !inDepot;
-                        if (lastAnn != SignalAnn) ATC_SignalAnnBeep = AtsSoundControlInstruction.Play;
+                        if (lastAnn != SignalAnn) ATC_SignalAnnBeep = SoundPlayMode.Play;
                         ATC_SignalAnn = SignalAnn ? (state.Time.TotalMilliseconds % 2000 < 1000) : false;
 
                         if (Math.Abs(state.Speed) > ORPPattern.AtLocation(state.Location, ORPPatternDec) || Math.Abs(state.Speed) > StationPattern.AtLocation(state.Location, StationPatternDec))

@@ -40,7 +40,7 @@ namespace TobuSignal {
             ATC_Stop, ATC_Proceed, ATC_P, ATC_TobuATC, ATC_Depot, ATC_ServiceBrake, ATC_EmergencyBrake, ATC_EmergencyOperation, ATC_PatternApproach, ATCNeedle_Disappear, ATC_StationStop;
         public static int ORPNeedle, ATCNeedle, ATC_EndPointDistance, ATC_SwitcherPosition;
 
-        public static AtsSoundControlInstruction ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce;
+        public static SoundPlayMode ATC_Ding, ATC_PatternApproachBeep, ATC_StationStopAnnounce, ATC_EmergencyOperationAnnounce;
 
         public static void Tick(VehicleState state, SectionManager sectionManager, HandleSet handles) {
             if (ATCEnable) {
@@ -73,7 +73,7 @@ namespace TobuSignal {
                 ATC_TobuATC = true;
 
                 //Sound values reset
-                ATC_Ding = ATC_PatternApproachBeep = ATC_StationStopAnnounce = ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Continue;
+                ATC_Ding = ATC_PatternApproachBeep = ATC_StationStopAnnounce = ATC_EmergencyOperationAnnounce = SoundPlayMode.Continue;
 
                 ATC_ServiceBrake = BrakeCommand > 0;
                 ATC_EmergencyBrake = BrakeCommand == TobuSignal.vehicleSpec.BrakeNotches + 1;
@@ -202,13 +202,13 @@ namespace TobuSignal {
 
                         //ATCベル
                         if (lastATCTargetSpeed != ATCTargetSpeed || lastORPlamp != ORPlamp || lastATC_Depot != ATC_Depot || lastATC_X != ATC_X) {
-                            ATC_Ding = AtsSoundControlInstruction.Play;
+                            ATC_Ding = SoundPlayMode.Play;
                             LastDingTime = state.Time;
                             if ((state.Time > ZeroTargetSpeedBrakeStartTime && currentSection.CurrentSignalIndex == 110) || currentSection.CurrentSignalIndex == 109 || currentSection.CurrentSignalIndex == 149) 
                                 LastDingTime = TimeSpan.Zero;
                         }
                         if (ATCTargetSpeed == 0 && state.Time.TotalMilliseconds - LastDingTime.TotalMilliseconds > 500 && LastDingTime != TimeSpan.Zero) {
-                            ATC_Ding = AtsSoundControlInstruction.Play;
+                            ATC_Ding = SoundPlayMode.Play;
                             LastDingTime = TimeSpan.Zero;
                         }
 
@@ -222,7 +222,7 @@ namespace TobuSignal {
                             && (ValidSections > 0 ? ATCPatternSpeed >= 0 : ATCPatternSpeed > 0)
                             && state.Time < ZeroTargetSpeedBrakeStartTime);
                         if (!lastATC_PatternApproach && ATC_PatternApproach)
-                            ATC_PatternApproachBeep = AtsSoundControlInstruction.Play;
+                            ATC_PatternApproachBeep = SoundPlayMode.Play;
 
                         ORPNeedle = ((ATCPatternSpeed < 0) ? 0 : (int)(ATCPatternSpeed * 10.0));
 
@@ -264,7 +264,7 @@ namespace TobuSignal {
                         var lastATC_StationStop = ATC_StationStop;
                         ATC_StationStop = StationPattern != SpeedPattern.inf;
                         if (StationPattern != SpeedPattern.inf && !lastATC_StationStop && ATC_StationStop)
-                            ATC_StationStopAnnounce = AtsSoundControlInstruction.Play;
+                            ATC_StationStopAnnounce = SoundPlayMode.Play;
 
                         //分岐器指示
                         ATC_SwitcherPosition = (state.Time.TotalMilliseconds % 1000 < 500 && ATCTargetSpeed > 0) ? TrackPos : 0;

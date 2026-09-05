@@ -11,12 +11,6 @@ using System.Windows.Forms;
 using CorePlugin = MetroAts.MetroAts;
 
 namespace TobuSignal {
-    public enum AtsSoundControlInstruction {
-        Stop = -10000,      // Stop
-        Play = 1,           // Play Once
-        PlayLooping = 0,    // Play Repeatedly
-        Continue = 2        // Continue
-    }
 
     public partial class TobuSignal : AssemblyPluginBase {
         private readonly INative Native;
@@ -25,7 +19,7 @@ namespace TobuSignal {
 
         private CorePlugin corePlugin;
 
-        private static AtsSoundControlInstruction Sound_ResetSW, Sound_Switchover;
+        private static SoundPlayMode Sound_ResetSW, Sound_Switchover;
 
         private static bool SignalEnable = false;
         private static bool BrakeTriggered = false;
@@ -57,6 +51,7 @@ namespace TobuSignal {
             corePlugin = Plugins.VehiclePlugins["MetroAtsCore"] as CorePlugin
                 ?? throw new BveFileLoadException("未找到 MetroAts 核心插件 (MetroAtsCore)。TobuSignal 需要 MetroAts 核心插件。", "TobuSignal");
             corePlugin.RegisterDevice(this);
+            corePlugin.RegisterPluginStateProvider(this);
         }
 
         public override void Dispose() {
@@ -74,7 +69,10 @@ namespace TobuSignal {
 
             Plugins.AllPluginsLoaded -= OnAllPluginsLoaded;
 
-            if (corePlugin != null) corePlugin.UnregisterDevice(this);
+            if (corePlugin != null) {
+                corePlugin.UnregisterDevice(this);
+                corePlugin.UnregisterPluginStateProvider(this);
+            }
 
             SignalEnable = false;
             BrakeTriggered = false;

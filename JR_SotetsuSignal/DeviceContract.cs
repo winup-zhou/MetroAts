@@ -31,14 +31,13 @@ namespace JR_SotetsuSignal {
         }
 
         public void Deactivate(KeyPosList key) {
-            // 与既有去激活动作完全一致（原 JR_SotetsuSignal/Tick.cs 去激活块）：
-            // BrakeTriggered=false; SignalEnable=false; ATS_P.ResetAll(); ATS_SN.ResetAll(); sound[256]=Stop
+            // 与既有去激活动作一致：整体复位 + 整体清音 + 清全部面板灯（避免钥匙拔出后遗留灯/音）
             BrakeTriggered = false;
             SignalEnable = false;
             ATS_P.ResetAll();
             ATS_SN.ResetAll();
-            if (Native.AtsSoundArray != null && Native.AtsSoundArray.Count > 256)
-                Native.AtsSoundArray[256] = (int)AtsSoundControlInstruction.Stop;
+            Config.SoundMap.ClearAllSound(Native.AtsSoundArray);
+            Config.PanelMap.ClearAllPanel(Native.AtsPanelArray);
         }
 
         public void OnKeyPosChanged(KeyPosList newKey) {

@@ -14,12 +14,12 @@ namespace JR_SotetsuSignal {
 
         //panel
         public static bool SN_Power, SN_Action;
-        public static AtsSoundControlInstruction SN_WarningBell, SN_Chime;
+        public static SoundPlayMode SN_WarningBell, SN_Chime;
 
         public static void Tick(VehicleState state) {
             if (ATSEnable) {
                 if (state.Time.TotalMilliseconds - InitStartTime.TotalMilliseconds < 1000) {
-                    SN_WarningBell = SN_Chime = AtsSoundControlInstruction.PlayLooping;
+                    SN_WarningBell = SN_Chime = SoundPlayMode.PlayLooping;
                     SN_Power = false;
                     SN_Action = true;
                 } else {
@@ -35,7 +35,7 @@ namespace JR_SotetsuSignal {
                         SN_Power = !ConfirmButtonPressed;
                         SN_Action = false;
                     }
-                    SN_WarningBell = EB || Warn ? AtsSoundControlInstruction.PlayLooping : AtsSoundControlInstruction.Stop;
+                    SN_WarningBell = EB || Warn ? SoundPlayMode.PlayLooping : SoundPlayMode.Stop;
                     BrakeCommand = EB ? JR_SotetsuSignal.vehicleSpec.BrakeNotches + 1 : 0;
                 }
             } else {

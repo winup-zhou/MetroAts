@@ -34,6 +34,10 @@ namespace MetroPIAddon {
         public static int Panel_LineDefOutput = 1023;
         public static int Panel_RadiochannelOutput = 1023;
 
+        // 输出端子映射（逻辑键→端子号，[output] 段可覆盖）与平行状态记录
+        public static readonly MetroAts.OutputIndexMap PanelMap = new MetroAts.OutputIndexMap();
+        public static readonly MetroAts.OutputIndexMap SoundMap = new MetroAts.OutputIndexMap();
+
         //[odometer]
         public static int odometer_Kmsymbol = 1023;
         public static int odometer_Km100 = 1023;
@@ -90,11 +94,100 @@ namespace MetroPIAddon {
                     ReadConfig("departmelody", "melody", ref depart_melody);
                     ReadConfig("departmelody", "announce", ref depart_announce);
 
+                    // 输出端子映射注册与 [output] 段覆盖（须在所有既有 ReadConfig 之后，
+                    // 以便配置驱动端子的逻辑键默认值 = 已生效的旧字段值）
+                    RegisterOutputDefaults();
+                    PanelMap.Override(MetroAts.OutputIndexMap.ReadSection(path, "output", PanelMap.Index.Keys));
+                    SoundMap.Override(MetroAts.OutputIndexMap.ReadSection(path, "output", SoundMap.Index.Keys));
+
+                    // 是否仍写入 BVE 物理 panel/sound（仅保留状态暴露）
+                    bool outputWritePanel = true, outputWriteSound = true;
+                    ReadConfig("output", "writepanel", ref outputWritePanel);
+                    ReadConfig("output", "writesound", ref outputWriteSound);
+                    PanelMap.PanelWriteEnabled = outputWritePanel;
+                    SoundMap.SoundWriteEnabled = outputWriteSound;
+
                 } catch (Exception ex) {
                     throw ex;
                 }
             } else throw new BveFileLoadException("Unable to find configuration file: MetroPIAddon.ini", "MetroPIAddon");
         }
+
+        /// <summary>
+        /// 注册本插件全部面板/声音输出逻辑键与默认端子号。
+        /// - 固定端子号（代码内直接写 panel[n]）直接以该 n 注册；
+        /// - 端子号可由既有 ini 段（[odometer]/[Current]/[traininfo]/[departmelody]）配置的输出，
+        ///   以"已读入的 Config 字段值"作为默认端子注册（未配置时 = 1023 空置，与旧行为一致）；
+        ///   这些键仍可再经新 [output] 段覆盖（新机制优先于旧字段段）。
+        /// </summary>
+        private static void RegisterOutputDefaults() {
+            // ホームドア/連動表示
+            RegisterPanel("platformdoor_mode", 155);      // 連動モード表示 0:OFF 1:連動 2:その他（FDmode 值）
+            RegisterPanel("platformdoor_ind_right", 181); // 右側(車両右側扉)ホームドア側表示灯 0/1（点滅含む）
+            RegisterPanel("platformdoor_ind_left", 182);  // 左側(車両左側扉)ホームドア側表示灯 0/1（点滅含む）
+            RegisterPanel("platformdoor_count", 193);     // ホームドア開閉インターロック進捗数値表示 0..12
+            // 駅番号表示
+            RegisterPanel("station_stop", 167);           // 停車（戸開）中に現在駅番号を表示
+            RegisterPanel("station_current", 168);        // 走行中に現在駅番号を表示
+            RegisterPanel("station_next", 169);           // 走行中に次駅番号を表示
+            // 列車番号表示（桁別；62..68 の各表示桁）
+            RegisterPanel("trainnumber_1000000", 67);     // 10^6 以上の桁（整数，通常 0）
+            RegisterPanel("trainnumber_100000", 62);      // 10^5 桁
+            RegisterPanel("trainnumber_10000", 63);       // 10^4 桁
+            RegisterPanel("trainnumber_1000", 64);        // 10^3 桁
+            RegisterPanel("trainnumber_100", 65);         // 10^2 桁
+            RegisterPanel("trainnumber_10", 68);          // 下 2 桁（0..99）
+            // 種別・運用番号・行先
+            RegisterPanel("traintype", 151);
+            RegisterPanel("traintype_sub", 152);
+            RegisterPanel("runningnumber_10", 153);       // 運用番号 10 桁
+            RegisterPanel("runningnumber_1", 154);        // 運用番号 1 桁
+            RegisterPanel("destination", 172);
+            // 里程計（桁別；端子号旧 [odometer] 段可配）
+            RegisterPanel("odometer_kmsymbol", odometer_Kmsymbol); // +/- 記号表示（0/1/2）
+            RegisterPanel("odometer_km100", odometer_Km100);       // 100km 桁
+            RegisterPanel("odometer_km10", odometer_Km10);         // 10km 桁
+            RegisterPanel("odometer_km1", odometer_Km1);           // 1km 桁
+            RegisterPanel("odometer_km01", odometer_Km01);         // 0.1km(100m) 桁
+            RegisterPanel("odometer_km001", odometer_Km001);       // 0.01km(10m) 桁
+            // 電流計（端子号旧 [Current] 段可配）
+            RegisterPanel("current", CurrentPanelIndex);
+            // 時計
+            RegisterPanel("clock_hour", 58);
+            RegisterPanel("clock_minute", 59);
+            RegisterPanel("clock_second", 60);
+            // 表示灯/状態
+            RegisterPanel("keyposition", 166);            // マスコンキー現在位置 1..8（None は書込まない・非StandAlone時のみ）
+            RegisterPanel("snowbrake", 176);              // 雪切ブレーキ 0/1
+            RegisterPanel("instrumentlight", 161);        // 計器照明 0/1
+            RegisterPanel("stopannounce_lamp", 251);      // 停車駅放送中 点滅 0/1
+            RegisterPanel("speed_over5", 173);            // 5km/h 超過 0/1
+            // 無線チャンネル・線区定義（端子号旧 [traininfo] 段可配）
+            RegisterPanel("radiochannel", Panel_RadiochannelOutput); // 0..8（None=0）
+            RegisterPanel("linedef", Panel_LineDefOutput);           // 0..8（None=0）
+
+            // 声音
+            RegisterSound("stopannounce", 5);            // 停車駅(到着)予告/接近放送
+            RegisterSound("stopannounce_confirmed", 6);  // 停車確認後の到着放送
+            RegisterSound("lampsw_on", 12);              // 計器照明 ON 音
+            RegisterSound("lampsw_off", 13);             // 計器照明 OFF 音
+            RegisterSound("snowbrake_on", 14);           // 雪切ブレーキ ON 音
+            RegisterSound("snowbrake_off", 15);          // 雪切ブレーキ OFF 音
+            RegisterSound("eb_alarm", 27);               // 非常ブレーキ作動ブザー
+            RegisterSound("tobu_doorclosed", 30);        // 東武 戸閉ブザー
+            RegisterSound("conductor_depart", 31);       // 車掌 発車合図
+            RegisterSound("door_poon", 32);              // ドア開閉ブザー(プーン)
+            RegisterSound("depart_melody", depart_melody);     // 車内発車メロディ（端子号旧 [departmelody] 段可配）
+            RegisterSound("depart_announce", depart_announce); // 車内発車放送（端子号旧 [departmelody] 段可配）
+            RegisterSound("conductor_tokyu", 90);
+            RegisterSound("conductor_odakyu", 91);
+            RegisterSound("conductor_tobu", 92);
+            RegisterSound("conductor_test", 95);
+            RegisterSound("driver_buzzer", 99);          // 運転士ブザー
+        }
+
+        private static void RegisterPanel(string key, int defaultIndex) { PanelMap.RegisterDefault(key, defaultIndex); }
+        private static void RegisterSound(string key, int defaultIndex) { SoundMap.RegisterDefault(key, defaultIndex); }
 
         public static void Dispose() {
             StandAloneKey = KeyPosList.None;
@@ -122,6 +215,9 @@ namespace MetroPIAddon {
 
             depart_melody = 1023;
             depart_announce = 1023;
+
+            PanelMap.Clear();
+            SoundMap.Clear();
         }
 
         private static void ReadConfig(string Section, string Key, ref int Value) {

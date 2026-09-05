@@ -22,11 +22,11 @@ namespace TokyuSignal {
             SignalAnn = false;
             inDepot = false;
 
-            ATC_SignalAnnBeep = AtsSoundControlInstruction.Stop;
-            ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_ORPBeep = AtsSoundControlInstruction.Stop;
-            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_WarningBell = AtsSoundControlInstruction.Stop;
+            ATC_SignalAnnBeep = SoundPlayMode.Stop;
+            ATC_Ding = SoundPlayMode.Stop;
+            ATC_ORPBeep = SoundPlayMode.Stop;
+            ATC_EmergencyOperationAnnounce = SoundPlayMode.Stop;
+            ATC_WarningBell = SoundPlayMode.Stop;
 
             ATC_01 = false;
             ATC_10 = false;
@@ -73,7 +73,7 @@ namespace TokyuSignal {
         }
 
         public static void InitNow() {
-            ATC_Ding = AtsSoundControlInstruction.Play;
+            ATC_Ding = SoundPlayMode.Play;
             ATCEnable = true;
             ATC_ATC = true;
         }
@@ -103,11 +103,11 @@ namespace TokyuSignal {
 
             BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches + 1;
 
-            ATC_SignalAnnBeep = AtsSoundControlInstruction.Stop;
-            ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_ORPBeep = AtsSoundControlInstruction.Stop;
-            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_WarningBell = AtsSoundControlInstruction.Stop;
+            ATC_SignalAnnBeep = SoundPlayMode.Stop;
+            ATC_Ding = SoundPlayMode.Stop;
+            ATC_ORPBeep = SoundPlayMode.Stop;
+            ATC_EmergencyOperationAnnounce = SoundPlayMode.Stop;
+            ATC_WarningBell = SoundPlayMode.Stop;
 
             ATC_01 = false;
             ATC_10 = false;
@@ -154,11 +154,11 @@ namespace TokyuSignal {
         }
 
         private static void Disable_Noset_inDepot() {
-            ATC_SignalAnnBeep = AtsSoundControlInstruction.Stop;
-            ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_ORPBeep = AtsSoundControlInstruction.Stop;
-            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_WarningBell = AtsSoundControlInstruction.Stop;
+            ATC_SignalAnnBeep = SoundPlayMode.Stop;
+            ATC_Ding = SoundPlayMode.Stop;
+            ATC_ORPBeep = SoundPlayMode.Stop;
+            ATC_EmergencyOperationAnnounce = SoundPlayMode.Stop;
+            ATC_WarningBell = SoundPlayMode.Stop;
 
             ATC_01 = false;
             ATC_10 = false;

@@ -34,6 +34,10 @@ namespace MetroSignal {
         public static bool SignalSW_legacyoutput = false;
         public static int Panel_HandleOutputRefreshInterval = 0;
 
+        // 输出端子映射（逻辑键→端子号，[output] 段可覆盖）与平行状态记录
+        public static readonly MetroAts.OutputIndexMap PanelMap = new MetroAts.OutputIndexMap();
+        public static readonly MetroAts.OutputIndexMap SoundMap = new MetroAts.OutputIndexMap();
+
         public static void Load() {
             path = new FileInfo(Path.Combine(PluginDir, "MetroSignal.ini")).FullName;
             if (File.Exists(path)) {
@@ -51,11 +55,52 @@ namespace MetroSignal {
                     ReadConfig("output", "key", ref Panel_keyoutput);
                     ReadConfig("output", "signalsw", ref Panel_SignalSWoutput);
                     ReadConfig("output", "handlerefreshinterval", ref Panel_HandleOutputRefreshInterval);
+
+                    RegisterOutputDefaults();
+                    PanelMap.Override(MetroAts.OutputIndexMap.ReadSection(path, "output", PanelMap.Index.Keys));
+                    SoundMap.Override(MetroAts.OutputIndexMap.ReadSection(path, "output", SoundMap.Index.Keys));
+
+                    // 是否仍写入 BVE 物理 panel/sound（仅保留状态暴露）
+                    bool outputWritePanel = true, outputWriteSound = true;
+                    ReadConfig("output", "writepanel", ref outputWritePanel);
+                    ReadConfig("output", "writesound", ref outputWriteSound);
+                    PanelMap.PanelWriteEnabled = outputWritePanel;
+                    SoundMap.SoundWriteEnabled = outputWriteSound;
                 } catch (Exception ex) {
                     throw ex;
                 }
             } else throw new BveFileLoadException("Unable to find configuration file: MetroSignal.ini","MetroSignal");
         }
+
+        /// <summary>注册本插件全部面板灯逻辑键与默认端子号（与硬编码默认一致）。</summary>
+        private static void RegisterOutputDefaults() {
+            // ATC 速度指示（针表/数显）
+            RegisterPanel("ATC_01", 287); RegisterPanel("ATC_10", 288); RegisterPanel("ATC_15", 289);
+            RegisterPanel("ATC_20", 290); RegisterPanel("ATC_25", 291); RegisterPanel("ATC_30", 292);
+            RegisterPanel("ATC_35", 293); RegisterPanel("ATC_40", 294); RegisterPanel("ATC_45", 295);
+            RegisterPanel("ATC_50", 296); RegisterPanel("ATC_55", 297); RegisterPanel("ATC_60", 298);
+            RegisterPanel("ATC_65", 299); RegisterPanel("ATC_70", 300); RegisterPanel("ATC_75", 301);
+            RegisterPanel("ATC_80", 302); RegisterPanel("ATC_85", 303); RegisterPanel("ATC_90", 304);
+            RegisterPanel("ATC_95", 305); RegisterPanel("ATC_100", 306); RegisterPanel("ATC_105", 307);
+            RegisterPanel("ATC_110", 308);
+            // 停止/进行/照查类
+            RegisterPanel("ATC_Stop", 285); RegisterPanel("ATC_Proceed", 286);
+            RegisterPanel("ATC_P", 313); RegisterPanel("ATC_SignalAnn", 312); RegisterPanel("ATC_X", 284);
+            RegisterPanel("ORPNeedle", 314); RegisterPanel("ATCNeedle", 311); RegisterPanel("ATCNeedle_Disappear", 310);
+            RegisterPanel("ATC_ATC", 263); RegisterPanel("ATC_Depot", 274); RegisterPanel("ATC_Noset", 277);
+            RegisterPanel("ATC_ServiceBrake", 270); RegisterPanel("ATC_EmergencyBrake", 266);
+            RegisterPanel("ATC_EmergencyOperation", 280); RegisterPanel("ATC_WSATC", 340);
+
+            // 声音
+            RegisterSound("ResetSW", 273);
+            RegisterSound("Warning", 256);
+            RegisterSound("Ding", 258);
+            RegisterSound("ORPBeep", 259);
+            RegisterSound("EmergencyOperationAnnounce", 261);
+        }
+
+        private static void RegisterPanel(string key, int defaultIndex) { PanelMap.RegisterDefault(key, defaultIndex); }
+        private static void RegisterSound(string key, int defaultIndex) { SoundMap.RegisterDefault(key, defaultIndex); }
 
         public static void Dispose() {
             ATCLimitUseNeedle = true;//1:pilotlamp 0:needle
@@ -68,6 +113,9 @@ namespace MetroSignal {
 
             Panel_HandleOutputRefreshInterval = 0; 
             SignalSW_legacyoutput = false;
+
+            PanelMap.Clear();
+            SoundMap.Clear();
         }
 
         //��ȡ������غ���

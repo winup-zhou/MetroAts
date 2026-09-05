@@ -28,7 +28,7 @@ namespace TokyuSignal {
             var sound = Native.AtsSoundArray;
             ATC.ResetAll();
             TokyuATS.ResetAll();
-            if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
+            if (sound[256] != (int)SoundPlayMode.Stop) sound[256] = (int)SoundPlayMode.Stop;
             panel[275] = 0;
             panel[278] = 0;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
@@ -51,7 +51,7 @@ namespace TokyuSignal {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
-                Sound_ResetSW = AtsSoundControlInstruction.Play;
+                Sound_ResetSW = SoundPlayMode.Play;
                 TokyuATS.ResetBrake(state, handles);
             } else if (e.KeyName == AtsKeyName.S) {
                 TokyuATS.ResetWarn();

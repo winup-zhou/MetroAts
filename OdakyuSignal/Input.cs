@@ -27,7 +27,7 @@ namespace OdakyuSignal {
             var sound = Native.AtsSoundArray;
             OM_ATS.ResetAll();
             D_ATS_P.ResetAll();
-            if (sound[256] != (int)AtsSoundControlInstruction.Stop) sound[256] = (int)AtsSoundControlInstruction.Stop;
+            Config.SoundMap.WriteSound(sound, "Warning", (int)SoundPlayMode.Stop);
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 BrakeTriggered = false;
                 SignalEnable = false;
@@ -47,7 +47,7 @@ namespace OdakyuSignal {
             var state = Native.VehicleState;
             var handles = BveHacker.Scenario.Vehicle.Instruments.AtsPlugin.Handles;
             if (e.KeyName == AtsKeyName.B1) {
-                Sound_ResetSW = AtsSoundControlInstruction.Play;
+                Sound_ResetSW = SoundPlayMode.Play;
                 OM_ATS.ConfirmEB(state, handles);
                 D_ATS_P.ConfirmEB(state, handles);
             } else if (e.KeyName == AtsKeyName.B2) {

@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace MetroPIAddon {
     public partial class MetroPIAddon : AssemblyPluginBase {
@@ -18,18 +19,18 @@ namespace MetroPIAddon {
             var state = Native.VehicleState;
             var panel = Native.AtsPanelArray;
             var sound = Native.AtsSoundArray;
-            Conductorbuzzer_Depart = AtsSoundControlInstruction.Continue;
+            Conductorbuzzer_Depart = SoundPlayMode.Continue;
 
             if (isStopAnnounce) {
-                if (StopAnnounce == AtsSoundControlInstruction.Stop && StopAnnounce_Confirmed != AtsSoundControlInstruction.PlayLooping) {
-                    StopAnnounce = AtsSoundControlInstruction.PlayLooping;
+                if (StopAnnounce == SoundPlayMode.Stop && StopAnnounce_Confirmed != SoundPlayMode.PlayLooping) {
+                    StopAnnounce = SoundPlayMode.PlayLooping;
                 }
-                if (handles.BrakeNotch > 0 && StopAnnounce != AtsSoundControlInstruction.Stop) {
-                    StopAnnounce = AtsSoundControlInstruction.Stop;
-                    StopAnnounce_Confirmed = AtsSoundControlInstruction.PlayLooping;
+                if (handles.BrakeNotch > 0 && StopAnnounce != SoundPlayMode.Stop) {
+                    StopAnnounce = SoundPlayMode.Stop;
+                    StopAnnounce_Confirmed = SoundPlayMode.PlayLooping;
                 }
             } else {
-                StopAnnounce = StopAnnounce_Confirmed = AtsSoundControlInstruction.Stop;
+                StopAnnounce = StopAnnounce_Confirmed = SoundPlayMode.Stop;
             }
 
             int pointer = 0;
@@ -60,41 +61,47 @@ namespace MetroPIAddon {
             }
 
             if (FDmode == 0) {
-                panel[155] = 0;
-                panel[181] = panel[182] = 0;
-                panel[193] = 0;
+                Config.PanelMap.WritePanel(panel, "platformdoor_mode", 0);
+                Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", 0);
+                Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", 0);
+                Config.PanelMap.WritePanel(panel, "platformdoor_count", 0);
             } else if (FDmode == 1) {
-                panel[155] = 1;
+                Config.PanelMap.WritePanel(panel, "platformdoor_mode", 1);
                 var leftDoorState = vehicle.Doors.GetSide(DoorSide.Left).CarDoors[0].State;
                 var rightDoorState = vehicle.Doors.GetSide(DoorSide.Right).CarDoors[0].State;
                 var doorCloseTimes = TimeSpan.FromMilliseconds(vehicle.Doors.StandardCloseTime) + TimeSpan.FromSeconds(Config.Delay_FDclosed);
                 if (state.Location > currentStation.MinStopPosition && state.Location < currentStation.MaxStopPosition) {
                     if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) {
+                        int blinkVal = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
                         if (Config.FDsinglelamp) {
-                            panel[181] = panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
+                            Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", blinkVal);
+                            Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", blinkVal);
                         } else {
                             if (currentStation.DoorSide == DoorSide.Left) {
-                                panel[181] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
-                                panel[182] = 1;
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", blinkVal);
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", 1);
                             } else if (currentStation.DoorSide == DoorSide.Right) {
-                                panel[181] = 1;
-                                panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", 1);
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", blinkVal);
                             } else {
-                                panel[181] = panel[182] = state.Time.TotalMilliseconds % 1000 < 500 ? 1 : 0;
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", blinkVal);
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", blinkVal);
                             }
                         }
                     } else if (isDoorOpen) {
                         if (Config.FDsinglelamp) {
-                            panel[181] = panel[182] = 0;
+                            Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", 0);
+                            Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", 0);
                         } else {
                             if (currentStation.DoorSide == DoorSide.Left) {
-                                panel[181] = 0;
-                                panel[182] = 1;
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", 0);
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", 1);
                             } else if (currentStation.DoorSide == DoorSide.Right) {
-                                panel[181] = 1;
-                                panel[182] = 0;
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", 1);
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", 0);
                             } else {
-                                panel[181] = panel[182] = 0;
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", 0);
+                                Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", 0);
                             }
                         }
                     }
@@ -120,101 +127,28 @@ namespace MetroPIAddon {
                     
                     if (StandAloneMode) {
                         if (Keyin && state.Speed < 15 && CCTVenable) {
-                            if (FDCloseTime != TimeSpan.Zero) {
-                                FDOpenTime = TimeSpan.Zero;
-                                if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
-                                    panel[193] = 7;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
-                                    panel[193] = 8;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 4 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 3) {
-                                    panel[193] = 9;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 3 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 2) {
-                                    panel[193] = 10;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 2 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6)) {
-                                    panel[193] = 11;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
-                                    panel[193] = 12;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < 0) {
-                                    panel[193] = 2;
-                                    FDCloseTime = TimeSpan.Zero;
-                                }
-                            } else if (FDOpenTime != TimeSpan.Zero) {
-                                FDCloseTime = TimeSpan.Zero;
-                                if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 2) {
-                                    panel[193] = 2;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1.5) {
-                                    panel[193] = 3;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1) {
-                                    panel[193] = 4;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0.5) {
-                                    panel[193] = 5;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
-                                    panel[193] = 6;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0) {
-                                    panel[193] = 7;
-                                    FDOpenTime = TimeSpan.Zero;
-                                }
-                            } else if (FDOpenTime == TimeSpan.Zero && FDCloseTime == TimeSpan.Zero) {
-                                if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) panel[193] = 2;
-                                else if (isDoorOpen) panel[193] = 7;
-                            }
-                        } else panel[193] = 0;
+                            WritePlatformDoorCountdown(panel, state.Time, doorCloseTimes);
+                        } else Config.PanelMap.WritePanel(panel, "platformdoor_count", 0);
                     } else {
                         if (corePlugin.KeyPos != MetroAts.KeyPosList.None && state.Speed < 15 && CCTVenable) {
-                            if (FDCloseTime != TimeSpan.Zero) {
-                                FDOpenTime = TimeSpan.Zero;
-                                if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
-                                    panel[193] = 7;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
-                                    panel[193] = 8;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 4 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 3) {
-                                    panel[193] = 9;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 3 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 2) {
-                                    panel[193] = 10;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 2 && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6)) {
-                                    panel[193] = 11;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) && FDCloseTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
-                                    panel[193] = 12;
-                                } else if (FDCloseTime.TotalSeconds - state.Time.TotalSeconds < 0) {
-                                    panel[193] = 2;
-                                    FDCloseTime = TimeSpan.Zero;
-                                }
-                            } else if (FDOpenTime != TimeSpan.Zero) {
-                                FDCloseTime = TimeSpan.Zero;
-                                if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 2) {
-                                    panel[193] = 2;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 2 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1.5) {
-                                    panel[193] = 3;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 1) {
-                                    panel[193] = 4;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 1 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0.5) {
-                                    panel[193] = 5;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0.5 && FDOpenTime.TotalSeconds - state.Time.TotalSeconds >= 0) {
-                                    panel[193] = 6;
-                                } else if (FDOpenTime.TotalSeconds - state.Time.TotalSeconds < 0) {
-                                    panel[193] = 7;
-                                    FDOpenTime = TimeSpan.Zero;
-                                }
-                            } else if (FDOpenTime == TimeSpan.Zero && FDCloseTime == TimeSpan.Zero) {
-                                if (!isDoorOpen && state.Time > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) panel[193] = 2;
-                                else if (isDoorOpen) panel[193] = 7;
-                            }
-                        } else panel[193] = 0;
+                            WritePlatformDoorCountdown(panel, state.Time, doorCloseTimes);
+                        } else Config.PanelMap.WritePanel(panel, "platformdoor_count", 0);
                     }
 
                 } else {
-                    panel[181] = panel[182] = 1;
+                    Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", 1);
+                    Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", 1);
                     if (StandAloneMode && Keyin) {
                         if (Math.Abs(state.Location - currentStation.Location) < 10 && state.Speed < 15 && CCTVenable) {
-                            panel[193] = 1;
+                            Config.PanelMap.WritePanel(panel, "platformdoor_count", 1);
                         } else {
-                            panel[193] = 0;
+                            Config.PanelMap.WritePanel(panel, "platformdoor_count", 0);
                         }
                     } else if (corePlugin.KeyPos != MetroAts.KeyPosList.None) {
                         if (Math.Abs(state.Location - currentStation.Location) < 10 && state.Speed < 15 && CCTVenable) {
-                            panel[193] = 1;
+                            Config.PanelMap.WritePanel(panel, "platformdoor_count", 1);
                         } else {
-                            panel[193] = 0;
+                            Config.PanelMap.WritePanel(panel, "platformdoor_count", 0);
                         }
                     }
 
@@ -222,87 +156,53 @@ namespace MetroPIAddon {
                 lastLeftDoorState = leftDoorState;
                 lastRightDoorState = rightDoorState;
             } else if (FDmode == 2) {
-                panel[155] = 2;
-                panel[181] = panel[182] = 0;
-                panel[193] = 0;
+                Config.PanelMap.WritePanel(panel, "platformdoor_mode", 2);
+                Config.PanelMap.WritePanel(panel, "platformdoor_ind_right", 0);
+                Config.PanelMap.WritePanel(panel, "platformdoor_ind_left", 0);
+                Config.PanelMap.WritePanel(panel, "platformdoor_count", 0);
             }
 
 
 
             if (isDoorOpen) {
                 if (state.Time > DoorOpenTime + new TimeSpan(0, 0, 2)) {
-                    panel[167] = CurrentSta;
-                    panel[168] = panel[169] = 0;
+                    Config.PanelMap.WritePanel(panel, "station_stop", CurrentSta);
+                    Config.PanelMap.WritePanel(panel, "station_current", 0);
+                    Config.PanelMap.WritePanel(panel, "station_next", 0);
                     lastisOdometerPlus = isOdometerPlus;
                     lastisOdometerHasMinus = isOdometerHasMinus;
                     lastBaseOdometer = BaseOdometer;
                 }
                 if (state.Time > DoorOpenTime + new TimeSpan(0, 0, 10)) {
-                    panel[62] = D(TrainNumber / 100 % 10000, 3);
-                    panel[63] = D(TrainNumber / 100 % 10000, 2);
-                    panel[64] = D(TrainNumber / 100 % 10000, 1);
-                    panel[65] = D(TrainNumber / 100 % 10000, 0);
-                    panel[67] = TrainNumber / 1000000;
-                    panel[68] = TrainNumber % 100;
-                    panel[151] = panel[152] = TrainType;
-                    panel[153] = D(TrainRunningNumber, 1);
-                    panel[154] = D(TrainRunningNumber, 0);
-                    panel[172] = Destination;
+                    WriteTrainNumberDisplay(panel);
+                    Config.PanelMap.WritePanel(panel, "traintype", TrainType);
+                    Config.PanelMap.WritePanel(panel, "traintype_sub", TrainType);
                     if (UpdateRequested) {
                         UpdateRequested = false;
                         lastTrainType = TrainType;
                     }
                 } else {
-                    panel[151] = panel[152] = lastTrainType;
+                    Config.PanelMap.WritePanel(panel, "traintype", lastTrainType);
+                    Config.PanelMap.WritePanel(panel, "traintype_sub", lastTrainType);
                 }
                 var nowLocation = (int)(lastBaseOdometer + (lastisOdometerPlus ? 1 : -1) * state.Location);
-                if (lastisOdometerHasMinus) {
-                    panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
-                    //100km = 100000m
-                    panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
-                    panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
-                    panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
-                    panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
-                    panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
-                } else {
-                    panel[Config.odometer_Kmsymbol] = 0;
-                    //100km = 100000m
-                    panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
-                    panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
-                    panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
-                    panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
-                    panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
-                }
+                WriteOdometer(panel, lastisOdometerHasMinus, nowLocation);
             } else {
                 if (state.Time > DoorClosedTime + new TimeSpan(0, 0, 10) && DoorClosedTime != TimeSpan.Zero) {
-                    panel[167] = 0;
-                    panel[168] = CurrentSta;
-                    panel[169] = NextSta;
+                    Config.PanelMap.WritePanel(panel, "station_stop", 0);
+                    Config.PanelMap.WritePanel(panel, "station_current", CurrentSta);
+                    Config.PanelMap.WritePanel(panel, "station_next", NextSta);
                     DoorClosedTime = TimeSpan.Zero;
                 }
                 if (UpdateRequested) {
-                    panel[151] = panel[152] = lastTrainType;
+                    Config.PanelMap.WritePanel(panel, "traintype", lastTrainType);
+                    Config.PanelMap.WritePanel(panel, "traintype_sub", lastTrainType);
                 } else {
-                    panel[151] = panel[152] = TrainType;
+                    Config.PanelMap.WritePanel(panel, "traintype", TrainType);
+                    Config.PanelMap.WritePanel(panel, "traintype_sub", TrainType);
                 }
                 var nowLocation = (int)(lastBaseOdometer + (lastisOdometerPlus ? 1 : -1) * state.Location);
-                if (lastisOdometerHasMinus) {
-                    panel[Config.odometer_Kmsymbol] = nowLocation > 0 ? 1 : 2;
-                    //100km = 100000m
-                    panel[Config.odometer_Km100] = D(Math.Abs(nowLocation), 5);
-                    panel[Config.odometer_Km10] = D(Math.Abs(nowLocation), 4);
-                    panel[Config.odometer_Km1] = D(Math.Abs(nowLocation), 3);
-                    panel[Config.odometer_Km01] = D(Math.Abs(nowLocation), 2);
-                    panel[Config.odometer_Km001] = D(Math.Abs(nowLocation), 1);
-                } else {
-                    panel[Config.odometer_Kmsymbol] = 0;
-                    //100km = 100000m
-                    panel[Config.odometer_Km100] = D(nowLocation < 0 ? 0 : nowLocation, 5);
-                    panel[Config.odometer_Km10] = D(nowLocation < 0 ? 0 : nowLocation, 4);
-                    panel[Config.odometer_Km1] = D(nowLocation < 0 ? 0 : nowLocation, 3);
-                    panel[Config.odometer_Km01] = D(nowLocation < 0 ? 0 : nowLocation, 2);
-                    panel[Config.odometer_Km001] = D(nowLocation < 0 ? 0 : nowLocation, 1);
-                }
+                WriteOdometer(panel, lastisOdometerHasMinus, nowLocation);
                 
             }
 
@@ -311,25 +211,25 @@ namespace MetroPIAddon {
                 vehicle.Instruments.BrakeSystem.MotorCarBrake.BcValve.Pressure.Value = Config.SnowBrakePressure * 1000;
             }
 
-            panel[176] = Convert.ToInt32(Snowbrake);
-            panel[161] = Convert.ToInt32(InstrumentLight);
-            panel[251] = isStopAnnounce ? (state.Time.TotalMilliseconds % 1400 < 700 ? 1 : 0) : 0;
-            panel[58] = state.Time.Hours;
-            panel[59] = state.Time.Minutes;
-            panel[60] = state.Time.Seconds;
-            panel[173] = state.Speed > 5 ? 1 : 0;
+            Config.PanelMap.WritePanel(panel, "snowbrake", Convert.ToInt32(Snowbrake));
+            Config.PanelMap.WritePanel(panel, "instrumentlight", Convert.ToInt32(InstrumentLight));
+            Config.PanelMap.WritePanel(panel, "stopannounce_lamp", isStopAnnounce ? (state.Time.TotalMilliseconds % 1400 < 700 ? 1 : 0) : 0);
+            Config.PanelMap.WritePanel(panel, "clock_hour", state.Time.Hours);
+            Config.PanelMap.WritePanel(panel, "clock_minute", state.Time.Minutes);
+            Config.PanelMap.WritePanel(panel, "clock_second", state.Time.Seconds);
+            Config.PanelMap.WritePanel(panel, "speed_over5", state.Speed > 5 ? 1 : 0);
 
             if (Config.Current_abs) {
                 if (state.Speed < Config.MaxCurrentSpeed) {
-                    panel[Config.CurrentPanelIndex] = (int)Math.Abs((0.25 + 0.75 * (state.Speed / Config.MaxCurrentSpeed)) * state.Current);
+                    Config.PanelMap.WritePanel(panel, "current", (int)Math.Abs((0.25 + 0.75 * (state.Speed / Config.MaxCurrentSpeed)) * state.Current));
                 } else {
-                    panel[Config.CurrentPanelIndex] = (int)Math.Abs(state.Current);
+                    Config.PanelMap.WritePanel(panel, "current", (int)Math.Abs(state.Current));
                 }
             } else {
                 if (state.Speed < Config.MaxCurrentSpeed) {
-                    panel[Config.CurrentPanelIndex] = (int)((state.Speed / Config.MaxCurrentSpeed) * state.Current);
+                    Config.PanelMap.WritePanel(panel, "current", (int)((state.Speed / Config.MaxCurrentSpeed) * state.Current));
                 } else {
-                    panel[Config.CurrentPanelIndex] = (int)state.Current;
+                    Config.PanelMap.WritePanel(panel, "current", (int)state.Current);
                 }
             }
 
@@ -337,95 +237,159 @@ namespace MetroPIAddon {
                 if (state.Speed > 5) NeedConductorBuzzer = false;
                 if (Conductorbuzzertime_station != TimeSpan.Zero) {
                     if (!isDoorOpen && state.Time > DoorClosedTime + Conductorbuzzertime_station) {
-                        Conductorbuzzer_Depart = AtsSoundControlInstruction.Play;
+                        Conductorbuzzer_Depart = SoundPlayMode.Play;
                         Conductorbuzzertime_station = TimeSpan.Zero;
                         NeedConductorBuzzer = false;
                     }
                 } else if (Conductorbuzzertime_global != TimeSpan.Zero && Conductorbuzzertime_station == TimeSpan.Zero) {
                     if (!isDoorOpen && state.Time > DoorClosedTime + Conductorbuzzertime_global) {
-                        Conductorbuzzer_Depart = AtsSoundControlInstruction.Play;
+                        Conductorbuzzer_Depart = SoundPlayMode.Play;
                         NeedConductorBuzzer = false;
                     }
                 }
             }
 
             if (state.Time > RadioChannelUpdateTime && RadioChannelUpdateTime != TimeSpan.Zero) {
-                switch (RadioChannel) {
-                    case KeyPosList.None: panel[Config.Panel_RadiochannelOutput] = 0; break;
-                    case KeyPosList.Metro: panel[Config.Panel_RadiochannelOutput] = 1; break;
-                    case KeyPosList.Tobu: panel[Config.Panel_RadiochannelOutput] = 2; break;
-                    case KeyPosList.Tokyu: panel[Config.Panel_RadiochannelOutput] = 3; break;
-                    case KeyPosList.Seibu: panel[Config.Panel_RadiochannelOutput] = 4; break;
-                    case KeyPosList.Sotetsu: panel[Config.Panel_RadiochannelOutput] = 5; break;
-                    case KeyPosList.JR: panel[Config.Panel_RadiochannelOutput] = 6; break;
-                    case KeyPosList.Odakyu: panel[Config.Panel_RadiochannelOutput] = 7; break;
-                    case KeyPosList.ToyoKosoku: panel[Config.Panel_RadiochannelOutput] = 8; break;
-                }
+                Config.PanelMap.WritePanel(panel, "radiochannel", KeyPosToOutputNumber(RadioChannel));
                 RadioChannelUpdateTime = TimeSpan.Zero;
                 lastRadioChannel = RadioChannel;
             } else {
-                switch (lastRadioChannel) {
-                    case KeyPosList.None: panel[Config.Panel_RadiochannelOutput] = 0; break;
-                    case KeyPosList.Metro: panel[Config.Panel_RadiochannelOutput] = 1; break;
-                    case KeyPosList.Tobu: panel[Config.Panel_RadiochannelOutput] = 2; break;
-                    case KeyPosList.Tokyu: panel[Config.Panel_RadiochannelOutput] = 3; break;
-                    case KeyPosList.Seibu: panel[Config.Panel_RadiochannelOutput] = 4; break;
-                    case KeyPosList.Sotetsu: panel[Config.Panel_RadiochannelOutput] = 5; break;
-                    case KeyPosList.JR: panel[Config.Panel_RadiochannelOutput] = 6; break;
-                    case KeyPosList.Odakyu: panel[Config.Panel_RadiochannelOutput] = 7; break;
-                    case KeyPosList.ToyoKosoku: panel[Config.Panel_RadiochannelOutput] = 8; break;
-                }
+                Config.PanelMap.WritePanel(panel, "radiochannel", KeyPosToOutputNumber(lastRadioChannel));
             }
 
-            switch (LineDef) {
-                case KeyPosList.None: panel[Config.Panel_LineDefOutput] = 0; break;
-                case KeyPosList.Metro: panel[Config.Panel_LineDefOutput] = 1; break;
-                case KeyPosList.Tobu: panel[Config.Panel_LineDefOutput] = 2; break;
-                case KeyPosList.Tokyu: panel[Config.Panel_LineDefOutput] = 3; break;
-                case KeyPosList.Seibu: panel[Config.Panel_LineDefOutput] = 4; break;
-                case KeyPosList.Sotetsu: panel[Config.Panel_LineDefOutput] = 5; break;
-                case KeyPosList.JR: panel[Config.Panel_LineDefOutput] = 6; break;
-                case KeyPosList.Odakyu: panel[Config.Panel_LineDefOutput] = 7; break;
-                case KeyPosList.ToyoKosoku: panel[Config.Panel_LineDefOutput] = 8; break;
-            }
+            Config.PanelMap.WritePanel(panel, "linedef", KeyPosToOutputNumber(LineDef));
 
             if (!StandAloneMode) {
-                switch (corePlugin.KeyPos) {
-                    case (MetroAts.KeyPosList)KeyPosList.Metro: panel[166] = 1; break;
-                    case (MetroAts.KeyPosList)KeyPosList.Tobu: panel[166] = 2; break;
-                    case (MetroAts.KeyPosList)KeyPosList.Tokyu: panel[166] = 3; break;
-                    case (MetroAts.KeyPosList)KeyPosList.Seibu: panel[166] = 4; break;
-                    case (MetroAts.KeyPosList)KeyPosList.Sotetsu: panel[166] = 5; break;
-                    case (MetroAts.KeyPosList)KeyPosList.JR: panel[166] = 6; break;
-                    case (MetroAts.KeyPosList)KeyPosList.Odakyu: panel[166] = 7; break;
-                    case (MetroAts.KeyPosList)KeyPosList.ToyoKosoku: panel[166] = 8; break;
-                }
+                var keyPos = (KeyPosList)corePlugin.KeyPos;
+                if (keyPos != KeyPosList.None) Config.PanelMap.WritePanel(panel, "keyposition", KeyPosToOutputNumber(keyPos));
             }
             
 
-            sound[5] = (int)StopAnnounce;
-            sound[6] = (int)StopAnnounce_Confirmed;
-            sound[12] = (int)Lamp_SW_on;
-            sound[13] = (int)Lamp_SW_off;
-            sound[14] = (int)SnowBrake_on;
-            sound[15] = (int)SnowBrake_off;
+            Config.SoundMap.WriteSound(sound, "stopannounce", (int)StopAnnounce);
+            Config.SoundMap.WriteSound(sound, "stopannounce_confirmed", (int)StopAnnounce_Confirmed);
+            Config.SoundMap.WriteSound(sound, "lampsw_on", (int)Lamp_SW_on);
+            Config.SoundMap.WriteSound(sound, "lampsw_off", (int)Lamp_SW_off);
+            Config.SoundMap.WriteSound(sound, "snowbrake_on", (int)SnowBrake_on);
+            Config.SoundMap.WriteSound(sound, "snowbrake_off", (int)SnowBrake_off);
             if (lastBrakeNotch != vehicleSpec.BrakeNotches + 1 && AtsHandles.BrakeNotch == vehicleSpec.BrakeNotches + 1 && state.Speed > 7) {
-                sound[27] = (int)AtsSoundControlInstruction.Play;
-            } else if (AtsHandles.BrakeNotch != vehicleSpec.BrakeNotches + 1) sound[27] = (int)AtsSoundControlInstruction.Continue;
+                Config.SoundMap.WriteSound(sound, "eb_alarm", (int)SoundPlayMode.Play);
+            } else if (AtsHandles.BrakeNotch != vehicleSpec.BrakeNotches + 1) Config.SoundMap.WriteSound(sound, "eb_alarm", (int)SoundPlayMode.Continue);
             lastBrakeNotch = AtsHandles.BrakeNotch;
-            sound[30] = (int)Tobu_DoorClosed;
-            sound[31] = (int)Conductorbuzzer_Depart;
-            sound[32] = (int)Door_poon;
-            sound[Config.depart_melody] = (int)OnBoardDepartMelody1;
-            sound[Config.depart_announce] = (int)OnBoardDepartMelody2;
+            Config.SoundMap.WriteSound(sound, "tobu_doorclosed", (int)Tobu_DoorClosed);
+            Config.SoundMap.WriteSound(sound, "conductor_depart", (int)Conductorbuzzer_Depart);
+            Config.SoundMap.WriteSound(sound, "door_poon", (int)Door_poon);
+            Config.SoundMap.WriteSound(sound, "depart_melody", (int)OnBoardDepartMelody1);
+            Config.SoundMap.WriteSound(sound, "depart_announce", (int)OnBoardDepartMelody2);
 
-            sound[90] = (int)Conductorbuzzer_Tokyu;
-            sound[91] = (int)Conductorbuzzer_Odakyu;
-            sound[92] = (int)Conductorbuzzer_Tobu;
-            sound[95] = (int)Conductorbuzzer_Test;
-            sound[99] = (int)Driver_buzzer;
+            Config.SoundMap.WriteSound(sound, "conductor_tokyu", (int)Conductorbuzzer_Tokyu);
+            Config.SoundMap.WriteSound(sound, "conductor_odakyu", (int)Conductorbuzzer_Odakyu);
+            Config.SoundMap.WriteSound(sound, "conductor_tobu", (int)Conductorbuzzer_Tobu);
+            Config.SoundMap.WriteSound(sound, "conductor_test", (int)Conductorbuzzer_Test);
+            Config.SoundMap.WriteSound(sound, "driver_buzzer", (int)Driver_buzzer);
 
-            OnBoardDepartMelody2 = Tobu_DoorClosed = Conductorbuzzer_Tokyu = Conductorbuzzer_Tobu = Conductorbuzzer_Odakyu = Conductorbuzzer_Test = Lamp_SW_on = Lamp_SW_off = SnowBrake_on = SnowBrake_off = AtsSoundControlInstruction.Continue;
+            OnBoardDepartMelody2 = Tobu_DoorClosed = Conductorbuzzer_Tokyu = Conductorbuzzer_Tobu = Conductorbuzzer_Odakyu = Conductorbuzzer_Test = Lamp_SW_on = Lamp_SW_off = SnowBrake_on = SnowBrake_off = SoundPlayMode.Continue;
+        }
+
+        /// <summary>
+        /// ホームドア開閉インターロック進捗数値表示（旧 panel[193]）を PanelMap 経由で書込む。
+        /// FDCloseTime/FDOpenTime の経過に応じ 0..12 の値を表示し、完了したタイマは自らクリアする。
+        /// 条件に該当しない場合は何も書込まない（旧コードのフォールスルーと同一）。
+        /// </summary>
+        private void WritePlatformDoorCountdown(IList<int> panel, TimeSpan stateTime, TimeSpan doorCloseTimes) {
+            if (FDCloseTime != TimeSpan.Zero) {
+                FDOpenTime = TimeSpan.Zero;
+                if (FDCloseTime.TotalSeconds - stateTime.TotalSeconds < doorCloseTimes.TotalSeconds && FDCloseTime.TotalSeconds - stateTime.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 5) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 7);
+                } else if (FDCloseTime.TotalSeconds - stateTime.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 5 && FDCloseTime.TotalSeconds - stateTime.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 4) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 8);
+                } else if (FDCloseTime.TotalSeconds - stateTime.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 4 && FDCloseTime.TotalSeconds - stateTime.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 3) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 9);
+                } else if (FDCloseTime.TotalSeconds - stateTime.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 3 && FDCloseTime.TotalSeconds - stateTime.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6) * 2) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 10);
+                } else if (FDCloseTime.TotalSeconds - stateTime.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) * 2 && FDCloseTime.TotalSeconds - stateTime.TotalSeconds >= (doorCloseTimes.TotalSeconds / 6)) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 11);
+                } else if (FDCloseTime.TotalSeconds - stateTime.TotalSeconds < (doorCloseTimes.TotalSeconds / 6) && FDCloseTime.TotalSeconds - stateTime.TotalSeconds >= 0) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 12);
+                } else if (FDCloseTime.TotalSeconds - stateTime.TotalSeconds < 0) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 2);
+                    FDCloseTime = TimeSpan.Zero;
+                }
+            } else if (FDOpenTime != TimeSpan.Zero) {
+                FDCloseTime = TimeSpan.Zero;
+                if (FDOpenTime.TotalSeconds - stateTime.TotalSeconds < 2.5 && FDOpenTime.TotalSeconds - stateTime.TotalSeconds >= 2) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 2);
+                } else if (FDOpenTime.TotalSeconds - stateTime.TotalSeconds < 2 && FDOpenTime.TotalSeconds - stateTime.TotalSeconds >= 1.5) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 3);
+                } else if (FDOpenTime.TotalSeconds - stateTime.TotalSeconds < 1.5 && FDOpenTime.TotalSeconds - stateTime.TotalSeconds >= 1) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 4);
+                } else if (FDOpenTime.TotalSeconds - stateTime.TotalSeconds < 1 && FDOpenTime.TotalSeconds - stateTime.TotalSeconds >= 0.5) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 5);
+                } else if (FDOpenTime.TotalSeconds - stateTime.TotalSeconds < 0.5 && FDOpenTime.TotalSeconds - stateTime.TotalSeconds >= 0) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 6);
+                } else if (FDOpenTime.TotalSeconds - stateTime.TotalSeconds < 0) {
+                    Config.PanelMap.WritePanel(panel, "platformdoor_count", 7);
+                    FDOpenTime = TimeSpan.Zero;
+                }
+            } else if (FDOpenTime == TimeSpan.Zero && FDCloseTime == TimeSpan.Zero) {
+                if (!isDoorOpen && stateTime > TimeSpan.FromSeconds(Config.Delay_FDclosed) + DoorClosedTime) Config.PanelMap.WritePanel(panel, "platformdoor_count", 2);
+                else if (isDoorOpen) Config.PanelMap.WritePanel(panel, "platformdoor_count", 7);
+            }
+        }
+
+        /// <summary>
+        /// 列車番号表示（旧 panel[62..68]）と運用番号（153/154）・行先（172）を PanelMap 経由で書込む。
+        /// 62..65 = TrainNumber の 10^2..10^5 桁、67 = 10^6 以上、68 = 下 2 桁（0..99）。
+        /// </summary>
+        private void WriteTrainNumberDisplay(IList<int> panel) {
+            Config.PanelMap.WritePanel(panel, "trainnumber_100000", D(TrainNumber / 100 % 10000, 3));
+            Config.PanelMap.WritePanel(panel, "trainnumber_10000", D(TrainNumber / 100 % 10000, 2));
+            Config.PanelMap.WritePanel(panel, "trainnumber_1000", D(TrainNumber / 100 % 10000, 1));
+            Config.PanelMap.WritePanel(panel, "trainnumber_100", D(TrainNumber / 100 % 10000, 0));
+            Config.PanelMap.WritePanel(panel, "trainnumber_1000000", TrainNumber / 1000000);
+            Config.PanelMap.WritePanel(panel, "trainnumber_10", TrainNumber % 100);
+            Config.PanelMap.WritePanel(panel, "runningnumber_10", D(TrainRunningNumber, 1));
+            Config.PanelMap.WritePanel(panel, "runningnumber_1", D(TrainRunningNumber, 0));
+            Config.PanelMap.WritePanel(panel, "destination", Destination);
+        }
+
+        /// <summary>
+        /// 里程計表示（旧 panel[Config.odometer_*]）を PanelMap 経由で書込む。
+        /// hasMinus = マイナス区間（キロ程が減少する方向）であるか。
+        /// </summary>
+        private void WriteOdometer(IList<int> panel, bool hasMinus, int nowLocation) {
+            if (hasMinus) {
+                Config.PanelMap.WritePanel(panel, "odometer_kmsymbol", nowLocation > 0 ? 1 : 2);
+                //100km = 100000m
+                Config.PanelMap.WritePanel(panel, "odometer_km100", D(Math.Abs(nowLocation), 5));
+                Config.PanelMap.WritePanel(panel, "odometer_km10", D(Math.Abs(nowLocation), 4));
+                Config.PanelMap.WritePanel(panel, "odometer_km1", D(Math.Abs(nowLocation), 3));
+                Config.PanelMap.WritePanel(panel, "odometer_km01", D(Math.Abs(nowLocation), 2));
+                Config.PanelMap.WritePanel(panel, "odometer_km001", D(Math.Abs(nowLocation), 1));
+            } else {
+                Config.PanelMap.WritePanel(panel, "odometer_kmsymbol", 0);
+                //100km = 100000m
+                Config.PanelMap.WritePanel(panel, "odometer_km100", D(nowLocation < 0 ? 0 : nowLocation, 5));
+                Config.PanelMap.WritePanel(panel, "odometer_km10", D(nowLocation < 0 ? 0 : nowLocation, 4));
+                Config.PanelMap.WritePanel(panel, "odometer_km1", D(nowLocation < 0 ? 0 : nowLocation, 3));
+                Config.PanelMap.WritePanel(panel, "odometer_km01", D(nowLocation < 0 ? 0 : nowLocation, 2));
+                Config.PanelMap.WritePanel(panel, "odometer_km001", D(nowLocation < 0 ? 0 : nowLocation, 1));
+            }
+        }
+
+        /// <summary>KeyPosList → 表示用番号（None=0, Metro=1, Tobu=2, Tokyu=3, Seibu=4, Sotetsu=5, JR=6, Odakyu=7, ToyoKosoku=8）。</summary>
+        private static int KeyPosToOutputNumber(KeyPosList k) {
+            switch (k) {
+                case KeyPosList.None: return 0;
+                case KeyPosList.Metro: return 1;
+                case KeyPosList.Tobu: return 2;
+                case KeyPosList.Tokyu: return 3;
+                case KeyPosList.Seibu: return 4;
+                case KeyPosList.Sotetsu: return 5;
+                case KeyPosList.JR: return 6;
+                case KeyPosList.Odakyu: return 7;
+                case KeyPosList.ToyoKosoku: return 8;
+                default: return 0;
+            }
         }
     }
 }

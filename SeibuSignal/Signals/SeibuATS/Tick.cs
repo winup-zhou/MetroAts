@@ -23,13 +23,13 @@ namespace SeibuSignal {
         //4 -> G2,3 -> G1/YG,2 -> Y,1 -> YY,0 -> R
 
         public static bool ATS_Power, ATS_EB, ATS_Limit, ATS_Stop, ATS_Confirm;
-        public static AtsSoundControlInstruction ATS_StopAnnounce, ATS_EBAnnounce;
+        public static SoundPlayMode ATS_StopAnnounce, ATS_EBAnnounce;
         public static int BrakeCommand = 0;
         public static bool ATSEnable = false;
 
         public static void Tick(VehicleState state, SectionManager sectionManager) {
             if (ATSEnable) {
-                ATS_StopAnnounce = AtsSoundControlInstruction.Continue;
+                ATS_StopAnnounce = SoundPlayMode.Continue;
 
                 int pointer1 = 0, pointer2 = 0, pointer3 = 0;
                 while (sectionManager.Sections[pointer1].Location < B1MonitorSectionLocation) {
@@ -66,7 +66,7 @@ namespace SeibuSignal {
                     if (CurrentSection.CurrentSignalIndex > 4) InitializeStartTime = state.Time;
                     B1MonitorSectionLocation = B2MonitorSectionLocation = sectionManager.Sections[pointer3].Location;
                     EBType = EBTypes.CanReleaseWithoutstop;
-                    ATS_EBAnnounce = AtsSoundControlInstruction.PlayLooping;
+                    ATS_EBAnnounce = SoundPlayMode.PlayLooping;
                     ATS_EB = true;
                     ATS_Power = false;
                     BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches + 1;
@@ -147,7 +147,7 @@ namespace SeibuSignal {
 
                     var lastATS_Stop = ATS_Stop;
                     ATS_Stop = StopPattern != SpeedPattern.inf;
-                    if (!lastATS_Stop && ATS_Stop) ATS_StopAnnounce = AtsSoundControlInstruction.Play;
+                    if (!lastATS_Stop && ATS_Stop) ATS_StopAnnounce = SoundPlayMode.Play;
 
                     var PatternSpeed = Math.Min(Math.Min(B1Speed, B2Speed), Math.Min(StopPattern.AtLocation(state.Location, -4.0), LimitPattern.AtLocation(state.Location, -4.0)));
                     if (Math.Abs(state.Speed) > PatternSpeed) {
@@ -171,7 +171,7 @@ namespace SeibuSignal {
 
                     BrakeCommand = EBType != EBTypes.Normal ? SeibuSignal.vehicleSpec.BrakeNotches + 1 : 0;
                     ATS_EB = EBType != EBTypes.Normal;
-                    ATS_EBAnnounce = EBType != EBTypes.Normal ? AtsSoundControlInstruction.PlayLooping : AtsSoundControlInstruction.Stop;
+                    ATS_EBAnnounce = EBType != EBTypes.Normal ? SoundPlayMode.PlayLooping : SoundPlayMode.Stop;
                 }
             } else {
                 Disable();

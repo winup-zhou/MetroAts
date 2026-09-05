@@ -16,6 +16,7 @@ namespace MetroAts {
 
         private void Initialize(object sender, StartedEventArgs e) {
             lastHandleOutputRefreshTime = TimeSpan.Zero;
+            atoRunningMode = AtoModeList.Normal; // 每次驾驶开始复位为平常
             var panel = Native.AtsPanelArray;
             if (e.DefaultBrakePosition == BrakePosition.Emergency) {
                 ResetPositionsToDefault();
@@ -43,12 +44,18 @@ namespace MetroAts {
             if (Math.Abs(state.Speed) == 0) {
                 if (e.KeyName == AtsKeyName.S) {
                     isSpacePressed = true;
+                } else if (isSpacePressed && Config.atotascsw_enable && e.KeyName == AtsKeyName.J) {
+                    // Space + 钥匙(J=前)：ATO 模式开关向回復侧步进（遅速→平常→回復，到头不循环）
+                    StepAtoMode(+1);
+                } else if (isSpacePressed && Config.atotascsw_enable && e.KeyName == AtsKeyName.I) {
+                    // Space + 钥匙(I=后)：ATO 模式开关向遅速侧步进（回復→平常→遅速，到头不循环）
+                    StepAtoMode(-1);
                 } else if (e.KeyName == AtsKeyName.I && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     MoveKey(-1);
                 } else if (e.KeyName == AtsKeyName.J && handles.ReverserPosition == ReverserPosition.N && handles.BrakeNotch == vehicleSpec.BrakeNotches + 1) {
                     MoveKey(1);
                 } else {
-                    if (isSpacePressed && Config.atotascsw_enable) { //TASC
+                    if (isSpacePressed && Config.atotascsw_enable) { //ATO/TASC 开关（Space + 信号选择开关 G/H）
                         if (e.KeyName == AtsKeyName.G && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {
                             ToggleTASC(false);
                         } else if (e.KeyName == AtsKeyName.H && handles.BrakeNotch >= vehicleSpec.BrakeNotches) {

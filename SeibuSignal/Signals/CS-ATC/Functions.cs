@@ -17,9 +17,9 @@ namespace SeibuSignal {
             inDepot = false;
             BrakeCommand = SeibuSignal.vehicleSpec.BrakeNotches + 1;
 
-            ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_WarningBell = AtsSoundControlInstruction.Stop;
+            ATC_Ding = SoundPlayMode.Stop;
+            ATC_EmergencyOperationAnnounce = SoundPlayMode.Stop;
+            ATC_WarningBell = SoundPlayMode.Stop;
 
             ATC_01 = false;
             ATC_25 = false;
@@ -46,7 +46,7 @@ namespace SeibuSignal {
         }
 
         public static void InitNow() {
-            ATC_Ding = AtsSoundControlInstruction.Play;
+            ATC_Ding = SoundPlayMode.Play;
             ATCEnable = true;
             ATC_ATC = true;
         }
@@ -61,9 +61,9 @@ namespace SeibuSignal {
 
             BrakeCommand = 0;
 
-            ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_WarningBell = AtsSoundControlInstruction.Stop;
+            ATC_Ding = SoundPlayMode.Stop;
+            ATC_EmergencyOperationAnnounce = SoundPlayMode.Stop;
+            ATC_WarningBell = SoundPlayMode.Stop;
 
             ATC_01 = false;
             ATC_25 = false;
@@ -91,9 +91,9 @@ namespace SeibuSignal {
         private static void Disable_Noset_inDepot() {
             BrakeCommand = 0;
 
-            ATC_Ding = AtsSoundControlInstruction.Stop;
-            ATC_EmergencyOperationAnnounce = AtsSoundControlInstruction.Stop;
-            ATC_WarningBell = AtsSoundControlInstruction.Stop;
+            ATC_Ding = SoundPlayMode.Stop;
+            ATC_EmergencyOperationAnnounce = SoundPlayMode.Stop;
+            ATC_WarningBell = SoundPlayMode.Stop;
 
             ATC_01 = false;
             ATC_25 = false;

@@ -55,7 +55,7 @@ namespace JR_SotetsuSignal {
                 }
                 if ((currentSection.CurrentSignalIndex >= 9 && currentSection.CurrentSignalIndex != 34 && currentSection.CurrentSignalIndex < 49)
                     || (currentSection.CurrentSignalIndex >= 50 && currentSection.CurrentSignalIndex <= 54)) {
-                    sound[256] = (int)AtsSoundControlInstruction.PlayLooping;
+                    Config.SoundMap.WriteSound(sound, "Warning", (int)SoundPlayMode.PlayLooping);
                 }
                 if (BrakeTriggered) {
                     AtsHandles.PowerNotch = 0;
@@ -77,11 +77,11 @@ namespace JR_SotetsuSignal {
             }
 
             //sound reset
-            Sound_ResetSW = AtsSoundControlInstruction.Continue;
+            Sound_ResetSW = SoundPlayMode.Continue;
         }
 
         private static void UpdatePanelAndSound(IList<int> panel, IList<int> sound, TimeSpan currentTime) {
-            sound[273] = (int)Sound_ResetSW;
+            Config.SoundMap.WriteSound(sound, "ResetSW", (int)Sound_ResetSW);
 
             bool needRefresh = true;
             if (Config.isLCD) {
@@ -93,33 +93,37 @@ namespace JR_SotetsuSignal {
                 }
             }
 
-            int[] panelIndices = new int[] {
-                256, 257, 258, 259, 260, 261, 262, 341, 342
-            };
-
+            // 面板值仍按"内置默认端子号"作为槽位计算（与既有语义一致），
+            // 末端写面板时经 PanelMap 映射到"实际（可被 [output] 覆盖的）端子号"，并记录平行状态。
             int[] newPanelValues = new int[350];
-            newPanelValues[256] = Convert.ToInt32(ATS_P.P_Power || Config.PPowerAlwaysLight);
-            newPanelValues[257] = Convert.ToInt32(ATS_P.P_PatternApproach);
-            newPanelValues[258] = Convert.ToInt32(ATS_P.P_BrakeActioned);
-            newPanelValues[259] = Convert.ToInt32(ATS_P.P_EBActioned);
-            newPanelValues[260] = Convert.ToInt32(ATS_P.P_BrakeOverride);
-            newPanelValues[261] = Convert.ToInt32(ATS_P.P_PEnable);
-            newPanelValues[262] = Convert.ToInt32(ATS_P.P_Fail);
-            newPanelValues[341] = Convert.ToInt32(ATS_SN.SN_Power);
-            newPanelValues[342] = Convert.ToInt32(ATS_SN.SN_Action);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("P_Power")] = Convert.ToInt32(ATS_P.P_Power || Config.PPowerAlwaysLight);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("P_PatternApproach")] = Convert.ToInt32(ATS_P.P_PatternApproach);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("P_BrakeActioned")] = Convert.ToInt32(ATS_P.P_BrakeActioned);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("P_EBActioned")] = Convert.ToInt32(ATS_P.P_EBActioned);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("P_BrakeOverride")] = Convert.ToInt32(ATS_P.P_BrakeOverride);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("P_PEnable")] = Convert.ToInt32(ATS_P.P_PEnable);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("P_Fail")] = Convert.ToInt32(ATS_P.P_Fail);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("SN_Power")] = Convert.ToInt32(ATS_SN.SN_Power);
+            newPanelValues[Config.PanelMap.DefaultIndexOf("SN_Action")] = Convert.ToInt32(ATS_SN.SN_Action);
 
-            foreach (var idx in panelIndices) {
-                if (needRefresh) {
-                    panel[idx] = newPanelValues[idx];
-                    lastPanelOutput[idx] = newPanelValues[idx];
-                } else {
-                    panel[idx] = lastPanelOutput[idx];
+            foreach (var key in Config.PanelMap.Index.Keys) {
+                int defIdx = Config.PanelMap.DefaultIndexOf(key);
+                int actualIdx = Config.PanelMap.IndexOf(key);
+                int value = needRefresh ? newPanelValues[defIdx] : lastPanelOutput[defIdx];
+                Config.PanelMap.Record(key, value);
+                if (actualIdx >= 0 && actualIdx < panel.Count) {
+                    if (needRefresh) {
+                        panel[actualIdx] = newPanelValues[defIdx];
+                        lastPanelOutput[defIdx] = newPanelValues[defIdx];
+                    } else {
+                        panel[actualIdx] = lastPanelOutput[defIdx];
+                    }
                 }
             }
 
-            sound[258] = (int)ATS_P.P_Ding;
-            sound[257] = (int)ATS_SN.SN_Chime;
-            if(ATS_SN.ATSEnable)sound[256] = (int)ATS_SN.SN_WarningBell;
+            Config.SoundMap.WriteSound(sound, "Ding", (int)ATS_P.P_Ding);
+            Config.SoundMap.WriteSound(sound, "Chime", (int)ATS_SN.SN_Chime);
+            if (ATS_SN.ATSEnable) Config.SoundMap.WriteSound(sound, "Warning", (int)ATS_SN.SN_WarningBell);
         }
     }
 }

@@ -23,8 +23,8 @@ namespace TokyuSignal {
             EB = false;
             Warn = true;
 
-            ATS_EBBell = AtsSoundControlInstruction.Stop;
-            ATS_WarnBell = AtsSoundControlInstruction.Stop;
+            ATS_EBBell = SoundPlayMode.Stop;
+            ATS_WarnBell = SoundPlayMode.Stop;
             ATS_TokyuATS = false;
             ATS_EB = false;
             ATS_WarnNormal = false;
@@ -93,8 +93,8 @@ namespace TokyuSignal {
         public static void Disable() {
             ATSEnable = false;
             BrakeCommand = TokyuSignal.vehicleSpec.BrakeNotches + 1;
-            ATS_EBBell = AtsSoundControlInstruction.Stop;
-            ATS_WarnBell = AtsSoundControlInstruction.Stop;
+            ATS_EBBell = SoundPlayMode.Stop;
+            ATS_WarnBell = SoundPlayMode.Stop;
             ATS_TokyuATS = false;
             ATS_EB = false;
             ATS_WarnNormal = false;
